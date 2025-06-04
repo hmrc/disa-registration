@@ -12,7 +12,9 @@ lazy val microservice = Project("disa-registration", file("."))
     scalacOptions += "-Wconf:src=routes/.*:s",
   )
   .settings(CodeCoverageSettings.settings *)
+  .disablePlugins(JUnitXmlReportPlugin)
 
+addCommandAlias("prePrChecks", ";scalafmtCheckAll;scalafmtSbtCheck")
 lazy val it = project
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test")
