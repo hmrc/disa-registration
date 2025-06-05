@@ -33,10 +33,6 @@ sbt reload
 sbt compile
 ```
 
-```bash
-curl http://localhost:9000/api/definition
-```
-
 ### Running the test suite
 
 To run the unit tests:
@@ -58,11 +54,8 @@ This service leverages scalaFmt to ensure that the code is formatted correctly.
 Before you commit, please run the following commands to check that the code is formatted correctly:
 
 ```bash
-# checks all source files are correctly formatted
-sbt scalafmtCheckAll
-
-# checks all sbt files are correctly formatted
-sbt scalafmtSbtCheck
+# checks all source and sbt files are correctly formatted
+sbt prePrChecks
 
 # if checks fail, you can format with the following commands
 
