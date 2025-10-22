@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package utils
 
-import com.google.inject.AbstractModule
-import java.time.{Clock, ZoneOffset}
+import uk.gov.hmrc.disaregistration.models.{OrganisationDetails, Registration}
 
-class Module extends AbstractModule {
-
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+trait TestData {
+  val groupId                                  = "group1"
+  val organisationDetails: OrganisationDetails =
+    OrganisationDetails(registeredToManageIsas = Some(true), ZRefNumber = Some("Z1234"))
+  val registration: Registration               = Registration(id = groupId, organisationDetails = organisationDetails)
 }

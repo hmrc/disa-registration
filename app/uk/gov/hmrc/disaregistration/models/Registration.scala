@@ -1,0 +1,48 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.disaregistration.models
+
+import play.api.libs.json.{Format, Json, OFormat}
+
+import java.time.Instant
+
+case class Registration(
+  id: String,
+  organisationDetails: OrganisationDetails,
+  lastUpdated: Option[Instant] = None
+)
+
+object Registration {
+  implicit val format: Format[Registration] = Json.format[Registration]
+}
+
+case class CorrespondenceAddress(useThisAddress: Boolean, address: Option[String])
+
+object CorrespondenceAddress {
+  implicit val format: OFormat[CorrespondenceAddress] = Json.format[CorrespondenceAddress]
+}
+case class OrganisationDetails(
+  registeredToManageIsas: Option[Boolean] = None,
+  ZRefNumber: Option[String] = None,
+  fcaNumber: Option[String] = None,
+  correspondenceAddress: Option[CorrespondenceAddress] = None,
+  orgTelephoneNumber: Option[String] = None
+)
+
+object OrganisationDetails {
+  implicit val format: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
+}

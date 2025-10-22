@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package uk.gov.hmrc.disaregistration.service
+
+import uk.gov.hmrc.disaregistration.models.Registration
+import uk.gov.hmrc.disaregistration.repositories.RegistrationRepository
 
 import javax.inject.{Inject, Singleton}
-import play.api.Configuration
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AppConfig @Inject() (config: Configuration) {
+class RegistrationService @Inject() (repository: RegistrationRepository)(implicit ec: ExecutionContext) {
 
-  val appName: String = config.get[String]("appName")
+  def store(groupId: String, registration: Registration): Future[Registration] =
+    repository.upsert(groupId, registration)
 
-  lazy val timeToLive: Int = config.get[Int]("mongodb.timeToLive")
+  def retrieve(groupId: String): Future[Option[Registration]] =
+    repository.findRegistrationById(groupId)
 }

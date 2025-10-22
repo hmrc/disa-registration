@@ -1,1 +1,4 @@
 # microservice specific routes
+
+POST /store/:groupId                         uk.gov.hmrc.disaregistration.controllers.RegistrationController.store(groupId:String)
+GET /store/:groupId                       uk.gov.hmrc.disaregistration.controllers.RegistrationController.retrieve(groupId:String)

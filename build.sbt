@@ -15,6 +15,8 @@ lazy val microservice = Project("disa-registration", file("."))
   .disablePlugins(JUnitXmlReportPlugin)
 
 addCommandAlias("prePrChecks", ";scalafmtCheckAll;scalafmtSbtCheck")
+addCommandAlias("precommit", ";scalafmtAll;test:scalafmtAll;it/test:scalafmtAll;coverage;test;it/test;coverageReport")
+
 lazy val it = project
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test")
