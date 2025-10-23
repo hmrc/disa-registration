@@ -13,6 +13,8 @@ lazy val microservice = Project("disa-registration", file("."))
   )
   .settings(CodeCoverageSettings.settings *)
   .disablePlugins(JUnitXmlReportPlugin)
+  .settings(PlayKeys.playDefaultPort := 1201)
+
 
 addCommandAlias("prePrChecks", ";scalafmtCheckAll;scalafmtSbtCheck")
 addCommandAlias("precommit", ";scalafmtAll;test:scalafmtAll;it/test:scalafmtAll;coverage;test;it/test;coverageReport")

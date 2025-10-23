@@ -20,17 +20,13 @@ import play.api.http.Status.{NOT_FOUND, OK, UNAUTHORIZED}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
-import uk.gov.hmrc.disaregistration.models.{OrganisationDetails, Registration}
 import uk.gov.hmrc.disaregistration.repositories.RegistrationRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 
 class RegistrationControllerISpec extends BaseIntegrationSpec {
 
-  private lazy val registrationRepository      = app.injector.instanceOf[RegistrationRepository]
-  val groupId                                  = "test-group-id"
-  val organisationDetails: OrganisationDetails = OrganisationDetails(registeredToManageIsas = Some(true))
-
-  val registrationData: Registration = Registration(groupId, Some(organisationDetails))
+  private lazy val registrationRepository = app.injector.instanceOf[RegistrationRepository]
+  val groupId                             = "test-group-id"
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -41,8 +37,8 @@ class RegistrationControllerISpec extends BaseIntegrationSpec {
     """{
       |  "id": "test-group-id",
       |  "organisationDetails": {
-      |    "registeredToManageIsas": false,
-      |    "ZRefNumber": "Z1235",
+      |    "registeredToManageIsa": false,
+      |    "zRefNumber": "Z1235",
       |    "fcaNumber": "6743765"
       |  },
       |  "lastUpdated": "2025-10-21T15:27:28.433131Z"
@@ -63,11 +59,11 @@ class RegistrationControllerISpec extends BaseIntegrationSpec {
       storeRegistrationRequest(groupId, body)
       val result = retrieveRegistrationRequest(groupId = groupId)
 
-      result.status                                                                shouldBe OK
-      (result.json \ "id").as[String]                                              shouldBe groupId
-      (result.json \ "organisationDetails" \ "registeredToManageIsas").as[Boolean] shouldBe false
-      (result.json \ "organisationDetails" \ "ZRefNumber").as[String]              shouldBe "Z1235"
-      (result.json \ "organisationDetails" \ "fcaNumber").as[String]               shouldBe "6743765"
+      result.status                                                               shouldBe OK
+      (result.json \ "id").as[String]                                             shouldBe groupId
+      (result.json \ "organisationDetails" \ "registeredToManageIsa").as[Boolean] shouldBe false
+      (result.json \ "organisationDetails" \ "zRefNumber").as[String]             shouldBe "Z1235"
+      (result.json \ "organisationDetails" \ "fcaNumber").as[String]              shouldBe "6743765"
     }
 
     "return 401 Unauthorized for an unauthorised request" in {
@@ -89,10 +85,10 @@ class RegistrationControllerISpec extends BaseIntegrationSpec {
 
       result.status shouldBe OK
 
-      (result.json \ "id").as[String]                                              shouldBe groupId
-      (result.json \ "organisationDetails" \ "registeredToManageIsas").as[Boolean] shouldBe false
-      (result.json \ "organisationDetails" \ "ZRefNumber").as[String]              shouldBe "Z1235"
-      (result.json \ "organisationDetails" \ "fcaNumber").as[String]               shouldBe "6743765"
+      (result.json \ "id").as[String]                                             shouldBe groupId
+      (result.json \ "organisationDetails" \ "registeredToManageIsa").as[Boolean] shouldBe false
+      (result.json \ "organisationDetails" \ "zRefNumber").as[String]             shouldBe "Z1235"
+      (result.json \ "organisationDetails" \ "fcaNumber").as[String]              shouldBe "6743765"
 
     }
 

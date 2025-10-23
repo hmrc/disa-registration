@@ -21,6 +21,6 @@ import uk.gov.hmrc.disaregistration.models.{OrganisationDetails, Registration}
 trait TestData {
   val groupId                                  = "group1"
   val organisationDetails: OrganisationDetails =
-    OrganisationDetails(registeredToManageIsas = Some(true), ZRefNumber = Some("Z1234"))
+    OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
   val registration: Registration               = Registration(id = groupId, organisationDetails = Some(organisationDetails))
 }

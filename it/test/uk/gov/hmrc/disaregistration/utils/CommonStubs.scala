@@ -16,31 +16,15 @@
 
 package uk.gov.hmrc.disaregistration.utils
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import play.api.http.Status
-import play.api.http.Status.OK
+import play.api.http.Status.{OK, UNAUTHORIZED}
+import uk.gov.hmrc.disaregistration.utils.WiremockHelper.stubPost
 
 trait CommonStubs {
 
-  def stubAuth(): Unit =
-    stubFor {
-      post("/auth/authorise")
-        .willReturn {
-          aResponse.withStatus(OK).withBody("{}")
-        }
-    }
+  def stubAuth(): Unit = stubPost(url = "/auth/authorise", status = OK, responseBody = "{}")
 
-  def stubAuthFail(): Unit =
-    stubFor {
-      post("/auth/authorise")
-        .willReturn {
-          aResponse()
-            .withStatus(Status.UNAUTHORIZED)
-            .withBody("{}")
-        }
-    }
+  def stubAuthFail(): Unit = stubPost(url = "/auth/authorise", status = UNAUTHORIZED, responseBody = "{}")
 
-  val testHeaders: Seq[(String, String)] = Seq(
-    "Authorization" -> "mock-bearer-token"
-  )
+  val testHeaders: Seq[(String, String)] = Seq("Authorization" -> "mock-bearer-token")
+
 }

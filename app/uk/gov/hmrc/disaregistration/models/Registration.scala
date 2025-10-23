@@ -36,8 +36,8 @@ object CorrespondenceAddress {
   implicit val format: OFormat[CorrespondenceAddress] = Json.format[CorrespondenceAddress]
 }
 case class OrganisationDetails(
-  registeredToManageIsas: Option[Boolean] = None,
-  ZRefNumber: Option[String] = None,
+  registeredToManageIsa: Option[Boolean] = None,
+  zRefNumber: Option[String] = None,
   fcaNumber: Option[String] = None,
   correspondenceAddress: Option[CorrespondenceAddress] = None,
   orgTelephoneNumber: Option[String] = None
