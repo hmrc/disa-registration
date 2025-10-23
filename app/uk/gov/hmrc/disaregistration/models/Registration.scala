@@ -22,7 +22,7 @@ import java.time.Instant
 
 case class Registration(
   id: String,
-  organisationDetails: OrganisationDetails,
+  organisationDetails: Option[OrganisationDetails] = None,
   lastUpdated: Option[Instant] = None
 )
 

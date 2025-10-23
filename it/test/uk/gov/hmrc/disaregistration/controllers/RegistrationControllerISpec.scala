@@ -30,7 +30,7 @@ class RegistrationControllerISpec extends BaseIntegrationSpec {
   val groupId                                  = "test-group-id"
   val organisationDetails: OrganisationDetails = OrganisationDetails(registeredToManageIsas = Some(true))
 
-  val registrationData: Registration = Registration(groupId, organisationDetails)
+  val registrationData: Registration = Registration(groupId, Some(organisationDetails))
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -74,7 +74,6 @@ class RegistrationControllerISpec extends BaseIntegrationSpec {
       stubAuthFail()
       val result = await(
         ws.url(s"http://localhost:$port/disa-registration/store/$groupId")
-          .withHttpHeaders(testHeaders: _*)
           .get()
       )
 

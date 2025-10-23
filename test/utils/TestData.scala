@@ -22,5 +22,5 @@ trait TestData {
   val groupId                                  = "group1"
   val organisationDetails: OrganisationDetails =
     OrganisationDetails(registeredToManageIsas = Some(true), ZRefNumber = Some("Z1234"))
-  val registration: Registration               = Registration(id = groupId, organisationDetails = organisationDetails)
+  val registration: Registration               = Registration(id = groupId, organisationDetails = Some(organisationDetails))
 }

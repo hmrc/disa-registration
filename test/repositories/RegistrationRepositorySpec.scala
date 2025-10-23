@@ -51,20 +51,14 @@ class RegistrationRepositorySpec extends BaseUnitSpec {
         val fcaNumber                  = Some("FCA12345")
         val updatedOrganisationDetails = organisationDetails.copy(fcaNumber = fcaNumber)
         val updatedRegistration        = registration.copy(
-          organisationDetails = updatedOrganisationDetails,
+          organisationDetails = Some(updatedOrganisationDetails),
           lastUpdated = Some(Instant.now(fixedClock))
         )
 
         await(repository.upsert(groupId, registration))
         await(repository.upsert(groupId, updatedRegistration))
-        await(repository.findRegistrationById(groupId))
-          .map { reg =>
-            reg.organisationDetails.fcaNumber              shouldBe fcaNumber
-            reg.id                                         shouldBe groupId
-            reg.organisationDetails.ZRefNumber             shouldBe organisationDetails.ZRefNumber
-            reg.organisationDetails.registeredToManageIsas shouldBe organisationDetails.registeredToManageIsas
-            reg                                            shouldBe updatedRegistration
-          }
+        await(repository.findRegistrationById(groupId)).map(_ shouldBe updatedRegistration)
+
       }
     }
   }

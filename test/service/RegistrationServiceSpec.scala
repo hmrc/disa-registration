@@ -29,14 +29,14 @@ class RegistrationServiceSpec extends BaseUnitSpec {
   val service = new RegistrationService(mockRepository)
 
   "store" should {
-    "successful store a registration" in {
+    "successfully store a registration" in {
       when(mockRepository.upsert(any(), any())).thenReturn(Future.successful(registration))
       await(service.store(groupId, registration)) shouldBe registration
     }
   }
 
   "retrieve" should {
-    "successful retrieve a registration" in {
+    "successfully retrieve a registration" in {
       when(mockRepository.findRegistrationById(groupId)).thenReturn(Future.successful(Some(registration)))
       await(service.retrieve(groupId)) shouldBe Some(registration)
     }
