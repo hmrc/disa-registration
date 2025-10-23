@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package uk.gov.hmrc.disaregistration.utils
 
 import org.apache.pekko.stream.Materializer
 import org.scalatest.matchers.should.Matchers
@@ -26,18 +26,19 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.WiremockHelper.{wiremockHost, wiremockPort}
+import WiremockHelper.{wiremockHost, wiremockPort}
 
 import scala.concurrent.ExecutionContext
 
 trait BaseIntegrationSpec
-  extends AnyWordSpec
+    extends AnyWordSpec
     with Matchers
     with GuiceOneServerPerSuite
     with BeforeAndAfterEach
     with BeforeAndAfterAll
     with DefaultAwaitTimeout
-    with WiremockHelper {
+    with WiremockHelper
+    with CommonStubs {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -47,9 +48,9 @@ trait BaseIntegrationSpec
 
   def config: Map[String, String] =
     Map(
-      "auditing.enabled" -> "false",
+      "auditing.enabled"                -> "false",
       "microservice.services.auth.host" -> wiremockHost,
-      "microservice.services.auth.port" -> wiremockPort.toString,
+      "microservice.services.auth.port" -> wiremockPort.toString
     )
 
   override def beforeAll(): Unit = {
@@ -67,7 +68,7 @@ trait BaseIntegrationSpec
     super.beforeEach()
   }
 
-  implicit val mat: Materializer = app.injector.instanceOf[Materializer]
-  implicit val ws: WSClient = app.injector.instanceOf[WSClient]
+  implicit val mat: Materializer                  = app.injector.instanceOf[Materializer]
+  implicit val ws: WSClient                       = app.injector.instanceOf[WSClient]
   implicit val executionContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 }

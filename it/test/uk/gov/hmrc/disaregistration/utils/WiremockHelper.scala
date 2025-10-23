@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package uk.gov.hmrc.disaregistration.utils
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -29,7 +29,7 @@ object WiremockHelper extends Eventually with IntegrationPatience {
   val wiremockHost: String = "localhost"
 
   def verifyPost(uri: String, optBody: Option[String] = None): Unit = {
-    val uriMapping = postRequestedFor(urlEqualTo(uri))
+    val uriMapping  = postRequestedFor(urlEqualTo(uri))
     val postRequest = optBody match {
       case Some(body) => uriMapping.withRequestBody(equalTo(body))
       case None       => uriMapping
@@ -61,8 +61,8 @@ trait WiremockHelper {
 
   import WiremockHelper._
 
-  lazy val wmConfig:       WireMockConfiguration = wireMockConfig().port(wiremockPort)
-  lazy val wireMockServer: WireMockServer        = new WireMockServer(wmConfig)
+  lazy val wmConfig: WireMockConfiguration = wireMockConfig().port(wiremockPort)
+  lazy val wireMockServer: WireMockServer  = new WireMockServer(wmConfig)
 
   def startWiremock(): Unit = {
     wireMockServer.start()
