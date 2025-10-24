@@ -33,7 +33,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     await(journeyAnswersRepository.collection.drop().toFuture())
   }
 
-  val registrationJson: String =
+  val journeyDataJson: String =
     """{
       |  "id": "test-group-id",
       |  "organisationDetails": {
@@ -44,17 +44,17 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       |  "lastUpdated": "2025-10-21T15:27:28.433131Z"
       |}""".stripMargin
 
-  val body: JsValue = Json.parse(registrationJson)
+  val body: JsValue = Json.parse(journeyDataJson)
 
   "GET /store/:groupId" should {
 
-    "return 404 Not Found when registration data does not exist" in {
+    "return 404 Not Found when journeyData does not exist" in {
       val result = retrieveJourneyAnswersRequest(groupId = groupId)
 
       result.status shouldBe NOT_FOUND
     }
 
-    "return 200 OK when registration data exists" in {
+    "return 200 OK when journeyData exists" in {
       storeJourneyAnswersRequest(groupId, body)
       val result = retrieveJourneyAnswersRequest(groupId = groupId)
 
@@ -79,7 +79,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
   "POST /store/:groupId" should {
 
-    "return 200 OK when registration data is successfully stored" in {
+    "return 200 OK when journeyData is successfully stored" in {
       val result = storeJourneyAnswersRequest(groupId, body)
 
       result.status shouldBe OK

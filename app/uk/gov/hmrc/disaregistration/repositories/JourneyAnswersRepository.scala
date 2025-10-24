@@ -44,7 +44,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
     ) {
 
-  def findRegistrationById(groupId: String): Future[Option[JourneyData]] =
+  def findById(groupId: String): Future[Option[JourneyData]] =
     collection.find(Filters.eq("id", groupId)).headOption()
 
   def upsert(groupId: String, registration: JourneyData): Future[JourneyData] = {

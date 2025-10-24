@@ -49,12 +49,12 @@ class JourneyAnswersController @Inject() (
 
   def store(groupId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     authorised() {
-      withJsonBody[JourneyData] { registration =>
+      withJsonBody[JourneyData] { data =>
         journeyAnswersService
-          .store(groupId, registration)
+          .store(groupId, data)
           .map(registration => Ok(Json.toJson(registration)))
           .recover { case ex =>
-            logger.error(s"[JourneyAnswersController][store] Failed to store registration for groupId: $groupId", ex)
+            logger.error(s"[JourneyAnswersController][store] Failed to data for groupId: $groupId", ex)
             InternalServerError("There has been an issue processing your request")
           }
       }

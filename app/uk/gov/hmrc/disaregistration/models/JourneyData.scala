@@ -26,8 +26,6 @@ case class JourneyData(
   lastUpdated: Option[Instant] = None
 )
 
-
-
 object JourneyData {
   implicit val format: Format[JourneyData] = Json.format[JourneyData]
 }

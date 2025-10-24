@@ -29,19 +29,19 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
   val service = new JourneyAnswersService(mockRepository)
 
   "store" should {
-    "successfully store registration data" in {
-      when(mockRepository.upsert(any(), any())).thenReturn(Future.successful(registration))
-      await(service.store(groupId, registration)) shouldBe registration
+    "successfully store journeyData" in {
+      when(mockRepository.upsert(any(), any())).thenReturn(Future.successful(journeyData))
+      await(service.store(groupId, journeyData)) shouldBe journeyData
     }
   }
 
   "retrieve" should {
-    "successfully retrieve registration data" in {
-      when(mockRepository.findRegistrationById(groupId)).thenReturn(Future.successful(Some(registration)))
-      await(service.retrieve(groupId)) shouldBe Some(registration)
+    "successfully retrieve journeyData" in {
+      when(mockRepository.findById(groupId)).thenReturn(Future.successful(Some(journeyData)))
+      await(service.retrieve(groupId)) shouldBe Some(journeyData)
     }
     "return None if repository returns None" in {
-      when(mockRepository.findRegistrationById(groupId)).thenReturn(Future.successful(None))
+      when(mockRepository.findById(groupId)).thenReturn(Future.successful(None))
       await(service.retrieve(groupId)) shouldBe None
     }
   }

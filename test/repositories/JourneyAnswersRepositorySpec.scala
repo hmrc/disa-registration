@@ -26,7 +26,7 @@ import java.time.{Clock, Instant, ZoneOffset}
 
 class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
-  protected val databaseName: String          = "disa-registration-test"
+  protected val databaseName: String          = "disa-journeyData-test"
   protected val mongoUri: String              = s"mongodb://127.0.0.1:27017/$databaseName"
   lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
   private val appConfig                       = app.injector.instanceOf[AppConfig]
@@ -36,31 +36,31 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
   override def beforeEach(): Unit = await(repository.collection.drop().toFuture())
 
-  "findRegistrationById" should {
-    "return registration data when found" in {
-      await(repository.collection.insertOne(registration).toFuture())
-      await(repository.findRegistrationById(groupId = groupId)) shouldBe Some(registration)
+  "findById" should {
+    "return journeyData when found" in {
+      await(repository.collection.insertOne(journeyData).toFuture())
+      await(repository.findById(groupId = groupId)) shouldBe Some(journeyData)
     }
 
     "return None when not found" in {
-      await(repository.findRegistrationById(groupId = groupId)) shouldBe None
+      await(repository.findById(groupId = groupId)) shouldBe None
     }
 
     "upsert" should {
-      "insert and update registration data and return the updated document" in {
+      "insert and update journeyData and return the updated document" in {
         val fcaNumber                  = Some("FCA12345")
         val updatedOrganisationDetails = organisationDetails.copy(fcaNumber = fcaNumber)
-        val updatedRegistration        = registration.copy(
+        val updatedRegistration        = journeyData.copy(
           organisationDetails = Some(updatedOrganisationDetails),
           lastUpdated = Some(Instant.now(fixedClock))
         )
 
-        await(repository.upsert(groupId, registration))
-        await(repository.findRegistrationById(groupId = groupId)) shouldBe Some(
-          registration.copy(lastUpdated = Some(Instant.now(fixedClock)))
+        await(repository.upsert(groupId, journeyData))
+        await(repository.findById(groupId = groupId)) shouldBe Some(
+          journeyData.copy(lastUpdated = Some(Instant.now(fixedClock)))
         )
         await(repository.upsert(groupId, updatedRegistration))
-        await(repository.findRegistrationById(groupId)).map(_ shouldBe updatedRegistration)
+        await(repository.findById(groupId)).map(_ shouldBe updatedRegistration)
 
       }
     }

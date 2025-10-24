@@ -30,15 +30,15 @@ import scala.concurrent.Future
 class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
   val controller: JourneyAnswersController = app.injector.instanceOf[JourneyAnswersController]
-  val registrationJson: JsValue            = Json.toJson(registration)
+  val registrationJson: JsValue            = Json.toJson(journeyData)
 
   def authorisedUser(): Unit =
     when(mockAuthConnector.authorise(any, any[Retrieval[Unit]])(any, any)).thenReturn(Future.successful(()))
 
   "JourneyAnswersController.retrieve" should {
-    "return 200 OK when registration data exists" in {
+    "return 200 OK when journeyData exists" in {
       authorisedUser()
-      when(mockJourneyAnswersService.retrieve(groupId)).thenReturn(Future.successful(Some(registration)))
+      when(mockJourneyAnswersService.retrieve(groupId)).thenReturn(Future.successful(Some(journeyData)))
 
       val result = controller.retrieve(groupId)(FakeRequest())
 
@@ -46,7 +46,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
       contentAsJson(result) shouldBe registrationJson
     }
 
-    "return 404 Not Found when no registration data is found" in {
+    "return 404 Not Found when no journeyData is found" in {
       authorisedUser()
       when(mockJourneyAnswersService.retrieve(groupId)).thenReturn(Future.successful(None))
 
@@ -57,9 +57,9 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
   }
 
   "JourneyAnswersController.store" should {
-    "return 200 OK when registration data is stored successful" in {
+    "return 200 OK when journeyData is stored successful" in {
       authorisedUser()
-      when(mockJourneyAnswersService.store(groupId, registration)).thenReturn(Future.successful(registration))
+      when(mockJourneyAnswersService.store(groupId, journeyData)).thenReturn(Future.successful(journeyData))
 
       val request = FakeRequest()
         .withBody(registrationJson)
@@ -73,7 +73,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
     "return 500 Internal Server Error" in {
       authorisedUser()
-      when(mockJourneyAnswersService.store(groupId, registration))
+      when(mockJourneyAnswersService.store(groupId, journeyData))
         .thenReturn(Future.failed(new RuntimeException("DB error")))
 
       val request = FakeRequest()

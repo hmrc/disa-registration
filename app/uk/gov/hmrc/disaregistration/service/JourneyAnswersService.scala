@@ -29,5 +29,5 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository)(imp
     repository.upsert(groupId, registration)
 
   def retrieve(groupId: String): Future[Option[JourneyData]] =
-    repository.findRegistrationById(groupId)
+    repository.findById(groupId)
 }
