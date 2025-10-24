@@ -16,33 +16,10 @@
 
 package uk.gov.hmrc.disaregistration.models
 
-import play.api.libs.json.{Format, Json, OFormat}
-
-import java.time.Instant
-
-case class Registration(
-  id: String,
-  organisationDetails: Option[OrganisationDetails] = None,
-  lastUpdated: Option[Instant] = None
-)
-
-object Registration {
-  implicit val format: Format[Registration] = Json.format[Registration]
-}
+import play.api.libs.json.{Json, OFormat}
 
 case class CorrespondenceAddress(useThisAddress: Boolean, address: Option[String])
 
 object CorrespondenceAddress {
   implicit val format: OFormat[CorrespondenceAddress] = Json.format[CorrespondenceAddress]
-}
-case class OrganisationDetails(
-  registeredToManageIsa: Option[Boolean] = None,
-  zRefNumber: Option[String] = None,
-  fcaNumber: Option[String] = None,
-  correspondenceAddress: Option[CorrespondenceAddress] = None,
-  orgTelephoneNumber: Option[String] = None
-)
-
-object OrganisationDetails {
-  implicit val format: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
 }

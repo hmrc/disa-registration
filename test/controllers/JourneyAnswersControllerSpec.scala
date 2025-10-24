@@ -52,8 +52,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
       val result = controller.retrieve(groupId)(FakeRequest())
 
-      status(result)        shouldBe NOT_FOUND
-      contentAsString(result) should include(s"Registration data not found for groupId: $groupId")
+      status(result) shouldBe NOT_FOUND
     }
   }
 

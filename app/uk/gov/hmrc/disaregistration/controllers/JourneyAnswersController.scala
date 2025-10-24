@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
-import uk.gov.hmrc.disaregistration.models.Registration
+import uk.gov.hmrc.disaregistration.models.JourneyData
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
@@ -42,14 +42,14 @@ class JourneyAnswersController @Inject() (
     authorised() {
       journeyAnswersService.retrieve(groupId).map {
         case Some(registration) => Ok(Json.toJson(registration))
-        case None               => NotFound(s"Registration data not found for groupId: $groupId")
+        case None               => NotFound
       }
     }
   }
 
   def store(groupId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     authorised() {
-      withJsonBody[Registration] { registration =>
+      withJsonBody[JourneyData] { registration =>
         journeyAnswersService
           .store(groupId, registration)
           .map(registration => Ok(Json.toJson(registration)))

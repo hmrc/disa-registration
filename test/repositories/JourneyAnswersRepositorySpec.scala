@@ -47,7 +47,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
 
     "upsert" should {
-      "insert or update registration data and return the updated document" in {
+      "insert and update registration data and return the updated document" in {
         val fcaNumber                  = Some("FCA12345")
         val updatedOrganisationDetails = organisationDetails.copy(fcaNumber = fcaNumber)
         val updatedRegistration        = registration.copy(
@@ -56,6 +56,9 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
         )
 
         await(repository.upsert(groupId, registration))
+        await(repository.findRegistrationById(groupId = groupId)) shouldBe Some(
+          registration.copy(lastUpdated = Some(Instant.now(fixedClock)))
+        )
         await(repository.upsert(groupId, updatedRegistration))
         await(repository.findRegistrationById(groupId)).map(_ shouldBe updatedRegistration)
 

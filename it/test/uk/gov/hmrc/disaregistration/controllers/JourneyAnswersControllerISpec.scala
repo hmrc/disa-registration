@@ -52,7 +52,6 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       val result = retrieveJourneyAnswersRequest(groupId = groupId)
 
       result.status shouldBe NOT_FOUND
-      result.body   shouldBe s"Registration data not found for groupId: $groupId"
     }
 
     "return 200 OK when registration data exists" in {

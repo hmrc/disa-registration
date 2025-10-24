@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package utils
+package uk.gov.hmrc.disaregistration.models
 
-import uk.gov.hmrc.disaregistration.models.{JourneyData, OrganisationDetails}
+import play.api.libs.json.{Format, Json, OFormat}
 
-trait TestData {
-  val groupId                                  = "group1"
-  val organisationDetails: OrganisationDetails =
-    OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
-  val registration: JourneyData                = JourneyData(id = groupId, organisationDetails = Some(organisationDetails))
+import java.time.Instant
+
+case class JourneyData(
+  id: String,
+  organisationDetails: Option[OrganisationDetails] = None,
+  lastUpdated: Option[Instant] = None
+)
+
+
+
+object JourneyData {
+  implicit val format: Format[JourneyData] = Json.format[JourneyData]
 }

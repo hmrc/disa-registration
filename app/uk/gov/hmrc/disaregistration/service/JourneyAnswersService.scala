@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.disaregistration.service
 
-import uk.gov.hmrc.disaregistration.models.Registration
+import uk.gov.hmrc.disaregistration.models.JourneyData
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 
 import javax.inject.{Inject, Singleton}
@@ -25,9 +25,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository)(implicit ec: ExecutionContext) {
 
-  def store(groupId: String, registration: Registration): Future[Registration] =
+  def store(groupId: String, registration: JourneyData): Future[JourneyData] =
     repository.upsert(groupId, registration)
 
-  def retrieve(groupId: String): Future[Option[Registration]] =
+  def retrieve(groupId: String): Future[Option[JourneyData]] =
     repository.findRegistrationById(groupId)
 }

@@ -19,7 +19,7 @@ package uk.gov.hmrc.disaregistration.repositories
 import com.mongodb.client.model.Indexes.ascending
 import org.mongodb.scala.model._
 import uk.gov.hmrc.disaregistration.config.AppConfig
-import uk.gov.hmrc.disaregistration.models.Registration
+import uk.gov.hmrc.disaregistration.models.JourneyData
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -31,10 +31,10 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appConfig: AppConfig, clock: Clock)(implicit
   ec: ExecutionContext
-) extends PlayMongoRepository[Registration](
+) extends PlayMongoRepository[JourneyData](
       mongoComponent = mongoComponent,
       collectionName = "journeyAnswers",
-      domainFormat = Registration.format,
+      domainFormat = JourneyData.format,
       indexes = Seq(
         IndexModel(
           Indexes.ascending("lastUpdated"),
@@ -44,10 +44,10 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
     ) {
 
-  def findRegistrationById(groupId: String): Future[Option[Registration]] =
+  def findRegistrationById(groupId: String): Future[Option[JourneyData]] =
     collection.find(Filters.eq("id", groupId)).headOption()
 
-  def upsert(groupId: String, registration: Registration): Future[Registration] = {
+  def upsert(groupId: String, registration: JourneyData): Future[JourneyData] = {
     val now = Instant.now(clock)
 
     val doc = registration.copy(id = groupId, lastUpdated = Some(now))
