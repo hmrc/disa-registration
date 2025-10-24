@@ -53,12 +53,12 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
       val result = controller.retrieve(groupId)(FakeRequest())
 
       status(result)        shouldBe NOT_FOUND
-      contentAsString(result) should include(s"Registration not found for groupId: $groupId")
+      contentAsString(result) should include(s"Registration data not found for groupId: $groupId")
     }
   }
 
   "JourneyAnswersController.store" should {
-    "return 200 OK when a registration is stored successful" in {
+    "return 200 OK when registration data is stored successful" in {
       authorisedUser()
       when(mockJourneyAnswersService.store(groupId, registration)).thenReturn(Future.successful(registration))
 

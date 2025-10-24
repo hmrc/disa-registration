@@ -25,12 +25,12 @@ import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 
 class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
-  private lazy val registrationRepository = app.injector.instanceOf[JourneyAnswersRepository]
-  val groupId                             = "test-group-id"
+  private lazy val journeyAnswersRepository = app.injector.instanceOf[JourneyAnswersRepository]
+  val groupId                               = "test-group-id"
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    await(registrationRepository.collection.drop().toFuture())
+    await(journeyAnswersRepository.collection.drop().toFuture())
   }
 
   val registrationJson: String =
@@ -49,15 +49,15 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   "GET /store/:groupId" should {
 
     "return 404 Not Found when registration data does not exist" in {
-      val result = retrieveRegistrationRequest(groupId = groupId)
+      val result = retrieveJourneyAnswersRequest(groupId = groupId)
 
       result.status shouldBe NOT_FOUND
-      result.body   shouldBe s"Registration not found for groupId: $groupId"
+      result.body   shouldBe s"Registration data not found for groupId: $groupId"
     }
 
     "return 200 OK when registration data exists" in {
-      storeRegistrationRequest(groupId, body)
-      val result = retrieveRegistrationRequest(groupId = groupId)
+      storeJourneyAnswersRequest(groupId, body)
+      val result = retrieveJourneyAnswersRequest(groupId = groupId)
 
       result.status                                                               shouldBe OK
       (result.json \ "id").as[String]                                             shouldBe groupId
@@ -81,7 +81,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   "POST /store/:groupId" should {
 
     "return 200 OK when registration data is successfully stored" in {
-      val result = storeRegistrationRequest(groupId, body)
+      val result = storeJourneyAnswersRequest(groupId, body)
 
       result.status shouldBe OK
 
@@ -93,7 +93,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     }
 
   }
-  def storeRegistrationRequest(
+  def storeJourneyAnswersRequest(
     groupId: String,
     body: JsValue,
     headers: Seq[(String, String)] = testHeaders
@@ -106,7 +106,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     )
   }
 
-  def retrieveRegistrationRequest(groupId: String, headers: Seq[(String, String)] = testHeaders): WSResponse = {
+  def retrieveJourneyAnswersRequest(groupId: String, headers: Seq[(String, String)] = testHeaders): WSResponse = {
     stubAuth()
     await(
       ws.url(s"http://localhost:$port/disa-registration/store/$groupId")

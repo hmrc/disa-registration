@@ -42,7 +42,7 @@ class JourneyAnswersController @Inject() (
     authorised() {
       journeyAnswersService.retrieve(groupId).map {
         case Some(registration) => Ok(Json.toJson(registration))
-        case None               => NotFound(s"Registration not found for groupId: $groupId")
+        case None               => NotFound(s"Registration data not found for groupId: $groupId")
       }
     }
   }

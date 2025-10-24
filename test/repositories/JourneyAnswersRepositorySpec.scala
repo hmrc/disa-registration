@@ -37,7 +37,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
   override def beforeEach(): Unit = await(repository.collection.drop().toFuture())
 
   "findRegistrationById" should {
-    "return a registration when found" in {
+    "return registration data when found" in {
       await(repository.collection.insertOne(registration).toFuture())
       await(repository.findRegistrationById(groupId = groupId)) shouldBe Some(registration)
     }
@@ -47,7 +47,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
 
     "upsert" should {
-      "insert or update a registration and return the updated document" in {
+      "insert or update registration data and return the updated document" in {
         val fcaNumber                  = Some("FCA12345")
         val updatedOrganisationDetails = organisationDetails.copy(fcaNumber = fcaNumber)
         val updatedRegistration        = registration.copy(
