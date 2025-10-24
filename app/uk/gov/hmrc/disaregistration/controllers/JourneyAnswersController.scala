@@ -21,16 +21,16 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.disaregistration.models.Registration
-import uk.gov.hmrc.disaregistration.service.RegistrationService
+import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class RegistrationController @Inject() (
+class JourneyAnswersController @Inject() (
   cc: ControllerComponents,
-  registrationService: RegistrationService,
+  journeyAnswersService: JourneyAnswersService,
   val authConnector: AuthConnector
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
@@ -40,7 +40,7 @@ class RegistrationController @Inject() (
 
   def retrieve(groupId: String): Action[AnyContent] = Action.async { implicit request =>
     authorised() {
-      registrationService.retrieve(groupId).map {
+      journeyAnswersService.retrieve(groupId).map {
         case Some(registration) => Ok(Json.toJson(registration))
         case None               => NotFound(s"Registration not found for groupId: $groupId")
       }
@@ -50,11 +50,11 @@ class RegistrationController @Inject() (
   def store(groupId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     authorised() {
       withJsonBody[Registration] { registration =>
-        registrationService
+        journeyAnswersService
           .store(groupId, registration)
           .map(registration => Ok(Json.toJson(registration)))
           .recover { case ex =>
-            logger.error(s"[RegistrationController][store] Failed to store registration for groupId: $groupId", ex)
+            logger.error(s"[JourneyAnswersController][store] Failed to store registration for groupId: $groupId", ex)
             InternalServerError("There has been an issue processing your request")
           }
       }

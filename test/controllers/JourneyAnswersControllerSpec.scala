@@ -22,23 +22,23 @@ import play.api.libs.json._
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.auth.core.retrieve._
-import uk.gov.hmrc.disaregistration.controllers.RegistrationController
+import uk.gov.hmrc.disaregistration.controllers.JourneyAnswersController
 import utils.BaseUnitSpec
 
 import scala.concurrent.Future
 
-class RegistrationControllerSpec extends BaseUnitSpec {
+class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
-  val controller: RegistrationController = app.injector.instanceOf[RegistrationController]
-  val registrationJson: JsValue          = Json.toJson(registration)
+  val controller: JourneyAnswersController = app.injector.instanceOf[JourneyAnswersController]
+  val registrationJson: JsValue            = Json.toJson(registration)
 
   def authorisedUser(): Unit =
     when(mockAuthConnector.authorise(any, any[Retrieval[Unit]])(any, any)).thenReturn(Future.successful(()))
 
-  "RegistrationController.retrieve" should {
+  "JourneyAnswersController.retrieve" should {
     "return 200 OK when registration data exists" in {
       authorisedUser()
-      when(mockRegistrationService.retrieve(groupId)).thenReturn(Future.successful(Some(registration)))
+      when(mockJourneyAnswersService.retrieve(groupId)).thenReturn(Future.successful(Some(registration)))
 
       val result = controller.retrieve(groupId)(FakeRequest())
 
@@ -48,7 +48,7 @@ class RegistrationControllerSpec extends BaseUnitSpec {
 
     "return 404 Not Found when no registration data is found" in {
       authorisedUser()
-      when(mockRegistrationService.retrieve(groupId)).thenReturn(Future.successful(None))
+      when(mockJourneyAnswersService.retrieve(groupId)).thenReturn(Future.successful(None))
 
       val result = controller.retrieve(groupId)(FakeRequest())
 
@@ -57,10 +57,10 @@ class RegistrationControllerSpec extends BaseUnitSpec {
     }
   }
 
-  "RegistrationController.store" should {
+  "JourneyAnswersController.store" should {
     "return 200 OK when a registration is stored successful" in {
       authorisedUser()
-      when(mockRegistrationService.store(groupId, registration)).thenReturn(Future.successful(registration))
+      when(mockJourneyAnswersService.store(groupId, registration)).thenReturn(Future.successful(registration))
 
       val request = FakeRequest()
         .withBody(registrationJson)
@@ -74,7 +74,7 @@ class RegistrationControllerSpec extends BaseUnitSpec {
 
     "return 500 Internal Server Error" in {
       authorisedUser()
-      when(mockRegistrationService.store(groupId, registration))
+      when(mockJourneyAnswersService.store(groupId, registration))
         .thenReturn(Future.failed(new RuntimeException("DB error")))
 
       val request = FakeRequest()

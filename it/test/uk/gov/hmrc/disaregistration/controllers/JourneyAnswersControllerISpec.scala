@@ -20,12 +20,12 @@ import play.api.http.Status.{NOT_FOUND, OK, UNAUTHORIZED}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
-import uk.gov.hmrc.disaregistration.repositories.RegistrationRepository
+import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 
-class RegistrationControllerISpec extends BaseIntegrationSpec {
+class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
-  private lazy val registrationRepository = app.injector.instanceOf[RegistrationRepository]
+  private lazy val registrationRepository = app.injector.instanceOf[JourneyAnswersRepository]
   val groupId                             = "test-group-id"
 
   override def beforeAll(): Unit = {
@@ -48,7 +48,7 @@ class RegistrationControllerISpec extends BaseIntegrationSpec {
 
   "GET /store/:groupId" should {
 
-    "return 404 Not Found when registration does not exist" in {
+    "return 404 Not Found when registration data does not exist" in {
       val result = retrieveRegistrationRequest(groupId = groupId)
 
       result.status shouldBe NOT_FOUND

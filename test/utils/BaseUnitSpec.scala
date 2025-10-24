@@ -29,8 +29,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.disaregistration.config.AppConfig
-import uk.gov.hmrc.disaregistration.repositories.RegistrationRepository
-import uk.gov.hmrc.disaregistration.service.RegistrationService
+import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
+import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import utils.TestData
@@ -54,19 +54,19 @@ abstract class BaseUnitSpec
 
   override def beforeEach(): Unit = Mockito.reset()
 
-  val mockHttpClient: HttpClientV2                 = mock[HttpClientV2]
-  val mockAppConfig: AppConfig                     = mock[AppConfig]
-  val mockRequestBuilder: RequestBuilder           = mock[RequestBuilder]
-  val mockAuthConnector: AuthConnector             = mock[AuthConnector]
-  val mockRepository: RegistrationRepository       = mock[RegistrationRepository]
-  val mockRegistrationService: RegistrationService = mock[RegistrationService]
+  val mockHttpClient: HttpClientV2                     = mock[HttpClientV2]
+  val mockAppConfig: AppConfig                         = mock[AppConfig]
+  val mockRequestBuilder: RequestBuilder               = mock[RequestBuilder]
+  val mockAuthConnector: AuthConnector                 = mock[AuthConnector]
+  val mockRepository: JourneyAnswersRepository         = mock[JourneyAnswersRepository]
+  val mockJourneyAnswersService: JourneyAnswersService = mock[JourneyAnswersService]
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .overrides(
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[AppConfig].toInstance(mockAppConfig),
-      bind[RegistrationRepository].toInstance(mockRepository),
-      bind[RegistrationService].toInstance(mockRegistrationService)
+      bind[JourneyAnswersRepository].toInstance(mockRepository),
+      bind[JourneyAnswersService].toInstance(mockJourneyAnswersService)
     )
     .build()
 }

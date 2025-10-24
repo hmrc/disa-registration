@@ -17,13 +17,13 @@
 package uk.gov.hmrc.disaregistration.service
 
 import uk.gov.hmrc.disaregistration.models.Registration
-import uk.gov.hmrc.disaregistration.repositories.RegistrationRepository
+import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationService @Inject() (repository: RegistrationRepository)(implicit ec: ExecutionContext) {
+class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository)(implicit ec: ExecutionContext) {
 
   def store(groupId: String, registration: Registration): Future[Registration] =
     repository.upsert(groupId, registration)

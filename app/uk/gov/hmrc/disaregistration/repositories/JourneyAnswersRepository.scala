@@ -29,16 +29,16 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationRepository @Inject() (mongoComponent: MongoComponent, appConfig: AppConfig, clock: Clock)(implicit
+class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appConfig: AppConfig, clock: Clock)(implicit
   ec: ExecutionContext
 ) extends PlayMongoRepository[Registration](
       mongoComponent = mongoComponent,
-      collectionName = "registrations",
+      collectionName = "journeyAnswers",
       domainFormat = Registration.format,
       indexes = Seq(
         IndexModel(
           Indexes.ascending("lastUpdated"),
-          IndexOptions().name("registrationTtl").expireAfter(appConfig.timeToLive, TimeUnit.DAYS)
+          IndexOptions().name("journeyAnswersTtl").expireAfter(appConfig.timeToLive, TimeUnit.DAYS)
         ),
         IndexModel(ascending("id"), IndexOptions().name("idIdx").unique(true))
       )

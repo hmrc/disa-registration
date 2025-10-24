@@ -19,14 +19,14 @@ package service
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.test.Helpers.await
-import uk.gov.hmrc.disaregistration.service.RegistrationService
+import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import utils.BaseUnitSpec
 
 import scala.concurrent.Future
 
-class RegistrationServiceSpec extends BaseUnitSpec {
+class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
-  val service = new RegistrationService(mockRepository)
+  val service = new JourneyAnswersService(mockRepository)
 
   "store" should {
     "successfully store a registration" in {

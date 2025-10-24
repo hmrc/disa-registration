@@ -18,13 +18,13 @@ package repositories
 
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.config.AppConfig
-import uk.gov.hmrc.disaregistration.repositories.RegistrationRepository
+import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
 import utils.BaseUnitSpec
 
 import java.time.{Clock, Instant, ZoneOffset}
 
-class RegistrationRepositorySpec extends BaseUnitSpec {
+class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
   protected val databaseName: String          = "disa-registration-test"
   protected val mongoUri: String              = s"mongodb://127.0.0.1:27017/$databaseName"
@@ -32,7 +32,7 @@ class RegistrationRepositorySpec extends BaseUnitSpec {
   private val appConfig                       = app.injector.instanceOf[AppConfig]
   val fixedClock: Clock                       = Clock.fixed(Instant.parse("2025-10-21T10:00:00Z"), ZoneOffset.UTC)
 
-  val repository = new RegistrationRepository(mockMongoComponent, appConfig, fixedClock)
+  val repository = new JourneyAnswersRepository(mockMongoComponent, appConfig, fixedClock)
 
   override def beforeEach(): Unit = await(repository.collection.drop().toFuture())
 
