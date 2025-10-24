@@ -47,10 +47,10 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
   def findById(groupId: String): Future[Option[JourneyData]] =
     collection.find(Filters.eq("id", groupId)).headOption()
 
-  def upsert(groupId: String, registration: JourneyData): Future[JourneyData] = {
+  def upsert(groupId: String, journeyData: JourneyData): Future[JourneyData] = {
     val now = Instant.now(clock)
 
-    val doc = registration.copy(id = groupId, lastUpdated = Some(now))
+    val doc = journeyData.copy(id = groupId, lastUpdated = Some(now))
     collection
       .replaceOne(Filters.eq("id", groupId), doc, ReplaceOptions().upsert(true))
       .toFuture()
