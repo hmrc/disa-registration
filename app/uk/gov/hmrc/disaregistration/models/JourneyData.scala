@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package uk.gov.hmrc.disaregistration.models
 
-import com.google.inject.AbstractModule
-import java.time.{Clock, ZoneOffset}
+import play.api.libs.json.{Format, Json, OFormat}
 
-class Module extends AbstractModule {
+import java.time.Instant
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+case class JourneyData(
+  id: String,
+  organisationDetails: Option[OrganisationDetails] = None,
+  lastUpdated: Option[Instant] = None
+)
+
+object JourneyData {
+  implicit val format: Format[JourneyData] = Json.format[JourneyData]
 }

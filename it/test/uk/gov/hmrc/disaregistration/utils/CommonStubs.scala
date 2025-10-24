@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package uk.gov.hmrc.disaregistration.utils
 
-import com.google.inject.AbstractModule
-import java.time.{Clock, ZoneOffset}
+import play.api.http.Status.{OK, UNAUTHORIZED}
+import uk.gov.hmrc.disaregistration.utils.WiremockHelper.stubPost
 
-class Module extends AbstractModule {
+trait CommonStubs {
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+  def stubAuth(): Unit = stubPost(url = "/auth/authorise", status = OK, responseBody = "{}")
+
+  def stubAuthFail(): Unit = stubPost(url = "/auth/authorise", status = UNAUTHORIZED, responseBody = "{}")
+
+  val testHeaders: Seq[(String, String)] = Seq("Authorization" -> "mock-bearer-token")
+
 }

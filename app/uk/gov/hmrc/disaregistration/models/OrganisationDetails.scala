@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package uk.gov.hmrc.disaregistration.models
 
-import com.google.inject.AbstractModule
-import java.time.{Clock, ZoneOffset}
+import play.api.libs.json.{Json, OFormat}
 
-class Module extends AbstractModule {
+case class OrganisationDetails(
+  registeredToManageIsa: Option[Boolean] = None,
+  zRefNumber: Option[String] = None,
+  fcaNumber: Option[String] = None,
+  correspondenceAddress: Option[CorrespondenceAddress] = None,
+  orgTelephoneNumber: Option[String] = None
+)
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+object OrganisationDetails {
+  implicit val format: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
 }

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package uk.gov.hmrc.disaregistration.models
 
-import com.google.inject.AbstractModule
-import java.time.{Clock, ZoneOffset}
+import play.api.libs.json.{Json, OFormat}
 
-class Module extends AbstractModule {
+case class CorrespondenceAddress(useThisAddress: Boolean, address: Option[String])
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+object CorrespondenceAddress {
+  implicit val format: OFormat[CorrespondenceAddress] = Json.format[CorrespondenceAddress]
 }

@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package uk.gov.hmrc.disaregistration.service
 
-import com.google.inject.AbstractModule
-import java.time.{Clock, ZoneOffset}
+import uk.gov.hmrc.disaregistration.models.JourneyData
+import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 
-class Module extends AbstractModule {
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+@Singleton
+class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository)(implicit ec: ExecutionContext) {
+
+  def store(groupId: String, registration: JourneyData): Future[JourneyData] =
+    repository.upsert(groupId, registration)
+
+  def retrieve(groupId: String): Future[Option[JourneyData]] =
+    repository.findById(groupId)
 }
