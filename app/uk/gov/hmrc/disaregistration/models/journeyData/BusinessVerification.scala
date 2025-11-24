@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models
+package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Json, OFormat}
 
-case class CorrespondenceAddress(useThisAddress: Boolean, address: Option[String])
+case class BusinessVerification(dataItem: Option[String],
+                                dataItem2: Option[String])
 
-object CorrespondenceAddress {
-  implicit val format: OFormat[CorrespondenceAddress] = Json.format[CorrespondenceAddress]
+object BusinessVerification {
+  implicit val format: OFormat[BusinessVerification] = Json.format[BusinessVerification]
 }

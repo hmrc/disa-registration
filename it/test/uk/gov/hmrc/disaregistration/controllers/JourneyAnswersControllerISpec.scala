@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.disaregistration.controllers
 
-import play.api.http.Status.{NOT_FOUND, OK, UNAUTHORIZED}
+import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
@@ -44,22 +44,27 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       |  "lastUpdated": "2025-10-21T15:27:28.433131Z"
       |}""".stripMargin
 
-  val body: JsValue = Json.parse(journeyDataJson)
+  val organisationDetailsJson: String =
+    """{
+      |    "registeredToManageIsa": false,
+      |    "zRefNumber": "Z1235",
+      |    "fcaNumber": "6743765"
+      |}""".stripMargin
+
+  val body: JsValue = Json.parse(organisationDetailsJson)
 
   "GET /store/:groupId" should {
 
     "return 404 Not Found when journeyData does not exist" in {
-      val result = retrieveJourneyAnswersRequest(groupId = groupId)
-
-      result.status shouldBe NOT_FOUND
+      retrieveJourneyAnswersRequest(groupId = groupId).status shouldBe NOT_FOUND
     }
 
     "return 200 OK when journeyData exists" in {
-      storeJourneyAnswersRequest(groupId, body)
+      storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
       val result = retrieveJourneyAnswersRequest(groupId = groupId)
 
       result.status                                                               shouldBe OK
-      (result.json \ "id").as[String]                                             shouldBe groupId
+      (result.json \ "groupId").as[String]                                        shouldBe groupId
       (result.json \ "organisationDetails" \ "registeredToManageIsa").as[Boolean] shouldBe false
       (result.json \ "organisationDetails" \ "zRefNumber").as[String]             shouldBe "Z1235"
       (result.json \ "organisationDetails" \ "fcaNumber").as[String]              shouldBe "6743765"
@@ -74,38 +79,95 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
       result.status shouldBe UNAUTHORIZED
     }
-
   }
 
   "POST /store/:groupId" should {
 
-    "return 200 OK when journeyData is successfully stored" in {
-      val result = storeJourneyAnswersRequest(groupId, body)
-
-      result.status shouldBe OK
-
-      (result.json \ "id").as[String]                                             shouldBe groupId
-      (result.json \ "organisationDetails" \ "registeredToManageIsa").as[Boolean] shouldBe false
-      (result.json \ "organisationDetails" \ "zRefNumber").as[String]             shouldBe "Z1235"
-      (result.json \ "organisationDetails" \ "fcaNumber").as[String]              shouldBe "6743765"
-
+    "return 204 NoContent when journeyData is successfully stored" in {
+      storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
     }
 
+    "allow storing a second journey model into the same document and retrieving combined data" in {
+      val orgDetailsResult =
+        storeJourneyAnswersRequest(
+          taskListJourney = "organisationDetails",
+          body = Json.obj(
+            "registeredToManageIsa" -> false,
+            "zRefNumber"            -> "Z1235",
+            "fcaNumber"             -> "6743765"
+          )
+        )
+
+      orgDetailsResult.status shouldBe NO_CONTENT
+      val firstRetrieve = retrieveJourneyAnswersRequest()
+
+      firstRetrieve.status                                                   shouldBe OK
+      (firstRetrieve.json \ "organisationDetails" \ "zRefNumber").as[String] shouldBe "Z1235"
+      (firstRetrieve.json \ "businessVerification").toOption                 shouldBe None
+
+      val businessVerificationJson = Json.obj(
+        "dataItem"  -> "SomeValue",
+        "dataItem2" -> "SomeOtherValue"
+      )
+
+      val verificationResult =
+        storeJourneyAnswersRequest(
+          taskListJourney = "businessVerification",
+          body = businessVerificationJson
+        )
+      verificationResult.status shouldBe NO_CONTENT
+
+      val secondRetrieve = retrieveJourneyAnswersRequest()
+      secondRetrieve.status shouldBe OK
+
+      (secondRetrieve.json \ "organisationDetails" \ "fcaNumber").as[String]  shouldBe "6743765"
+      (secondRetrieve.json \ "businessVerification" \ "dataItem").as[String]  shouldBe "SomeValue"
+      (secondRetrieve.json \ "businessVerification" \ "dataItem2").as[String] shouldBe "SomeOtherValue"
+    }
+
+    "return 400 BadRequest when taskListJourney is invalid" in {
+      val result = storeJourneyAnswersRequest(
+        taskListJourney = "nonExistentObject",
+        body = body
+      )
+
+      result.status shouldBe BAD_REQUEST
+      result.body     should include("Invalid taskListJourney parameter")
+    }
+
+    "return 400 BadRequest when JSON is invalid for a valid taskListJourney" in {
+      val invalidJson = Json.obj(
+        "registeredToManageIsa" -> "not-a-boolean"
+      )
+
+      val result = storeJourneyAnswersRequest(
+        taskListJourney = "organisationDetails",
+        body = invalidJson
+      )
+
+      result.status shouldBe BAD_REQUEST
+      result.body     should include("Invalid JSON for taskListJourney")
+    }
   }
+
   def storeJourneyAnswersRequest(
-    groupId: String,
+    groupId: String = groupId,
+    taskListJourney: String,
     body: JsValue,
     headers: Seq[(String, String)] = testHeaders
   ): WSResponse = {
     stubAuth()
     await(
-      ws.url(s"http://localhost:$port/disa-registration/store/$groupId")
+      ws.url(s"http://localhost:$port/disa-registration/store/$groupId/$taskListJourney")
         .withHttpHeaders(headers: _*)
         .post(body)
     )
   }
 
-  def retrieveJourneyAnswersRequest(groupId: String, headers: Seq[(String, String)] = testHeaders): WSResponse = {
+  def retrieveJourneyAnswersRequest(
+    groupId: String = groupId,
+    headers: Seq[(String, String)] = testHeaders
+  ): WSResponse = {
     stubAuth()
     await(
       ws.url(s"http://localhost:$port/disa-registration/store/$groupId")
@@ -113,5 +175,4 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         .get()
     )
   }
-
 }

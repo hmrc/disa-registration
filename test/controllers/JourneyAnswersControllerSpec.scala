@@ -16,6 +16,7 @@
 
 package controllers
 
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import play.api.libs.json._
@@ -30,20 +31,26 @@ import scala.concurrent.Future
 class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
   val controller: JourneyAnswersController = app.injector.instanceOf[JourneyAnswersController]
-  val registrationJson: JsValue            = Json.toJson(journeyData)
+
+  val organisationDetailsJson: JsValue = Json.toJson(organisationDetails)
+
+  val taskListJourney = "organisationDetails"
 
   def authorisedUser(): Unit =
-    when(mockAuthConnector.authorise(any, any[Retrieval[Unit]])(any, any)).thenReturn(Future.successful(()))
+    when(mockAuthConnector.authorise(any, any[Retrieval[Unit]])(any, any))
+      .thenReturn(Future.successful(()))
 
   "JourneyAnswersController.retrieve" should {
+
     "return 200 OK when journeyData exists" in {
       authorisedUser()
-      when(mockJourneyAnswersService.retrieve(groupId)).thenReturn(Future.successful(Some(journeyData)))
+      when(mockJourneyAnswersService.retrieve(groupId))
+        .thenReturn(Future.successful(Some(testJourneyData)))
 
       val result = controller.retrieve(groupId)(FakeRequest())
 
       status(result)        shouldBe OK
-      contentAsJson(result) shouldBe registrationJson
+      contentAsJson(result) shouldBe Json.toJson(testJourneyData)
     }
 
     "return 404 Not Found when no journeyData is found" in {
@@ -57,35 +64,78 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
   }
 
   "JourneyAnswersController.store" should {
-    "return 200 OK when journeyData is stored successful" in {
+
+    "return 204 NoContent when the journey section is successfully updated" in {
       authorisedUser()
-      when(mockJourneyAnswersService.store(groupId, journeyData)).thenReturn(Future.successful(journeyData))
+
+      when(
+        mockJourneyAnswersService.storeJourneyData(
+          ArgumentMatchers.eq(groupId),
+          ArgumentMatchers.eq(taskListJourney),
+          ArgumentMatchers.eq(organisationDetails)
+        )(any)
+      ).thenReturn(Future.successful(()))
 
       val request = FakeRequest()
-        .withBody(registrationJson)
+        .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(groupId)(request)
+      val result = controller.store(groupId, taskListJourney)(request)
 
-      status(result)        shouldBe OK
-      contentAsJson(result) shouldBe registrationJson
+      status(result) shouldBe NO_CONTENT
     }
 
-    "return 500 Internal Server Error" in {
+    "return 400 BadRequest when the taskListJourney is invalid" in {
       authorisedUser()
-      when(mockJourneyAnswersService.store(groupId, journeyData))
-        .thenReturn(Future.failed(new RuntimeException("DB error")))
+
+      val invalidJourney = "invalidSection"
 
       val request = FakeRequest()
-        .withBody(registrationJson)
+        .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(groupId)(request)
+      val result = controller.store(groupId, invalidJourney)(request)
 
-      status(result)        shouldBe INTERNAL_SERVER_ERROR
-      contentAsString(result) should include("There has been an issue processing your request")
+      status(result)        shouldBe BAD_REQUEST
+      contentAsString(result) should include("Invalid taskListJourney parameter")
     }
 
+    "return 400 BadRequest when the JSON does not validate for the journey section" in {
+      authorisedUser()
+
+      val invalidJson = Json.obj(
+        "registeredToManageIsa" -> "not-a-boolean"
+      )
+
+      val request = FakeRequest()
+        .withBody(invalidJson)
+        .withHeaders("Content-Type" -> "application/json")
+
+      val result = controller.store(groupId, taskListJourney)(request)
+
+      status(result)        shouldBe BAD_REQUEST
+      contentAsString(result) should include("Invalid JSON for taskListJourney")
+    }
+
+    "return 500 InternalServerError when the service throws an unexpected exception" in {
+      authorisedUser()
+
+      when(
+        mockJourneyAnswersService.storeJourneyData(
+          ArgumentMatchers.eq(groupId),
+          ArgumentMatchers.eq(taskListJourney),
+          ArgumentMatchers.eq(organisationDetails)
+        )(any)
+      ).thenReturn(Future.failed(new RuntimeException("DB exploded")))
+
+      val request = FakeRequest()
+        .withBody(organisationDetailsJson)
+        .withHeaders("Content-Type" -> "application/json")
+
+      val result = controller.store(groupId, taskListJourney)(request)
+
+      status(result)          shouldBe INTERNAL_SERVER_ERROR
+      contentAsString(result) shouldBe "There has been an issue processing your request"
+    }
   }
-
 }

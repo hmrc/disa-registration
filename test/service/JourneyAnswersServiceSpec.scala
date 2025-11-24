@@ -18,6 +18,7 @@ package service
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import play.api.libs.json.Writes
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import utils.BaseUnitSpec
@@ -28,17 +29,26 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
   val service = new JourneyAnswersService(mockRepository)
 
-  "store" should {
+  "storeJourneyData" should {
     "successfully store journeyData" in {
-      when(mockRepository.upsert(any(), any())).thenReturn(Future.successful(journeyData))
-      await(service.store(groupId, journeyData)) shouldBe journeyData
+
+      when(mockRepository.storeJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
+        .thenReturn(Future.successful(()))
+
+      await(
+        service.storeJourneyData(
+          groupId,
+          "organisationDetails",
+          organisationDetails.copy(registeredToManageIsa = Some(false))
+        )
+      ) shouldBe (): Unit
     }
   }
 
   "retrieve" should {
     "successfully retrieve journeyData" in {
-      when(mockRepository.findById(groupId)).thenReturn(Future.successful(Some(journeyData)))
-      await(service.retrieve(groupId)) shouldBe Some(journeyData)
+      when(mockRepository.findById(groupId)).thenReturn(Future.successful(Some(testJourneyData)))
+      await(service.retrieve(groupId)) shouldBe Some(testJourneyData)
     }
     "return None if repository returns None" in {
       when(mockRepository.findById(groupId)).thenReturn(Future.successful(None))

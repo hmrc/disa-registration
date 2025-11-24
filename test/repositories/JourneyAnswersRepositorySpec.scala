@@ -17,7 +17,7 @@
 package repositories
 
 import play.api.test.Helpers.await
-import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CertificatesOfAuthority, OrganisationDetails}
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
 import utils.BaseUnitSpec
@@ -29,40 +29,59 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
   protected val databaseName: String          = "disa-journeyData-test"
   protected val mongoUri: String              = s"mongodb://127.0.0.1:27017/$databaseName"
   lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
-  private val appConfig                       = app.injector.instanceOf[AppConfig]
   val fixedClock: Clock                       = Clock.fixed(Instant.parse("2025-10-21T10:00:00Z"), ZoneOffset.UTC)
-
-  val repository = new JourneyAnswersRepository(mockMongoComponent, appConfig, fixedClock)
+  val repository: JourneyAnswersRepository    = new JourneyAnswersRepository(mockMongoComponent, mockAppConfig, fixedClock)
 
   override def beforeEach(): Unit = await(repository.collection.drop().toFuture())
 
   "findById" should {
     "return journeyData when found" in {
-      await(repository.collection.insertOne(journeyData).toFuture())
-      await(repository.findById(groupId = groupId)) shouldBe Some(journeyData)
+      await(repository.collection.insertOne(testJourneyData).toFuture())
+      await(repository.findById(groupId = groupId)) shouldBe Some(testJourneyData)
     }
 
     "return None when not found" in {
       await(repository.findById(groupId = groupId)) shouldBe None
     }
+  }
 
-    "upsert" should {
-      "insert and update journeyData and return the updated document" in {
-        val fcaNumber                  = Some("FCA12345")
-        val updatedOrganisationDetails = organisationDetails.copy(fcaNumber = fcaNumber)
-        val updatedRegistration        = journeyData.copy(
-          organisationDetails = Some(updatedOrganisationDetails),
-          lastUpdated = Some(Instant.now(fixedClock))
-        )
+  "storeJourneyData" should {
 
-        await(repository.upsert(groupId, journeyData))
-        await(repository.findById(groupId = groupId)) shouldBe Some(
-          journeyData.copy(lastUpdated = Some(Instant.now(fixedClock)))
-        )
-        await(repository.upsert(groupId, updatedRegistration))
-        await(repository.findById(groupId)).map(_ shouldBe updatedRegistration)
+    "successfully upsert a new document when none exists for this groupId" in {
+      val model = BusinessVerification(
+        dataItem = Some("TEST-ITEM"),
+        dataItem2 = None
+      )
 
-      }
+      await(repository.storeJourneyData(groupId, "businessVerification", model))
+
+      val result = await(repository.findById(groupId))
+      result.get.businessVerification shouldBe Some(model)
+      result.get.lastUpdated          shouldBe Some(Instant.now(fixedClock))
+    }
+
+    "successfully updates the existing document with the provided tasklist data" in {
+      await(repository.collection.insertOne(testJourneyData).toFuture())
+      val organisationDetailsUpdate =
+        OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
+
+      await(repository.storeJourneyData(groupId, "organisationDetails", organisationDetailsUpdate))
+
+      val result = await(repository.findById(groupId)).get
+      result shouldBe testJourneyData
+        .copy(organisationDetails = Some(organisationDetailsUpdate))
+        .copy(lastUpdated = Some(Instant.now(fixedClock)))
+    }
+
+    "successfully updates the journey document with the provided tasklist data - CertificatesOfAuthority " in {
+      val coaJourney = CertificatesOfAuthority(
+        dataItem = Some("test-data-item"),
+        dataItem2 = Some("test-data-item-2")
+      )
+
+      await(repository.storeJourneyData(groupId, "certificatesOfAuthority", coaJourney))
+      val result = await(repository.findById(groupId))
+      result.get.certificatesOfAuthority shouldBe Some(coaJourney)
     }
   }
 }

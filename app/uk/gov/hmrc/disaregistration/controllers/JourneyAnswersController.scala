@@ -17,16 +17,16 @@
 package uk.gov.hmrc.disaregistration.controllers
 
 import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
-import uk.gov.hmrc.disaregistration.models.JourneyData
+import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData.{JourneyField, fieldHandlers}
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class JourneyAnswersController @Inject() (
   cc: ControllerComponents,
@@ -47,17 +47,27 @@ class JourneyAnswersController @Inject() (
     }
   }
 
-  def store(groupId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    authorised() {
-      withJsonBody[JourneyData] { data =>
-        journeyAnswersService
-          .store(groupId, data)
-          .map(registration => Ok(Json.toJson(registration)))
-          .recover { case ex =>
-            logger.error(s"[JourneyAnswersController][store] Failed to store data for groupId: $groupId", ex)
-            InternalServerError("There has been an issue processing your request")
-          }
+  def store(groupId: String, taskListJourney: String): Action[JsValue] =
+    Action.async(parse.json) { implicit request =>
+      authorised() {
+        fieldHandlers.get(taskListJourney) match {
+          case None                              =>
+            logger.error(s"Invalid taskListJourney provided: $taskListJourney")
+            Future.successful(BadRequest(s"Invalid taskListJourney parameter: '$taskListJourney'"))
+          case Some(JourneyField(reads, writes)) =>
+            request.body.validate(reads) match {
+              case JsSuccess(model, _) =>
+                journeyAnswersService
+                  .storeJourneyData(groupId, taskListJourney, model)(writes)
+                  .map(_ => NoContent)
+              case JsError(errors)     =>
+                logger.error(s"Invalid JSON for taskListJourney '$taskListJourney': ${JsError.toJson(errors)}")
+                Future.successful(BadRequest(s"Invalid JSON for taskListJourney '$taskListJourney'"))
+            }
+        }
+      }.recover { case e =>
+        logger.error(s"Unexpected error storing $taskListJourney for $groupId", e)
+        InternalServerError("There has been an issue processing your request")
       }
     }
-  }
 }
