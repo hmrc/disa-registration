@@ -18,8 +18,7 @@ package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Json, OFormat}
 
-case class IsaProducts(dataItem: Option[String],
-                       dataItem2: Option[String])
+case class IsaProducts(dataItem: Option[String], dataItem2: Option[String])
 
 object IsaProducts {
   implicit val format: OFormat[IsaProducts] = Json.format[IsaProducts]

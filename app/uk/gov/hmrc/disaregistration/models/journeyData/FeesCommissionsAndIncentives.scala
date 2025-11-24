@@ -18,8 +18,7 @@ package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Json, OFormat}
 
-case class FeesCommissionsAndIncentives(dataItem: Option[String],
-                                        dataItem2: Option[String])
+case class FeesCommissionsAndIncentives(dataItem: Option[String], dataItem2: Option[String])
 
 object FeesCommissionsAndIncentives {
   implicit val format: OFormat[FeesCommissionsAndIncentives] = Json.format[FeesCommissionsAndIncentives]

@@ -91,11 +91,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       val orgDetailsResult =
         storeJourneyAnswersRequest(
           taskListJourney = "organisationDetails",
-          body = Json.obj(
-            "registeredToManageIsa" -> false,
-            "zRefNumber"            -> "Z1235",
-            "fcaNumber"             -> "6743765"
-          )
+          body = body
         )
 
       orgDetailsResult.status shouldBe NO_CONTENT

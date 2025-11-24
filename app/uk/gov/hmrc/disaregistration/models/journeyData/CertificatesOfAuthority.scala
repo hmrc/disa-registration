@@ -18,8 +18,7 @@ package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Json, OFormat}
 
-case class CertificatesOfAuthority(dataItem: Option[String],
-                                   dataItem2: Option[String])
+case class CertificatesOfAuthority(dataItem: Option[String], dataItem2: Option[String])
 
 object CertificatesOfAuthority {
   implicit val format: OFormat[CertificatesOfAuthority] = Json.format[CertificatesOfAuthority]
