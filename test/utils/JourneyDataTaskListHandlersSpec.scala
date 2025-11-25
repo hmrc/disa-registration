@@ -42,50 +42,50 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
       JourneyData.taskListJourneyHandlers.foreach { case (taskName, handler) =>
         taskName match {
           case "businessVerification" =>
-            val original = BusinessVerification(Some("some data"), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[BusinessVerification]])
+            val original     = BusinessVerification(Some("some data"), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[BusinessVerification]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[BusinessVerification]])
             deserialized shouldBe original
 
           case "organisationDetails" =>
-            val original = OrganisationDetails(Some(true), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
+            val original     = OrganisationDetails(Some(true), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[OrganisationDetails]])
             deserialized shouldBe original
 
           case "isaProducts" =>
-            val original = IsaProducts(Some("some data"), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[IsaProducts]])
+            val original     = IsaProducts(Some("some data"), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[IsaProducts]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[IsaProducts]])
             deserialized shouldBe original
 
           case "certificatesOfAuthority" =>
-            val original = CertificatesOfAuthority(Some("some data"), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[CertificatesOfAuthority]])
+            val original     = CertificatesOfAuthority(Some("some data"), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[CertificatesOfAuthority]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[CertificatesOfAuthority]])
             deserialized shouldBe original
 
           case "liaisonOfficers" =>
-            val original = LiaisonOfficers(Some("some data"), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[LiaisonOfficers]])
+            val original     = LiaisonOfficers(Some("some data"), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[LiaisonOfficers]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[LiaisonOfficers]])
             deserialized shouldBe original
 
           case "signatories" =>
-            val original = Signatories(Some("some data"), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[Signatories]])
+            val original     = Signatories(Some("some data"), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[Signatories]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[Signatories]])
             deserialized shouldBe original
 
           case "outsourcedAdministration" =>
-            val original = OutsourcedAdministration(Some("some data"), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OutsourcedAdministration]])
+            val original     = OutsourcedAdministration(Some("some data"), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OutsourcedAdministration]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[OutsourcedAdministration]])
             deserialized shouldBe original
 
           case "feesCommissionsAndIncentives" =>
-            val original = FeesCommissionsAndIncentives(Some("some data"), None)
-            val json = Json.toJson(original)(handler.writes.asInstanceOf[Writes[FeesCommissionsAndIncentives]])
+            val original     = FeesCommissionsAndIncentives(Some("some data"), None)
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[FeesCommissionsAndIncentives]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[FeesCommissionsAndIncentives]])
             deserialized shouldBe original
 
