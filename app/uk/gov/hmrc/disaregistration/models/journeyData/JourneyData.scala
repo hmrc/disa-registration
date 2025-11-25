@@ -40,17 +40,17 @@ object JourneyData {
 
   implicit val format: Format[JourneyData] = Json.format[JourneyData]
 
-  case class JourneyField[A](reads: Reads[A], writes: Writes[A])
+  case class TaskListJourney[A](reads: Reads[A], writes: Writes[A])
 
-  val fieldHandlers: Map[String, JourneyField[_]] = Map(
-    "businessVerification"         -> JourneyField(BusinessVerification.format, BusinessVerification.format),
-    "organisationDetails"          -> JourneyField(OrganisationDetails.format, OrganisationDetails.format),
-    "isaProducts"                  -> JourneyField(IsaProducts.format, IsaProducts.format),
-    "certificatesOfAuthority"      -> JourneyField(CertificatesOfAuthority.format, CertificatesOfAuthority.format),
-    "liaisonOfficers"              -> JourneyField(LiaisonOfficers.format, LiaisonOfficers.format),
-    "signatories"                  -> JourneyField(Signatories.format, Signatories.format),
-    "outsourcedAdministration"     -> JourneyField(OutsourcedAdministration.format, OutsourcedAdministration.format),
-    "feesCommissionsAndIncentives" -> JourneyField(
+  val taskListJourneyHandlers: Map[String, TaskListJourney[_]] = Map(
+    "businessVerification"         -> TaskListJourney(BusinessVerification.format, BusinessVerification.format),
+    "organisationDetails"          -> TaskListJourney(OrganisationDetails.format, OrganisationDetails.format),
+    "isaProducts"                  -> TaskListJourney(IsaProducts.format, IsaProducts.format),
+    "certificatesOfAuthority"      -> TaskListJourney(CertificatesOfAuthority.format, CertificatesOfAuthority.format),
+    "liaisonOfficers"              -> TaskListJourney(LiaisonOfficers.format, LiaisonOfficers.format),
+    "signatories"                  -> TaskListJourney(Signatories.format, Signatories.format),
+    "outsourcedAdministration"     -> TaskListJourney(OutsourcedAdministration.format, OutsourcedAdministration.format),
+    "feesCommissionsAndIncentives" -> TaskListJourney(
       FeesCommissionsAndIncentives.format,
       FeesCommissionsAndIncentives.format
     )

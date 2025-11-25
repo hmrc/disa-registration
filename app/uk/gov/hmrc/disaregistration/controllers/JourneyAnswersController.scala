@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
-import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData.{JourneyField, fieldHandlers}
+import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData.{TaskListJourney, taskListJourneyHandlers}
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
@@ -50,11 +50,11 @@ class JourneyAnswersController @Inject() (
   def store(groupId: String, taskListJourney: String): Action[JsValue] =
     Action.async(parse.json) { implicit request =>
       authorised() {
-        fieldHandlers.get(taskListJourney) match {
-          case None                              =>
+        taskListJourneyHandlers.get(taskListJourney) match {
+          case None                                 =>
             logger.error(s"Invalid taskListJourney provided: $taskListJourney")
             Future.successful(BadRequest(s"Invalid taskListJourney parameter: '$taskListJourney'"))
-          case Some(JourneyField(reads, writes)) =>
+          case Some(TaskListJourney(reads, writes)) =>
             request.body.validate(reads) match {
               case JsSuccess(model, _) =>
                 journeyAnswersService
