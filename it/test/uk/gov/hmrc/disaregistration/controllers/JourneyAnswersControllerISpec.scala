@@ -81,7 +81,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     }
   }
 
-  "POST /store/:groupId" should {
+  "POST /store/:groupId/:taskListJourney" should {
 
     "return 204 NoContent when journeyData is successfully stored" in {
       storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT

@@ -42,7 +42,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
           IndexOptions().name("journeyAnswersTtl").expireAfter(appConfig.timeToLive, TimeUnit.DAYS)
         ),
         IndexModel(ascending("groupId"), IndexOptions().name("groupIdIdx").unique(true))
-      )
+      ),
+      replaceIndexes = true
     ) {
 
   def findById(groupId: String): Future[Option[JourneyData]] =
