@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models
+package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Json, OFormat}
 
-case class OrganisationDetails(
-  registeredToManageIsa: Option[Boolean] = None,
-  zRefNumber: Option[String] = None,
-  fcaNumber: Option[String] = None,
-  correspondenceAddress: Option[CorrespondenceAddress] = None,
-  orgTelephoneNumber: Option[String] = None
-)
+case class CertificatesOfAuthority(dataItem: Option[String], dataItem2: Option[String])
 
-object OrganisationDetails {
-  implicit val format: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
+object CertificatesOfAuthority {
+  implicit val format: OFormat[CertificatesOfAuthority] = Json.format[CertificatesOfAuthority]
 }

@@ -16,11 +16,17 @@
 
 package utils
 
-import uk.gov.hmrc.disaregistration.models.{JourneyData, OrganisationDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, JourneyData, OrganisationDetails}
 
 trait TestData {
-  val groupId                                  = "group1"
-  val organisationDetails: OrganisationDetails =
+  val groupId                                    = "group1"
+  val organisationDetails: OrganisationDetails   =
     OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
-  val journeyData: JourneyData                 = JourneyData(id = groupId, organisationDetails = Some(organisationDetails))
+  val businessVerification: BusinessVerification =
+    BusinessVerification(dataItem = Some("Test-Item-1"), dataItem2 = None)
+  val testJourneyData: JourneyData               = JourneyData(
+    groupId = groupId,
+    organisationDetails = Some(organisationDetails),
+    businessVerification = Some(businessVerification)
+  )
 }
