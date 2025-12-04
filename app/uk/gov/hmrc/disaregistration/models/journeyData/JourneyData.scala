@@ -17,6 +17,7 @@
 package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Format, Json, Reads, Writes}
+import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.IsaProducts
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
