@@ -24,7 +24,7 @@ object IsaProduct extends Enumerable.Implicits {
   case object CashIsas extends WithName("cashIsas") with IsaProduct
   case object CashJuniorIsas extends WithName("cashJuniorIsas") with IsaProduct
   case object StocksAndSharesIsas extends WithName("stocksAndSharesIsas") with IsaProduct
-  case object StocksAndShareJuniorIsas extends WithName("stocksAndShareJuniorIsas") with IsaProduct
+  case object StocksAndShareJuniorIsas extends WithName("stocksAndSharesJuniorIsas") with IsaProduct
   case object InnovativeFinanceIsas extends WithName("innovativeFinanceIsas") with IsaProduct
 
   val values: Seq[IsaProduct] = Seq(
