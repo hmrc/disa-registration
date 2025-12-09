@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData
+package utils
 
-import play.api.libs.json.{Json, OFormat}
+import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.IsaProduct
 
-case class IsaProducts(dataItem: Option[String], dataItem2: Option[String])
-
-object IsaProducts {
-  implicit val format: OFormat[IsaProducts] = Json.format[IsaProducts]
+trait ModelGenerators {
+  implicit lazy val arbitraryIsaProducts: Arbitrary[IsaProduct] =
+    Arbitrary {
+      Gen.oneOf(IsaProduct.values)
+    }
 }

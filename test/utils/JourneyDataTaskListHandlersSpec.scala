@@ -18,6 +18,8 @@ package utils
 
 import play.api.libs.json._
 import uk.gov.hmrc.disaregistration.models.journeyData._
+import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.IsaProduct.CashIsas
+import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.IsaProducts
 
 class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
 
@@ -54,7 +56,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             deserialized shouldBe original
 
           case "isaProducts" =>
-            val original     = IsaProducts(Some("some data"), None)
+            val original     = IsaProducts(Some(Seq(CashIsas)), None)
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[IsaProducts]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[IsaProducts]])
             deserialized shouldBe original
