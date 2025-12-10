@@ -18,26 +18,21 @@ package uk.gov.hmrc.disaregistration.models.journeyData.isaProducts
 
 import uk.gov.hmrc.disaregistration.models.{Enumerable, WithName}
 
-
 sealed trait InnovativeFinancialProduct
 
 object InnovativeFinancialProduct extends Enumerable.Implicits {
 
   case object PeertopeerLoansAndHave36hPermissions
-    extends WithName("peerToPeerLoansAndHave36HPermissions")
+      extends WithName("peerToPeerLoansAndHave36HPermissions")
       with InnovativeFinancialProduct
 
   case object PeertopeerLoansUsingAPlatformWith36hPermissions
-    extends WithName("peerToPeerLoansUsingAPlatformWith36HPermissions")
+      extends WithName("peerToPeerLoansUsingAPlatformWith36HPermissions")
       with InnovativeFinancialProduct
 
-  case object CrowdFundedDebentures
-    extends WithName("crowdfundedDebentures")
-      with InnovativeFinancialProduct
+  case object CrowdFundedDebentures extends WithName("crowdfundedDebentures") with InnovativeFinancialProduct
 
-  case object LongTermAssetFunds
-    extends WithName("longTermAssetFunds")
-      with InnovativeFinancialProduct
+  case object LongTermAssetFunds extends WithName("longTermAssetFunds") with InnovativeFinancialProduct
 
   val values: Seq[InnovativeFinancialProduct] = Seq(
     PeertopeerLoansAndHave36hPermissions,
