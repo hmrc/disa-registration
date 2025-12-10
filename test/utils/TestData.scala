@@ -29,4 +29,5 @@ trait TestData {
     organisationDetails = Some(organisationDetails),
     businessVerification = Some(businessVerification)
   )
+  val testString                                 = "test"
 }
