@@ -55,7 +55,11 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             deserialized shouldBe original
 
           case "isaProducts" =>
-            val original     = IsaProducts(Some(IsaProduct.values), Some(InnovativeFinancialProduct.values))
+            val original     = IsaProducts(
+              isaProducts = Some(IsaProduct.values),
+              p2pPlatform = Some("platform"),
+              innovativeFinancialProducts = Some(InnovativeFinancialProduct.values)
+            )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[IsaProducts]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[IsaProducts]])
             deserialized shouldBe original
