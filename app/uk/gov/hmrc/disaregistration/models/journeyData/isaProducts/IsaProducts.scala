@@ -20,8 +20,9 @@ import play.api.libs.json.{Json, OFormat}
 
 case class IsaProducts(
   isaProducts: Option[Seq[IsaProduct]],
+  innovativeFinancialProducts: Option[Seq[InnovativeFinancialProduct]],
   p2pPlatform: Option[String],
-  innovativeFinancialProducts: Option[Seq[InnovativeFinancialProduct]]
+  p2pPlatformNumber: Option[String]
 )
 
 object IsaProducts {
