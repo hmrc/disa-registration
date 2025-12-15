@@ -22,6 +22,7 @@ case class OrganisationDetails(
   registeredToManageIsa: Option[Boolean] = None,
   zRefNumber: Option[String] = None,
   tradingUsingDifferentName: Option[Boolean] = None,
+  tradingName: Option[String] = None,
   fcaNumber: Option[String] = None,
   correspondenceAddress: Option[CorrespondenceAddress] = None,
   orgTelephoneNumber: Option[String] = None
