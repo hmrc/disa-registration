@@ -21,6 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 case class OrganisationDetails(
   registeredToManageIsa: Option[Boolean] = None,
   zRefNumber: Option[String] = None,
+  tradingUsingDifferentName: Option[Boolean] = None,
   fcaNumber: Option[String] = None,
   correspondenceAddress: Option[CorrespondenceAddress] = None,
   orgTelephoneNumber: Option[String] = None

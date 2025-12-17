@@ -49,7 +49,11 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             deserialized shouldBe original
 
           case "organisationDetails" =>
-            val original     = OrganisationDetails(Some(true), None)
+            val original     = OrganisationDetails(
+              registeredToManageIsa = Some(true),
+              zRefNumber = Some("Z1111"),
+              tradingUsingDifferentName = Some(true)
+            )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[OrganisationDetails]])
             deserialized shouldBe original
