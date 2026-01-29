@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.disaregistration.config
 
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import javax.inject.{Inject, Singleton}
-import play.api.Configuration
 
 @Singleton
-class AppConfig @Inject() (config: Configuration) {
+class AppConfig @Inject() (config: ServicesConfig) {
 
-  val appName: String = config.get[String]("appName")
+  lazy val etmpBaseUrl: String = config.baseUrl(serviceName = "etmp")
 
-  lazy val timeToLive: Int = config.get[Int]("mongodb.timeToLive")
+  lazy val timeToLive: Int = config.getInt("mongodb.timeToLive")
 }
