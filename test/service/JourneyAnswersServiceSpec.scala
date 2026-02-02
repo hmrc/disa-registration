@@ -29,10 +29,10 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
   val service = new JourneyAnswersService(mockRepository)
 
-  "storeJourneyData" should {
+  "upsertJourneyData" should {
     "successfully store journeyData" in {
 
-      when(mockRepository.storeJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
+      when(mockRepository.upsertJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
         .thenReturn(Future.successful(()))
 
       await(

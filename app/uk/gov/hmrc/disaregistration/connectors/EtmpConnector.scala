@@ -18,6 +18,7 @@ package uk.gov.hmrc.disaregistration.connectors
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -30,11 +31,11 @@ class EtmpConnector @Inject() (http: HttpClientV2, appConfig: AppConfig)(implici
 
   def declareAndSubmit(
     enrolmentSubmission: JourneyData
-  )(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, String]] = {
+  )(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, EnrolmentSubmissionResponse]] = {
     val url = s"${appConfig.etmpBaseUrl}/etmp/enrolment/submission"
     http
       .post(url"$url")
       .withBody(Json.toJson(enrolmentSubmission))
-      .execute[Either[UpstreamErrorResponse, String]]
+      .execute[Either[UpstreamErrorResponse, EnrolmentSubmissionResponse]]
   }
 }

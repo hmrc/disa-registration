@@ -40,19 +40,26 @@ class SubmissionController @Inject() (
   def declareAndSubmit(groupId: String): Action[AnyContent] = Action.async { implicit request =>
     val journeyDataRetrieval = journeyAnswersService.retrieve(groupId)
 
-    val submissionResult = journeyDataRetrieval.flatMap {
-      case Some(jd) => etmpService.declareAndSubmit(jd)
-      case None     => Future(Left("sadness")) //TODO something sensible
-    }
-
-    submissionResult.map {
-      case Left(error)         =>
-        logger.error(s"Failed to declare and submit for IM: [$groupId] with error: [$error]")
-        InternalServerError
-      case Right(submissionId) =>
-        logger.info(s"Enrolment submission successful for IM: [$groupId]")
-        Ok(submissionId)
-    }
+    journeyDataRetrieval
+      .flatMap {
+        case Some(jd) =>
+          etmpService.declareAndSubmit(jd).map {
+            _.fold {
+              logger.error(s"Failed to update journey data as submitted for groupId [$groupId]")
+              InternalServerError("Failed to update journey data as submitted for this request")
+            } { receiptId =>
+              logger.info(s"Enrolment submission successful for IM: [$groupId] with receipt: [$receiptId]")
+              Ok(receiptId)
+            }
+          }
+        case None     =>
+          logger.error(s"Failed to find journey data to submit for groupId [$groupId]")
+          Future.successful(NotFound("Failed to find journey data to submit for this request"))
+      }
+      .recover { case e =>
+        logger.error(s"Enrolment submission failed unexpectedly for [$groupId] with error: [$e]")
+        InternalServerError("There has been an issue processing your request")
+      }
   }
 
 }

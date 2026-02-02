@@ -16,16 +16,23 @@
 
 package utils
 
+import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, JourneyData, OrganisationDetails}
+
+import java.util.UUID
 
 trait TestData {
   val groupId                                    = "group1"
+  val enrolmentId                                = UUID.randomUUID().toString
   val organisationDetails: OrganisationDetails   =
     OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
   val businessVerification: BusinessVerification =
     BusinessVerification(dataItem = Some("Test-Item-1"), dataItem2 = None)
   val testJourneyData: JourneyData               = JourneyData(
     groupId = groupId,
+    enrolmentId = enrolmentId,
+    receiptId = None,
+    status = Active,
     organisationDetails = Some(organisationDetails),
     businessVerification = Some(businessVerification)
   )

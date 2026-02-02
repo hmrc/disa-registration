@@ -20,11 +20,13 @@ import com.mongodb.client.model.Indexes.ascending
 import org.mongodb.scala.model._
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
 import java.time.{Clock, Instant}
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,23 +43,36 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
           Indexes.ascending("lastUpdated"),
           IndexOptions().name("journeyAnswersTtl").expireAfter(appConfig.timeToLive, TimeUnit.DAYS)
         ),
-        IndexModel(ascending("groupId"), IndexOptions().name("groupIdIdx").unique(true))
+        IndexModel(
+          Indexes.ascending("groupId"),
+          IndexOptions()
+            .name("singleActiveEnrolmentPerGroupIdx")
+            .unique(true)
+            .partialFilterExpression(Filters.eq("status", Active))
+        ),
+        IndexModel(ascending("enrolmentId"), IndexOptions().name("enrolmentIdIdx").unique(true))
       ),
       replaceIndexes = true
     ) {
 
   def findById(groupId: String): Future[Option[JourneyData]] =
-    collection.find(Filters.eq("groupId", groupId)).headOption()
+    collection
+      .find(
+        Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active))
+      )
+      .headOption()
 
-  def storeJourneyData[A: Writes](
+  def upsertJourneyData[A: Writes](
     groupId: String,
     objectPath: String,
     journeyData: A
   ): Future[Unit] =
     collection
       .updateOne(
-        Filters.eq("groupId", groupId),
+        Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
+          Updates.setOnInsert("enrolmentId", UUID.randomUUID().toString),
+          Updates.setOnInsert("status", Codecs.toBson(Json.toJson(Active))),
           Updates.set(objectPath, Codecs.toBson(Json.toJson(journeyData))),
           Updates.set("lastUpdated", Instant.now(clock))
         ),
@@ -65,4 +80,16 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
       .toFuture()
       .map(_ => ())
+
+  def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Option[JourneyData]] =
+    collection
+      .findOneAndUpdate(
+        Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
+        Updates.combine(
+          Updates.set("receiptId", receiptId),
+          Updates.set("status", Submitted),
+          Updates.set("lastUpdated", Instant.now(clock))
+        )
+      )
+      .toFutureOption()
 }

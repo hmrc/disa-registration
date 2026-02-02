@@ -45,7 +45,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
   }
 
-  "storeJourneyData" should {
+  "upsertJourneyData" should {
 
     "successfully upsert a new document when none exists for this groupId" in {
       val model = BusinessVerification(
@@ -53,7 +53,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
         dataItem2 = None
       )
 
-      await(repository.storeJourneyData(groupId, "businessVerification", model))
+      await(repository.upsertJourneyData(groupId, "businessVerification", model))
 
       val result = await(repository.findById(groupId))
       result.get.businessVerification shouldBe Some(model)
@@ -65,7 +65,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       val organisationDetailsUpdate =
         OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
 
-      await(repository.storeJourneyData(groupId, "organisationDetails", organisationDetailsUpdate))
+      await(repository.upsertJourneyData(groupId, "organisationDetails", organisationDetailsUpdate))
 
       val result = await(repository.findById(groupId)).get
       result shouldBe testJourneyData
@@ -79,7 +79,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
         dataItem2 = Some("test-data-item-2")
       )
 
-      await(repository.storeJourneyData(groupId, "certificatesOfAuthority", coaJourney))
+      await(repository.upsertJourneyData(groupId, "certificatesOfAuthority", coaJourney))
       val result = await(repository.findById(groupId))
       result.get.certificatesOfAuthority shouldBe Some(coaJourney)
     }
