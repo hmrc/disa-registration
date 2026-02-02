@@ -21,7 +21,7 @@ import org.mongodb.scala.model._
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
-import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
+import uk.gov.hmrc.disaregistration.models.journeyData.{EnrolmentStatus, JourneyData}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
@@ -52,7 +52,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
         ),
         IndexModel(ascending("enrolmentId"), IndexOptions().name("enrolmentIdIdx").unique(true))
       ),
-      replaceIndexes = true
+      replaceIndexes = true,
+      extraCodecs = Codecs.playFormatSumCodecs(EnrolmentStatus.format)
     ) {
 
   def findById(groupId: String): Future[Option[JourneyData]] =
@@ -72,7 +73,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
           Updates.setOnInsert("enrolmentId", UUID.randomUUID().toString),
-          Updates.setOnInsert("status", Codecs.toBson(Json.toJson(Active))),
+          Updates.setOnInsert("status", Active),
           Updates.set(objectPath, Codecs.toBson(Json.toJson(journeyData))),
           Updates.set("lastUpdated", Instant.now(clock))
         ),

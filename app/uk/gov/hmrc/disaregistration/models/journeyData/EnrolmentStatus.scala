@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.disaregistration.models.journeyData
 
+import play.api.libs.json._
 import uk.gov.hmrc.disaregistration.models.{Enumerable, WithName}
 
 sealed trait EnrolmentStatus
@@ -25,8 +26,12 @@ object EnrolmentStatus extends Enumerable.Implicits {
   case object Submitted extends WithName("Submitted") with EnrolmentStatus
   case object Rejected extends WithName("Rejected") with EnrolmentStatus
 
-  val values = Seq(Active, Submitted, Rejected)
+  implicit val reads: Reads[EnrolmentStatus] = Reads {
+    case JsString(Active.toString)    => JsSuccess(Active)
+    case JsString(Submitted.toString) => JsSuccess(Submitted)
+    case JsString(Rejected.toString)  => JsSuccess(Rejected)
+  }
 
-  implicit val enumerable: Enumerable[EnrolmentStatus] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+  implicit val writes: Writes[EnrolmentStatus] = Writes(status => JsString(status.toString))
+  implicit val format: Format[EnrolmentStatus] = Format(reads, writes)
 }
