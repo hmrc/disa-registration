@@ -57,6 +57,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
               registeredToManageIsa = Some(true),
               zRefNumber = Some("Z1111"),
               tradingUsingDifferentName = Some(true),
+              tradingName = Some(testString),
               fcaNumber = Some("123456")
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
