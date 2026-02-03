@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EtmpService @Inject() (etmpConnector: EtmpConnector, journeyAnswersService: JourneyAnswersService)(implicit
   ec: ExecutionContext
 ) extends Logging {
-  def declareAndSubmit(enrolment: JourneyData)(implicit hc: HeaderCarrier): Future[Option[String]] =
+  def declareAndSubmit(enrolment: JourneyData)(implicit hc: HeaderCarrier): Future[String] =
     etmpConnector.declareAndSubmit(enrolment).flatMap {
       case Left(upstreamError)                           => Future.failed(upstreamError)
       case Right(EnrolmentSubmissionResponse(receiptId)) =>

@@ -82,9 +82,9 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       .toFuture()
       .map(_ => ())
 
-  def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Option[JourneyData]] =
+  def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Unit] =
     collection
-      .findOneAndUpdate(
+      .updateOne(
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
           Updates.set("receiptId", receiptId),
@@ -92,5 +92,10 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
           Updates.set("lastUpdated", Instant.now(clock))
         )
       )
-      .toFutureOption()
+      .toFuture()
+      .flatMap { res =>
+        if (res.getMatchedCount == 1) Future.unit
+        else
+          Future.failed(new NoSuchElementException(s"Failed to find document to mark Submitted for groupId [$groupId]"))
+      }
 }

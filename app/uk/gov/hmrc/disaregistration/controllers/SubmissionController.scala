@@ -17,8 +17,10 @@
 package uk.gov.hmrc.disaregistration.controllers
 
 import play.api.Logging
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
+import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
@@ -43,14 +45,9 @@ class SubmissionController @Inject() (
     journeyDataRetrieval
       .flatMap {
         case Some(jd) =>
-          etmpService.declareAndSubmit(jd).map {
-            _.fold {
-              logger.error(s"Failed to update journey data as submitted for groupId [$groupId]")
-              InternalServerError("Failed to update journey data as submitted for this request")
-            } { receiptId =>
-              logger.info(s"Enrolment submission successful for IM: [$groupId] with receipt: [$receiptId]")
-              Ok(receiptId)
-            }
+          etmpService.declareAndSubmit(jd).map { receiptId =>
+            logger.info(s"Enrolment submission successful for IM: [$groupId] with receipt: [$receiptId]")
+            Ok(Json.toJson(EnrolmentSubmissionResponse(receiptId)))
           }
         case None     =>
           logger.error(s"Failed to find journey data to submit for groupId [$groupId]")

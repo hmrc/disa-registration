@@ -39,8 +39,8 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String)(implicit
     executionContext: ExecutionContext
-  ): Future[Option[String]] = {
+  ): Future[String] = {
     logger.info(s"Storing receipt [$receiptId] for groupId [$groupId] and marking as submitted")
-    repository.storeReceiptAndMarkSubmitted(groupId, receiptId).map(_.flatMap(_.receiptId))
+    repository.storeReceiptAndMarkSubmitted(groupId, receiptId).map(_ => receiptId)
   }
 }
