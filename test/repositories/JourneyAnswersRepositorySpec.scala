@@ -49,8 +49,9 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
     "successfully upsert a new document when none exists for this groupId" in {
       val model = BusinessVerification(
-        dataItem = Some("TEST-ITEM"),
-        dataItem2 = None
+        businessRegistrationPassed = Some(true),
+        businessVerificationPassed = Some(false),
+        ctUtr = Some("12345678")
       )
 
       await(repository.storeJourneyData(groupId, "businessVerification", model))

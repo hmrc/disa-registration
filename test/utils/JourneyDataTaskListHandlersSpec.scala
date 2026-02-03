@@ -43,7 +43,11 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
       JourneyData.taskListJourneyHandlers.foreach { case (taskName, handler) =>
         taskName match {
           case "businessVerification" =>
-            val original     = BusinessVerification(Some(testString), None)
+            val original     = BusinessVerification(
+              businessRegistrationPassed = Some(true),
+              businessVerificationPassed = Some(false),
+              ctUtr = Some("12345678")
+            )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[BusinessVerification]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[BusinessVerification]])
             deserialized shouldBe original

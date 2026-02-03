@@ -22,8 +22,11 @@ trait TestData {
   val groupId                                    = "group1"
   val organisationDetails: OrganisationDetails   =
     OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
-  val businessVerification: BusinessVerification =
-    BusinessVerification(dataItem = Some("Test-Item-1"), dataItem2 = None)
+  val businessVerification: BusinessVerification = BusinessVerification(
+    businessRegistrationPassed = Some(true),
+    businessVerificationPassed = Some(false),
+    ctUtr = Some("12345678")
+  )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = groupId,
     organisationDetails = Some(organisationDetails),
