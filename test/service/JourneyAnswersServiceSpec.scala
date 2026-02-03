@@ -16,7 +16,7 @@
 
 package service
 
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.libs.json.Writes
 import play.api.test.Helpers.await
@@ -37,7 +37,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
       await(
         service.storeJourneyData(
-          groupId,
+          testGroupId,
           "organisationDetails",
           organisationDetails.copy(registeredToManageIsa = Some(false))
         )
@@ -47,12 +47,35 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
   "retrieve" should {
     "successfully retrieve journeyData" in {
-      when(mockRepository.findById(groupId)).thenReturn(Future.successful(Some(testJourneyData)))
-      await(service.retrieve(groupId)) shouldBe Some(testJourneyData)
+      when(mockRepository.findById(testGroupId)).thenReturn(Future.successful(Some(testJourneyData)))
+      await(service.retrieve(testGroupId)) shouldBe Some(testJourneyData)
     }
     "return None if repository returns None" in {
-      when(mockRepository.findById(groupId)).thenReturn(Future.successful(None))
-      await(service.retrieve(groupId)) shouldBe None
+      when(mockRepository.findById(testGroupId)).thenReturn(Future.successful(None))
+      await(service.retrieve(testGroupId)) shouldBe None
+    }
+  }
+
+  "storeReceiptAndMarkSubmitted" should {
+
+    "return the receiptId when the repository call succeeds" in {
+      when(mockRepository.storeReceiptAndMarkSubmitted(eqTo(testGroupId), eqTo(testReceiptId)))
+        .thenReturn(Future.successful(()))
+
+      val result = await(service.storeReceiptAndMarkSubmitted(testGroupId, testReceiptId))
+
+      result shouldBe testReceiptId
+    }
+
+    "propagate exception when the repository call fails" in {
+      val ex = new RuntimeException("mongo down")
+
+      when(mockRepository.storeReceiptAndMarkSubmitted(eqTo(testGroupId), eqTo(testReceiptId)))
+        .thenReturn(Future.failed(ex))
+
+      val thrown = await(service.storeReceiptAndMarkSubmitted(testGroupId, testReceiptId).failed)
+
+      thrown shouldBe ex
     }
   }
 }

@@ -27,6 +27,7 @@ import play.api.libs.ws.WSClient
 import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.disaregistration.utils.WiremockHelper.{wiremockHost, wiremockPort}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.TestData
 
 import scala.concurrent.ExecutionContext
 
@@ -38,7 +39,8 @@ trait BaseIntegrationSpec
     with BeforeAndAfterAll
     with DefaultAwaitTimeout
     with WiremockHelper
-    with CommonStubs {
+    with CommonStubs
+    with TestData {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -50,7 +52,9 @@ trait BaseIntegrationSpec
     Map(
       "auditing.enabled"                -> "false",
       "microservice.services.auth.host" -> wiremockHost,
-      "microservice.services.auth.port" -> wiremockPort.toString
+      "microservice.services.auth.port" -> wiremockPort.toString,
+      "microservice.services.etmp.host" -> wiremockHost,
+      "microservice.services.etmp.port" -> wiremockPort.toString
     )
 
   override def beforeAll(): Unit = {

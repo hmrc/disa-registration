@@ -26,7 +26,6 @@ import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
   private lazy val journeyAnswersRepository = app.injector.instanceOf[JourneyAnswersRepository]
-  val groupId                               = "test-group-id"
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -34,46 +33,46 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   }
 
   val journeyDataJson: String =
-    """{
-      |  "id": "test-group-id",
+    s"""{
+      |  "id": "$testGroupId",
       |  "organisationDetails": {
       |    "registeredToManageIsa": false,
-      |    "zRefNumber": "Z1235",
+      |    "zRefNumber": "$testZRef",
       |    "fcaNumber": "6743765"
       |  },
       |  "lastUpdated": "2025-10-21T15:27:28.433131Z"
       |}""".stripMargin
 
   val organisationDetailsJson: String =
-    """{
+    s"""{
       |    "registeredToManageIsa": false,
-      |    "zRefNumber": "Z1235",
+      |    "zRefNumber": "$testZRef",
       |    "fcaNumber": "6743765"
       |}""".stripMargin
 
   val body: JsValue = Json.parse(organisationDetailsJson)
 
-  "GET /store/:groupId" should {
+  "GET /store/:testGroupId" should {
 
     "return 404 Not Found when journeyData does not exist" in {
-      retrieveJourneyAnswersRequest(groupId = groupId).status shouldBe NOT_FOUND
+      retrieveJourneyAnswersRequest(groupId = testGroupId).status shouldBe NOT_FOUND
     }
 
     "return 200 OK when journeyData exists" in {
       storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
-      val result = retrieveJourneyAnswersRequest(groupId = groupId)
+      val result = retrieveJourneyAnswersRequest(groupId = testGroupId)
 
       result.status                                                               shouldBe OK
-      (result.json \ "groupId").as[String]                                        shouldBe groupId
+      (result.json \ "groupId").as[String]                                        shouldBe testGroupId
       (result.json \ "organisationDetails" \ "registeredToManageIsa").as[Boolean] shouldBe false
-      (result.json \ "organisationDetails" \ "zRefNumber").as[String]             shouldBe "Z1235"
+      (result.json \ "organisationDetails" \ "zRefNumber").as[String]             shouldBe testZRef
       (result.json \ "organisationDetails" \ "fcaNumber").as[String]              shouldBe "6743765"
     }
 
     "return 401 Unauthorized for an unauthorised request" in {
       stubAuthFail()
       val result = await(
-        ws.url(s"http://localhost:$port/disa-registration/store/$groupId")
+        ws.url(s"http://localhost:$port/disa-registration/store/$testGroupId")
           .get()
       )
 
@@ -81,7 +80,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     }
   }
 
-  "POST /store/:groupId/:taskListJourney" should {
+  "POST /store/:testGroupId/:taskListJourney" should {
 
     "return 204 NoContent when journeyData is successfully stored" in {
       storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
@@ -98,7 +97,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       val firstRetrieve = retrieveJourneyAnswersRequest()
 
       firstRetrieve.status                                                   shouldBe OK
-      (firstRetrieve.json \ "organisationDetails" \ "zRefNumber").as[String] shouldBe "Z1235"
+      (firstRetrieve.json \ "organisationDetails" \ "zRefNumber").as[String] shouldBe testZRef
       (firstRetrieve.json \ "businessVerification").toOption                 shouldBe None
 
       val businessVerificationJson = Json.obj(
@@ -147,7 +146,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   }
 
   def storeJourneyAnswersRequest(
-    groupId: String = groupId,
+    groupId: String = testGroupId,
     taskListJourney: String,
     body: JsValue,
     headers: Seq[(String, String)] = testHeaders
@@ -161,7 +160,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   }
 
   def retrieveJourneyAnswersRequest(
-    groupId: String = groupId,
+    groupId: String = testGroupId,
     headers: Seq[(String, String)] = testHeaders
   ): WSResponse = {
     stubAuth()
