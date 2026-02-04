@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package models
 
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.libs.json.{JsValue, Json, OFormat}
+import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
+import utils.JsonFormatSpec
 
-import javax.inject.{Inject, Singleton}
+class EnrolmentSubmissionResponseSpec extends JsonFormatSpec[EnrolmentSubmissionResponse] {
 
-@Singleton
-class AppConfig @Inject() (config: ServicesConfig) {
+  def model = EnrolmentSubmissionResponse(testReceiptId)
 
-  lazy val etmpBaseUrl: String = config.baseUrl(serviceName = "etmp")
+  def json: JsValue = Json.parse(s"""{"receiptId":"$testReceiptId"}""")
 
-  lazy val timeToLive: Int = config.getInt("mongodb.timeToLive")
+  implicit def format: OFormat[EnrolmentSubmissionResponse] = EnrolmentSubmissionResponse.format
 }

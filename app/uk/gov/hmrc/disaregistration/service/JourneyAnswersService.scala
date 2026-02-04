@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.disaregistration.service
 
+import play.api.Logging
 import play.api.libs.json.Writes
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) {
+class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) extends Logging {
 
   def retrieve(groupId: String): Future[Option[JourneyData]] =
     repository.findById(groupId)
@@ -34,6 +35,12 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) {
     objectPath: String,
     model: A
   ): Future[Unit] =
-    repository.storeJourneyData(groupId, objectPath, model)
+    repository.upsertJourneyData(groupId, objectPath, model)
 
+  def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String)(implicit
+    executionContext: ExecutionContext
+  ): Future[String] = {
+    logger.info(s"Storing receipt [$receiptId] for groupId [$groupId] and marking as submitted")
+    repository.storeReceiptAndMarkSubmitted(groupId, receiptId).map(_ => receiptId)
+  }
 }

@@ -29,8 +29,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
-import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
+import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import utils.TestData
@@ -60,6 +61,8 @@ abstract class BaseUnitSpec
   val mockAuthConnector: AuthConnector                 = mock[AuthConnector]
   val mockRepository: JourneyAnswersRepository         = mock[JourneyAnswersRepository]
   val mockJourneyAnswersService: JourneyAnswersService = mock[JourneyAnswersService]
+  val mockEtmpService: EtmpService                     = mock[EtmpService]
+  val mockEtmpConnector: EtmpConnector                 = mock[EtmpConnector]
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .overrides(

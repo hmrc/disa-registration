@@ -44,10 +44,10 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
     "return 200 OK when journeyData exists" in {
       authorisedUser()
-      when(mockJourneyAnswersService.retrieve(groupId))
+      when(mockJourneyAnswersService.retrieve(testGroupId))
         .thenReturn(Future.successful(Some(testJourneyData)))
 
-      val result = controller.retrieve(groupId)(FakeRequest())
+      val result = controller.retrieve(testGroupId)(FakeRequest())
 
       status(result)        shouldBe OK
       contentAsJson(result) shouldBe Json.toJson(testJourneyData)
@@ -55,9 +55,9 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
     "return 404 Not Found when no journeyData is found" in {
       authorisedUser()
-      when(mockJourneyAnswersService.retrieve(groupId)).thenReturn(Future.successful(None))
+      when(mockJourneyAnswersService.retrieve(testGroupId)).thenReturn(Future.successful(None))
 
-      val result = controller.retrieve(groupId)(FakeRequest())
+      val result = controller.retrieve(testGroupId)(FakeRequest())
 
       status(result) shouldBe NOT_FOUND
     }
@@ -70,7 +70,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
       when(
         mockJourneyAnswersService.storeJourneyData(
-          ArgumentMatchers.eq(groupId),
+          ArgumentMatchers.eq(testGroupId),
           ArgumentMatchers.eq(taskListJourney),
           ArgumentMatchers.eq(organisationDetails)
         )(any)
@@ -80,7 +80,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
         .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(groupId, taskListJourney)(request)
+      val result = controller.store(testGroupId, taskListJourney)(request)
 
       status(result) shouldBe NO_CONTENT
     }
@@ -94,7 +94,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
         .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(groupId, invalidJourney)(request)
+      val result = controller.store(testGroupId, invalidJourney)(request)
 
       status(result)        shouldBe BAD_REQUEST
       contentAsString(result) should include("Invalid taskListJourney parameter")
@@ -111,7 +111,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
         .withBody(invalidJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(groupId, taskListJourney)(request)
+      val result = controller.store(testGroupId, taskListJourney)(request)
 
       status(result)        shouldBe BAD_REQUEST
       contentAsString(result) should include("Invalid JSON for taskListJourney")
@@ -122,7 +122,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
 
       when(
         mockJourneyAnswersService.storeJourneyData(
-          ArgumentMatchers.eq(groupId),
+          ArgumentMatchers.eq(testGroupId),
           ArgumentMatchers.eq(taskListJourney),
           ArgumentMatchers.eq(organisationDetails)
         )(any)
@@ -132,7 +132,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
         .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(groupId, taskListJourney)(request)
+      val result = controller.store(testGroupId, taskListJourney)(request)
 
       status(result)          shouldBe INTERNAL_SERVER_ERROR
       contentAsString(result) shouldBe "There has been an issue processing your request"
