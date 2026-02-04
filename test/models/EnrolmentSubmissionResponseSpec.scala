@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, OFormat}
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import utils.JsonFormatSpec
 
@@ -26,5 +26,5 @@ class EnrolmentSubmissionResponseSpec extends JsonFormatSpec[EnrolmentSubmission
 
   def json: JsValue = Json.parse(s"""{"receiptId":"$testReceiptId"}""")
 
-  implicit def format = EnrolmentSubmissionResponse.format
+  implicit def format: OFormat[EnrolmentSubmissionResponse] = EnrolmentSubmissionResponse.format
 }

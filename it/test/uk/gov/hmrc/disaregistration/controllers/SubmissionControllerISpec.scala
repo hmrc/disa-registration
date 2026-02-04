@@ -49,7 +49,9 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
 
       await(repo.collection.insertOne(jd).toFuture())
 
-      val etmpResponse = Json.toJson(EnrolmentSubmissionResponse(testReceiptId)).toString
+      val etmpResponse = s"""
+           | {"receiptId": "$testReceiptId"}
+           | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
       val response = await(
@@ -68,7 +70,9 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
     }
 
     "return 404 when journey data does not exist" in {
-      val etmpResponse = Json.toJson(EnrolmentSubmissionResponse(testReceiptId)).toString
+      val etmpResponse = s"""
+                            | {"receiptId": "$testReceiptId"}
+                            | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
       val response = await(
@@ -91,8 +95,9 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
 
       await(repo.collection.insertOne(jd).toFuture())
 
-      val receiptId    = "receipt-123"
-      val etmpResponse = Json.toJson(EnrolmentSubmissionResponse(receiptId)).toString
+      val etmpResponse = s"""
+                            | {"receiptId": "$testReceiptId"}
+                            | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
       val response = await(

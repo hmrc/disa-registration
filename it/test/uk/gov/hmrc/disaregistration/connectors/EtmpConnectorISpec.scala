@@ -17,7 +17,6 @@
 package uk.gov.hmrc.disaregistration.connectors
 
 import play.api.http.Status.{OK, UNAUTHORIZED}
-import play.api.libs.json.Json
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
@@ -35,12 +34,15 @@ class EtmpConnectorISpec extends BaseIntegrationSpec {
     val submission: JourneyData = testJourneyData
 
     "return Right(EnrolmentSubmissionResponse) when backend returns 200 OK with valid json" in {
-      val responseBody = Json.toJson(EnrolmentSubmissionResponse(testString)).toString
+      val responseBody =
+        s"""
+           | {"receiptId": "$testReceiptId"}
+           | """.stripMargin
       stubPost(declareAndSubmitUrl, OK, responseBody)
 
       val response = await(connector.declareAndSubmit(submission))
 
-      response shouldBe Right(EnrolmentSubmissionResponse(testString))
+      response shouldBe Right(EnrolmentSubmissionResponse(testReceiptId))
     }
 
     "return Left(UpstreamErrorResponse) when backend returns 4xx/5xx and the http client materialises it as Left" in {

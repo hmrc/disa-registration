@@ -19,11 +19,9 @@ package uk.gov.hmrc.disaregistration.controllers
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,13 +29,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmissionController @Inject() (
   cc: ControllerComponents,
   journeyAnswersService: JourneyAnswersService,
-  val authConnector: AuthConnector,
   etmpService: EtmpService
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
-    with WithJsonBody
-    with Logging
-    with AuthorisedFunctions {
+    with Logging {
 
   def declareAndSubmit(groupId: String): Action[AnyContent] = Action.async { implicit request =>
     val journeyDataRetrieval = journeyAnswersService.retrieve(groupId)
@@ -58,5 +53,4 @@ class SubmissionController @Inject() (
         InternalServerError("There has been an issue processing your request")
       }
   }
-
 }
