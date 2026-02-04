@@ -22,7 +22,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.libs.ws.WSClient
 import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.disaregistration.utils.WiremockHelper.{wiremockHost, wiremockPort}
@@ -46,6 +46,11 @@ trait BaseIntegrationSpec
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(config)
+    .build()
+
+  def app(overrides: GuiceableModule*): Application = new GuiceApplicationBuilder()
+    .configure(config)
+    .overrides(overrides: _*)
     .build()
 
   def config: Map[String, String] =

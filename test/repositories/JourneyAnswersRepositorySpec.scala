@@ -37,6 +37,11 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
   override def beforeEach(): Unit = await(repository.collection.drop().toFuture())
 
+  override def afterAll(): Unit = {
+    super.afterAll()
+    await(repository.collection.drop().toFuture())
+  }
+
   private def activeJourneyData: JourneyData =
     testJourneyData.copy(
       status = Active,

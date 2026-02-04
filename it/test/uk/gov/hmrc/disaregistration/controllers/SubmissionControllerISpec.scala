@@ -20,19 +20,31 @@ import org.mongodb.scala.model.Filters
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.test.Helpers.await
+import play.api.{Application, inject}
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.disaregistration.utils.WiremockHelper.stubPost
+import uk.gov.hmrc.mongo.MongoComponent
 
 class SubmissionControllerISpec extends BaseIntegrationSpec {
 
-  private val repo: JourneyAnswersRepository = app.injector.instanceOf[JourneyAnswersRepository]
+  private val databaseName: String                    = "disa-registration-submission-test"
+  private lazy val mongoUri: String                   = s"mongodb://127.0.0.1:27017/$databaseName"
+  private lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
+
+  override lazy val app: Application = app(inject.bind[MongoComponent].toInstance(mockMongoComponent))
+  val repo: JourneyAnswersRepository = app.injector.instanceOf[JourneyAnswersRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    await(repo.collection.drop().toFuture())
+  }
+
+  override def afterAll(): Unit = {
+    super.afterAll()
     await(repo.collection.drop().toFuture())
   }
 
