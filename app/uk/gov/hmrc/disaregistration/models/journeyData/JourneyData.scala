@@ -24,6 +24,9 @@ import java.time.Instant
 
 case class JourneyData(
   groupId: String,
+  enrolmentId: String,
+  receiptId: Option[String],
+  status: EnrolmentStatus,
   businessVerification: Option[BusinessVerification] = None,
   organisationDetails: Option[OrganisationDetails] = None,
   isaProducts: Option[IsaProducts] = None,

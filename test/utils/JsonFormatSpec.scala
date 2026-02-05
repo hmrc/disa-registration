@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package utils
 
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import play.api.libs.json.{Format, JsValue, Json}
 
-import javax.inject.{Inject, Singleton}
+trait JsonFormatSpec[A] extends BaseUnitSpec {
 
-@Singleton
-class AppConfig @Inject() (config: ServicesConfig) {
+  def model: A
+  def json: JsValue
+  implicit def format: Format[A]
 
-  lazy val etmpBaseUrl: String = config.baseUrl(serviceName = "etmp")
+  "must serialise to JSON" in {
+    Json.toJson(model) mustBe json
+  }
 
-  lazy val timeToLive: Int = config.getInt("mongodb.timeToLive")
+  "must deserialise from JSON" in {
+    json.as[A] mustBe model
+  }
 }

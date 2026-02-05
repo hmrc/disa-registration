@@ -22,11 +22,12 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.libs.ws.WSClient
 import play.api.test.DefaultAwaitTimeout
+import uk.gov.hmrc.disaregistration.utils.WiremockHelper.{wiremockHost, wiremockPort}
 import uk.gov.hmrc.http.HeaderCarrier
-import WiremockHelper.{wiremockHost, wiremockPort}
+import utils.TestData
 
 import scala.concurrent.ExecutionContext
 
@@ -38,7 +39,8 @@ trait BaseIntegrationSpec
     with BeforeAndAfterAll
     with DefaultAwaitTimeout
     with WiremockHelper
-    with CommonStubs {
+    with CommonStubs
+    with TestData {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -46,11 +48,18 @@ trait BaseIntegrationSpec
     .configure(config)
     .build()
 
+  def app(overrides: GuiceableModule*): Application = new GuiceApplicationBuilder()
+    .configure(config)
+    .overrides(overrides: _*)
+    .build()
+
   def config: Map[String, String] =
     Map(
       "auditing.enabled"                -> "false",
       "microservice.services.auth.host" -> wiremockHost,
-      "microservice.services.auth.port" -> wiremockPort.toString
+      "microservice.services.auth.port" -> wiremockPort.toString,
+      "microservice.services.etmp.host" -> wiremockHost,
+      "microservice.services.etmp.port" -> wiremockPort.toString
     )
 
   override def beforeAll(): Unit = {
