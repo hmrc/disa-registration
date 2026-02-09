@@ -113,8 +113,8 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       (firstRetrieve.json \ "businessVerification").toOption                 shouldBe None
 
       val businessVerificationJson = Json.obj(
-        "dataItem"  -> "SomeValue",
-        "dataItem2" -> "SomeOtherValue"
+        "businessRegistrationPassed" -> true,
+        "businessVerificationPassed" -> true
       )
 
       val verificationResult =
@@ -127,9 +127,9 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       val secondRetrieve = retrieveJourneyAnswersRequest()
       secondRetrieve.status shouldBe OK
 
-      (secondRetrieve.json \ "organisationDetails" \ "fcaNumber").as[String]  shouldBe "6743765"
-      (secondRetrieve.json \ "businessVerification" \ "dataItem").as[String]  shouldBe "SomeValue"
-      (secondRetrieve.json \ "businessVerification" \ "dataItem2").as[String] shouldBe "SomeOtherValue"
+      (secondRetrieve.json \ "organisationDetails" \ "fcaNumber").as[String]                    shouldBe "6743765"
+      (secondRetrieve.json \ "businessVerification" \ "businessRegistrationPassed").as[Boolean] shouldBe true
+      (secondRetrieve.json \ "businessVerification" \ "businessVerificationPassed").as[Boolean] shouldBe true
     }
 
     "return 400 BadRequest when taskListJourney is invalid" in {

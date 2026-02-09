@@ -29,7 +29,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
       enrolmentId = testEnrolmentId,
       receiptId = Some(testReceiptId),
       status = EnrolmentStatus.Submitted,
-      businessVerification = Some(BusinessVerification(Some("A"), Some("B"))),
+      businessVerification = Some(BusinessVerification(Some(true), Some(true), None)),
       organisationDetails = Some(
         OrganisationDetails(
           registeredToManageIsa = Some(true),
@@ -62,7 +62,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |  "enrolmentId": "$testEnrolmentId",
        |  "receiptId": "$testReceiptId",
        |  "status": "Submitted",
-       |  "businessVerification": { "dataItem": "A", "dataItem2": "B" },
+       |  "businessVerification": { "businessRegistrationPassed": true, "businessVerificationPassed": true },
        |  "organisationDetails": {
        |    "registeredToManageIsa": true,
        |    "zRefNumber": "$testZRef",

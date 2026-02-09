@@ -77,8 +77,9 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
     "successfully upsert a new Active document when none exists for this groupId" in {
       val model = BusinessVerification(
-        dataItem = Some(testString),
-        dataItem2 = None
+        businessRegistrationPassed = Some(true),
+        businessVerificationPassed = Some(false),
+        ctUtr = Some("12345678")
       )
 
       await(repository.upsertJourneyData(testGroupId, "businessVerification", model))
@@ -128,8 +129,9 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       await(repository.collection.insertOne(submittedJourneyData).toFuture())
 
       val model = BusinessVerification(
-        dataItem = Some("SHOULD-NOT-UPDATE"),
-        dataItem2 = None
+        businessRegistrationPassed = Some(true),
+        businessVerificationPassed = Some(false),
+        ctUtr = Some("12345678")
       )
 
       await(repository.upsertJourneyData(testGroupId, "businessVerification", model))
