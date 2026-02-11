@@ -28,7 +28,6 @@ import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
 import java.time.{Clock, Instant}
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -87,7 +86,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       }
   }
 
-  def upsertJourneyData[A: Writes](
+  def updateJourneyData[A: Writes](
     groupId: String,
     objectPath: String,
     journeyData: A
@@ -96,15 +95,16 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       .updateOne(
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
-          Updates.setOnInsert("enrolmentId", UUID.randomUUID().toString),
-          Updates.setOnInsert("status", Active),
           Updates.set(objectPath, Codecs.toBson(Json.toJson(journeyData))),
           Updates.set("lastUpdated", Instant.now(clock))
-        ),
-        new UpdateOptions().upsert(true)
+        )
       )
       .toFuture()
-      .map(_ => ())
+      .map { res =>
+        if (res.getMatchedCount == 0)
+          throw new NoSuchElementException(s"Failed to find Active document to update for groupId [$groupId]")
+        else ()
+      }
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Unit] =
     collection
@@ -117,9 +117,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
         )
       )
       .toFuture()
-      .flatMap { res =>
-        if (res.getMatchedCount == 1) Future.unit
-        else
-          Future.failed(new NoSuchElementException(s"Failed to find document to mark Submitted for groupId [$groupId]"))
+      .map { res =>
+        if (res.getMatchedCount == 1) ()
+        else throw new NoSuchElementException(s"Failed to find document to mark Submitted for groupId [$groupId]")
       }
 }

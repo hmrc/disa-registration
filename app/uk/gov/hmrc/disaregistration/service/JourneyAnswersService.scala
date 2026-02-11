@@ -39,7 +39,7 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
     objectPath: String,
     model: A
   ): Future[Unit] =
-    repository.upsertJourneyData(groupId, objectPath, model)
+    repository.updateJourneyData(groupId, objectPath, model)
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String)(implicit
     executionContext: ExecutionContext

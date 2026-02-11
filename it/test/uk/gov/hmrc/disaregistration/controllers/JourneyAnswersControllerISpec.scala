@@ -207,6 +207,11 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   ): WSResponse = {
     stubAuth()
     await(
+      ws.url(s"http://localhost:$port/disa-registration/$groupId/enrolment")
+        .withHttpHeaders(headers: _*)
+        .post(Json.obj())
+    )
+    await(
       ws.url(s"http://localhost:$port/disa-registration/store/$groupId/$taskListJourney")
         .withHttpHeaders(headers: _*)
         .post(body)

@@ -128,26 +128,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
   }
 
-  "upsertJourneyData" should {
-
-    "successfully upsert a new Active document when none exists for this groupId" in {
-      val model = BusinessVerification(
-        businessRegistrationPassed = Some(true),
-        businessVerificationPassed = Some(false),
-        ctUtr = Some("12345678")
-      )
-
-      await(repository.upsertJourneyData(testGroupId, "businessVerification", model))
-
-      val result = await(repository.findById(testGroupId)).get
-
-      result.groupId              shouldBe testGroupId
-      result.status               shouldBe Active
-      result.receiptId            shouldBe None
-      result.enrolmentId.nonEmpty shouldBe true
-      result.businessVerification shouldBe Some(model)
-      result.lastUpdated          shouldBe Some(Instant.now(fixedClock))
-    }
+  "updateJourneyData" should {
 
     "successfully updates the existing Active document with the provided data" in {
       await(repository.collection.insertOne(activeJourneyData).toFuture())
@@ -155,7 +136,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       val organisationDetailsUpdate =
         OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some(testZRef))
 
-      await(repository.upsertJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
+      await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
 
       val result = await(repository.findById(testGroupId)).get
 
@@ -167,12 +148,14 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
 
     "upserts and stores CertificatesOfAuthority data" in {
+      await(repository.collection.insertOne(activeJourneyData).toFuture())
+
       val coaJourney = CertificatesOfAuthority(
         dataItem = Some(testString),
         dataItem2 = Some(testString)
       )
 
-      await(repository.upsertJourneyData(testGroupId, "certificatesOfAuthority", coaJourney))
+      await(repository.updateJourneyData(testGroupId, "certificatesOfAuthority", coaJourney))
 
       val result = await(repository.findById(testGroupId)).get
 
@@ -180,32 +163,16 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       result.status                  shouldBe Active
     }
 
-    "creates a new Active document when only a non-Active document exists for the groupId" in {
+    "fail when no Active document exists for the groupId" in {
       await(repository.collection.insertOne(submittedJourneyData).toFuture())
 
-      val model = BusinessVerification(
-        businessRegistrationPassed = Some(true),
-        businessVerificationPassed = Some(false),
-        ctUtr = Some("12345678")
-      )
+      val organisationDetailsUpdate =
+        OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some(testZRef))
 
-      await(repository.upsertJourneyData(testGroupId, "businessVerification", model))
+      val err =
+        await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate).failed)
 
-      val active = await(repository.findById(testGroupId)).get
-      active.status               shouldBe Active
-      active.businessVerification shouldBe Some(model)
-      active.receiptId            shouldBe None
-      active.lastUpdated          shouldBe Some(Instant.now(fixedClock))
-
-      val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      allForGroup.size shouldBe 2
-
-      val submitted = allForGroup.find(_.status == Submitted).get
-      submitted.status               shouldBe Submitted
-      submitted.receiptId            shouldBe submittedJourneyData.receiptId
-      submitted.businessVerification shouldBe submittedJourneyData.businessVerification
-
-      active.enrolmentId should not equal submitted.enrolmentId
+      err shouldBe a[NoSuchElementException]
     }
   }
 
