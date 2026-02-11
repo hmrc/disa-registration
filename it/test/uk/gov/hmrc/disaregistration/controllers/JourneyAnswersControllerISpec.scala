@@ -21,6 +21,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
 import play.api.{Application, inject}
+import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.mongo.MongoComponent
@@ -157,6 +158,47 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     }
   }
 
+  "POST /:groupId/enrolment" should {
+
+    "return 201 Created and isNewEnrolment=true when user starts journey for the first time" in {
+      val first = getOrCreateEnrolmentRequest(groupId = testGroupId)
+
+      first.status                                        shouldBe CREATED
+      (first.json \ "isNewEnrolment").as[Boolean]         shouldBe true
+      (first.json \ "journeyData" \ "groupId").as[String] shouldBe testGroupId
+      (first.json \ "journeyData" \ "status").as[String]  shouldBe "Active"
+      (first.json \ "journeyData" \ "receiptId").toOption shouldBe None
+
+      val expectedEnrolmentId = (first.json \ "journeyData" \ "enrolmentId").as[String]
+
+      val stored = await(repo.findById(testGroupId)).get
+      stored.groupId     shouldBe testGroupId
+      stored.status      shouldBe Active
+      stored.enrolmentId shouldBe expectedEnrolmentId
+    }
+
+    "return 200 OK and isNewEnrolment=false when user has an existing Active enrolment" in {
+      getOrCreateEnrolmentRequest(groupId = testGroupId).status shouldBe CREATED
+
+      val second = getOrCreateEnrolmentRequest(groupId = testGroupId)
+
+      second.status                                        shouldBe OK
+      (second.json \ "isNewEnrolment").as[Boolean]         shouldBe false
+      (second.json \ "journeyData" \ "groupId").as[String] shouldBe testGroupId
+    }
+
+    "return 401 Unauthorized for an unauthorised request" in {
+      stubAuthFail()
+
+      val result = await(
+        ws.url(s"http://localhost:$port/disa-registration/$testGroupId/enrolment")
+          .post(Json.obj())
+      )
+
+      result.status shouldBe UNAUTHORIZED
+    }
+  }
+
   def storeJourneyAnswersRequest(
     groupId: String = testGroupId,
     taskListJourney: String,
@@ -182,4 +224,17 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         .get()
     )
   }
+
+  def getOrCreateEnrolmentRequest(
+    groupId: String = testGroupId,
+    headers: Seq[(String, String)] = testHeaders
+  ): WSResponse = {
+    stubAuth()
+    await(
+      ws.url(s"http://localhost:$port/disa-registration/$groupId/enrolment")
+        .withHttpHeaders(headers: _*)
+        .post(Json.obj())
+    )
+  }
+
 }

@@ -21,7 +21,6 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
-import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult.writes
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData.{TaskListJourney, taskListJourneyHandlers}
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController

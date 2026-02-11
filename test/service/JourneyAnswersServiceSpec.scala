@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.libs.json.Writes
 import play.api.test.Helpers.await
+import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import utils.BaseUnitSpec
 
@@ -53,6 +54,30 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
     "return None if repository returns None" in {
       when(mockRepository.findById(testGroupId)).thenReturn(Future.successful(None))
       await(service.retrieve(testGroupId)) shouldBe None
+    }
+  }
+
+  "getOrCreateEnrolment" should {
+
+    "return the GetOrCreateEnrolmentResult from the repository" in {
+      val repoResult =
+        GetOrCreateEnrolmentResult(isNewEnrolment = true, journeyData = testJourneyData)
+
+      when(mockRepository.getOrCreateEnrolment(eqTo(testGroupId)))
+        .thenReturn(Future.successful(repoResult))
+
+      await(service.getOrCreateEnrolment(testGroupId)) shouldBe repoResult
+    }
+
+    "propagate exception when the repository call fails" in {
+      val ex = new RuntimeException("fubar")
+
+      when(mockRepository.getOrCreateEnrolment(eqTo(testGroupId)))
+        .thenReturn(Future.failed(ex))
+
+      val thrown = await(service.getOrCreateEnrolment(testGroupId).failed)
+
+      thrown shouldBe ex
     }
   }
 

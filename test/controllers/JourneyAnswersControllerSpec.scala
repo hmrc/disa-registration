@@ -24,6 +24,7 @@ import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.disaregistration.controllers.JourneyAnswersController
+import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
 import utils.BaseUnitSpec
 
 import scala.concurrent.Future
@@ -60,6 +61,55 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
       val result = controller.retrieve(testGroupId)(FakeRequest())
 
       status(result) shouldBe NOT_FOUND
+    }
+  }
+
+  "JourneyAnswersController.getOrCreateEnrolment" should {
+
+    "return 201 Created when a new enrolment journey is created" in {
+      authorisedUser()
+
+      val serviceResult = GetOrCreateEnrolmentResult(
+        isNewEnrolment = true,
+        journeyData = testJourneyData
+      )
+
+      when(mockJourneyAnswersService.getOrCreateEnrolment(ArgumentMatchers.eq(testGroupId)))
+        .thenReturn(Future.successful(serviceResult))
+
+      val result = controller.getOrCreateEnrolment(testGroupId)(FakeRequest())
+
+      status(result)        shouldBe CREATED
+      contentAsJson(result) shouldBe Json.toJson(serviceResult)
+    }
+
+    "return 200 OK when an existing enrolment journey is found" in {
+      authorisedUser()
+
+      val serviceResult = GetOrCreateEnrolmentResult(
+        isNewEnrolment = false,
+        journeyData = testJourneyData
+      )
+
+      when(mockJourneyAnswersService.getOrCreateEnrolment(ArgumentMatchers.eq(testGroupId)))
+        .thenReturn(Future.successful(serviceResult))
+
+      val result = controller.getOrCreateEnrolment(testGroupId)(FakeRequest())
+
+      status(result)        shouldBe OK
+      contentAsJson(result) shouldBe Json.toJson(serviceResult)
+    }
+
+    "return 500 InternalServerError when the service throws an exception" in {
+      authorisedUser()
+
+      when(mockJourneyAnswersService.getOrCreateEnrolment(ArgumentMatchers.eq(testGroupId)))
+        .thenReturn(Future.failed(new RuntimeException("fubar")))
+
+      val result = controller.getOrCreateEnrolment(testGroupId)(FakeRequest())
+
+      status(result)          shouldBe INTERNAL_SERVER_ERROR
+      contentAsString(result) shouldBe "There has been an issue processing your request"
     }
   }
 

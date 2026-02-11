@@ -73,6 +73,61 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
   }
 
+  "getOrCreateEnrolment" should {
+
+    "create a new Active enrolment when no Active document exists for the groupId" in {
+      val result = await(repository.getOrCreateEnrolment(testGroupId))
+
+      result.isNewEnrolment          shouldBe true
+      result.journeyData.groupId     shouldBe testGroupId
+      result.journeyData.status      shouldBe Active
+      result.journeyData.receiptId   shouldBe None
+      result.journeyData.lastUpdated shouldBe Some(Instant.now(fixedClock))
+
+      val expectedEnrolmentId = result.journeyData.enrolmentId
+
+      val stored = await(repository.collection.find().head())
+      stored.groupId     shouldBe testGroupId
+      stored.status      shouldBe Active
+      stored.enrolmentId shouldBe expectedEnrolmentId
+      stored.receiptId   shouldBe None
+      stored.lastUpdated shouldBe Some(Instant.now(fixedClock))
+    }
+
+    "not create a second Active doc if called twice and return the existing one" in {
+      val first  = await(repository.getOrCreateEnrolment(testGroupId))
+      val second = await(repository.getOrCreateEnrolment(testGroupId))
+
+      first.isNewEnrolment  shouldBe true
+      second.isNewEnrolment shouldBe false
+      first.journeyData     shouldBe second.journeyData
+
+      val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
+      allForGroup.count(_.status == Active) shouldBe 1
+    }
+
+    "create a new Active enrolment when only a non-Active document exists for the groupId" in {
+      await(repository.collection.insertOne(submittedJourneyData).toFuture())
+
+      val result = await(repository.getOrCreateEnrolment(testGroupId))
+
+      result.isNewEnrolment          shouldBe true
+      result.journeyData.groupId     shouldBe testGroupId
+      result.journeyData.status      shouldBe Active
+      result.journeyData.receiptId   shouldBe None
+      result.journeyData.lastUpdated shouldBe Some(Instant.now(fixedClock))
+
+      val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
+      allForGroup.size                          shouldBe 2
+      allForGroup.exists(_.status == Submitted) shouldBe true
+      allForGroup.exists(_.status == Active)    shouldBe true
+
+      val active    = allForGroup.find(_.status == Active).get
+      val submitted = allForGroup.find(_.status == Submitted).get
+      active.enrolmentId should not equal submitted.enrolmentId
+    }
+  }
+
   "upsertJourneyData" should {
 
     "successfully upsert a new Active document when none exists for this groupId" in {

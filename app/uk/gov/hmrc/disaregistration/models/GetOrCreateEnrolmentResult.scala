@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.disaregistration.models
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 
 case class GetOrCreateEnrolmentResult(isNewEnrolment: Boolean, journeyData: JourneyData)
 
 object GetOrCreateEnrolmentResult {
-  implicit val writes: Writes[GetOrCreateEnrolmentResult] = Json.writes[GetOrCreateEnrolmentResult]
+  implicit val format: OFormat[GetOrCreateEnrolmentResult] = Json.format[GetOrCreateEnrolmentResult]
 }
