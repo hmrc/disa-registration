@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.disaregistration.repositories
 
+import com.mongodb.client.model
 import com.mongodb.client.model.Indexes.ascending
 import org.mongodb.scala.model._
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.{EnrolmentStatus, JourneyData}
 import uk.gov.hmrc.mongo.MongoComponent
@@ -30,6 +32,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Singleton
 class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appConfig: AppConfig, clock: Clock)(implicit
@@ -62,6 +65,27 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active))
       )
       .headOption()
+
+  def getOrCreateEnrolment(groupId: String): Future[GetOrCreateEnrolmentResult] = {
+    val newEnrolment = JourneyData(groupId = groupId, lastUpdated = Some(Instant.now(clock)))
+    val document     = Codecs.toBson(Json.toJson(newEnrolment)).asDocument().entrySet().asScala.toSeq
+
+    collection
+      .findOneAndUpdate(
+        Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
+        Updates.combine(
+          document.map { field =>
+            Updates.setOnInsert(field.getKey, field.getValue)
+          }: _*
+        ),
+        new FindOneAndUpdateOptions().upsert(true).returnDocument(model.ReturnDocument.BEFORE)
+      )
+      .toFuture()
+      .map { existingDocument =>
+        if (existingDocument == null) GetOrCreateEnrolmentResult(isNewEnrolment = true, newEnrolment)
+        else GetOrCreateEnrolmentResult(isNewEnrolment = false, existingDocument)
+      }
+  }
 
   def upsertJourneyData[A: Writes](
     groupId: String,

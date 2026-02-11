@@ -20,6 +20,8 @@ import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
+import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
+import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult.writes
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData.{TaskListJourney, taskListJourneyHandlers}
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -46,6 +48,25 @@ class JourneyAnswersController @Inject() (
       }
     }
   }
+
+  def getOrCreateEnrolment(groupId: String): Action[AnyContent] = Action.async(implicit request =>
+    authorised() {
+      journeyAnswersService
+        .getOrCreateEnrolment(groupId)
+        .map {
+          case result @ GetOrCreateEnrolmentResult(true, _)  =>
+            logger.info(s"Created new enrolment journey for groupId [$groupId]")
+            Created(Json.toJson(result))
+          case result @ GetOrCreateEnrolmentResult(false, _) =>
+            logger.info(s"Found existing enrolment journey for groupId [$groupId]")
+            Ok(Json.toJson(result))
+        }
+        .recover { case e =>
+          logger.error(s"Unexpected error with getOrCreateEnrolment for $groupId", e)
+          InternalServerError("There has been an issue processing your request")
+        }
+    }
+  )
 
   def store(groupId: String, taskListJourney: String): Action[JsValue] =
     Action.async(parse.json) { implicit request =>

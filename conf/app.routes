@@ -3,4 +3,6 @@
 POST /store/:groupId/:taskListJourney        uk.gov.hmrc.disaregistration.controllers.JourneyAnswersController.store(groupId:String, taskListJourney:String)
 GET  /store/:groupId                         uk.gov.hmrc.disaregistration.controllers.JourneyAnswersController.retrieve(groupId:String)
 
+POST /:groupId/enrolment                     uk.gov.hmrc.disaregistration.controllers.JourneyAnswersController.getOrCreateEnrolment(groupId: String)
+
 POST /:groupId/declare-and-submit            uk.gov.hmrc.disaregistration.controllers.SubmissionController.declareAndSubmit(groupId:String)
