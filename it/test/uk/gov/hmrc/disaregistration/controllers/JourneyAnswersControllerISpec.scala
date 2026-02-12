@@ -186,7 +186,6 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       stored.groupId     shouldBe testGroupId
       stored.status      shouldBe Active
       stored.enrolmentId shouldBe expectedEnrolmentId
-      Seq.fill()
     }
 
     "return 200 OK and isNewEnrolment=false when user has an existing Active enrolment" in {
