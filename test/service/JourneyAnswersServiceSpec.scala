@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.libs.json.Writes
 import play.api.test.Helpers.await
-import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import utils.BaseUnitSpec
 
@@ -31,13 +31,13 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
   val service = new JourneyAnswersService(mockRepository)
 
   "updateJourneyData" should {
-    "successfully store journeyData" in {
+    "successfully update journeyData" in {
 
       when(mockRepository.updateJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
         .thenReturn(Future.successful(Some(())))
 
       await(
-        service.storeJourneyData(
+        service.updateJourneyData(
           testGroupId,
           "organisationDetails",
           organisationDetails.copy(registeredToManageIsa = Some(false))
@@ -51,7 +51,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
         .thenReturn(Future.successful(None))
 
       await(
-        service.storeJourneyData(
+        service.updateJourneyData(
           testGroupId,
           "organisationDetails",
           organisationDetails.copy(registeredToManageIsa = Some(false))
@@ -71,16 +71,16 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
     }
   }
 
-  "getOrCreateEnrolment" should {
+  "getOrCreateJourneyData" should {
 
-    "return the GetOrCreateEnrolmentResult from the repository" in {
+    "return the GetOrCreateJourneyData from the repository" in {
       val repoResult =
-        GetOrCreateEnrolmentResult(isNewEnrolment = true, journeyData = testJourneyData)
+        GetOrCreateJourneyData(isNewEnrolment = true, journeyData = testJourneyData)
 
       when(mockRepository.getOrCreateEnrolment(eqTo(testGroupId)))
         .thenReturn(Future.successful(repoResult))
 
-      await(service.getOrCreateEnrolment(testGroupId)) shouldBe repoResult
+      await(service.getOrCreateJourneyData(testGroupId)) shouldBe repoResult
     }
 
     "propagate exception when the repository call fails" in {
@@ -89,7 +89,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
       when(mockRepository.getOrCreateEnrolment(eqTo(testGroupId)))
         .thenReturn(Future.failed(ex))
 
-      val thrown = await(service.getOrCreateEnrolment(testGroupId).failed)
+      val thrown = await(service.getOrCreateJourneyData(testGroupId).failed)
 
       thrown shouldBe ex
     }

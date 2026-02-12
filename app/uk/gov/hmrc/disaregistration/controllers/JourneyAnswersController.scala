@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
-import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData.{TaskListJourney, taskListJourneyHandlers}
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -48,26 +48,26 @@ class JourneyAnswersController @Inject() (
     }
   }
 
-  def getOrCreateEnrolment(groupId: String): Action[AnyContent] = Action.async(implicit request =>
+  def getOrCreateJourneyData(groupId: String): Action[AnyContent] = Action.async(implicit request =>
     authorised() {
       journeyAnswersService
-        .getOrCreateEnrolment(groupId)
+        .getOrCreateJourneyData(groupId)
         .map {
-          case result @ GetOrCreateEnrolmentResult(true, _)  =>
+          case GetOrCreateJourneyData(true, jd)  =>
             logger.info(s"Created new enrolment journey for groupId [$groupId]")
-            Created(Json.toJson(result))
-          case result @ GetOrCreateEnrolmentResult(false, _) =>
+            Created(Json.toJson(jd))
+          case GetOrCreateJourneyData(false, jd) =>
             logger.info(s"Found existing enrolment journey for groupId [$groupId]")
-            Ok(Json.toJson(result))
+            Ok(Json.toJson(jd))
         }
         .recover { case e =>
-          logger.error(s"Unexpected error with getOrCreateEnrolment for $groupId", e)
+          logger.error(s"Unexpected error with getOrCreateJourneyData for $groupId", e)
           InternalServerError("There has been an issue processing your request")
         }
     }
   )
 
-  def store(groupId: String, taskListJourney: String): Action[JsValue] =
+  def update(groupId: String, taskListJourney: String): Action[JsValue] =
     Action.async(parse.json) { implicit request =>
       authorised() {
         taskListJourneyHandlers.get(taskListJourney) match {
@@ -78,7 +78,7 @@ class JourneyAnswersController @Inject() (
             request.body.validate(reads) match {
               case JsSuccess(model, _) =>
                 journeyAnswersService
-                  .storeJourneyData(groupId, taskListJourney, model)(writes)
+                  .updateJourneyData(groupId, taskListJourney, model)(writes)
                   .map {
                     case Some(_) => NoContent
                     case None    =>
@@ -91,7 +91,7 @@ class JourneyAnswersController @Inject() (
             }
         }
       }.recover { case e =>
-        logger.error(s"Unexpected error storing $taskListJourney for $groupId", e)
+        logger.error(s"Unexpected error updating $taskListJourney for $groupId", e)
         InternalServerError("There has been an issue processing your request")
       }
     }

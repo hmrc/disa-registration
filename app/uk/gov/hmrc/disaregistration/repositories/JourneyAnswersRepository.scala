@@ -21,7 +21,7 @@ import com.mongodb.client.model.Indexes.ascending
 import org.mongodb.scala.model._
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.disaregistration.config.AppConfig
-import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.{EnrolmentStatus, JourneyData}
 import uk.gov.hmrc.mongo.MongoComponent
@@ -65,7 +65,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
       .headOption()
 
-  def getOrCreateEnrolment(groupId: String): Future[GetOrCreateEnrolmentResult] = {
+  def getOrCreateEnrolment(groupId: String): Future[GetOrCreateJourneyData] = {
     val newEnrolment = JourneyData(groupId = groupId, lastUpdated = Some(Instant.now(clock)))
     val document     = Codecs.toBson(Json.toJson(newEnrolment)).asDocument().entrySet().asScala.toSeq
 
@@ -81,8 +81,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
       .toFuture()
       .map { existingDocument =>
-        if (existingDocument == null) GetOrCreateEnrolmentResult(isNewEnrolment = true, newEnrolment)
-        else GetOrCreateEnrolmentResult(isNewEnrolment = false, existingDocument)
+        if (existingDocument == null) GetOrCreateJourneyData(isNewEnrolment = true, newEnrolment)
+        else GetOrCreateJourneyData(isNewEnrolment = false, existingDocument)
       }
   }
 

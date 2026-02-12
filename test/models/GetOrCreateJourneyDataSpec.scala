@@ -17,13 +17,13 @@
 package models
 
 import play.api.libs.json.{Format, JsValue, Json}
-import uk.gov.hmrc.disaregistration.models.GetOrCreateEnrolmentResult
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import utils.JsonFormatSpec
 
-class GetOrCreateEnrolmentResultSpec extends JsonFormatSpec[GetOrCreateEnrolmentResult] {
+class GetOrCreateJourneyDataSpec extends JsonFormatSpec[GetOrCreateJourneyData] {
 
-  override val model: GetOrCreateEnrolmentResult =
-    GetOrCreateEnrolmentResult(
+  override val model: GetOrCreateJourneyData =
+    GetOrCreateJourneyData(
       isNewEnrolment = true,
       journeyData = testJourneyData
     )
@@ -34,5 +34,5 @@ class GetOrCreateEnrolmentResultSpec extends JsonFormatSpec[GetOrCreateEnrolment
       "journeyData"    -> Json.toJson(testJourneyData)
     )
 
-  override implicit val format: Format[GetOrCreateEnrolmentResult] = GetOrCreateEnrolmentResult.format
+  override implicit val format: Format[GetOrCreateJourneyData] = GetOrCreateJourneyData.format
 }

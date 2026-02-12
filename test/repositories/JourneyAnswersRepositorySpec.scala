@@ -73,7 +73,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
   }
 
-  "getOrCreateEnrolment" should {
+  "getOrCreateJourneyData" should {
 
     "create a new Active enrolment when no Active document exists for the groupId" in {
       val result = await(repository.getOrCreateEnrolment(testGroupId))
