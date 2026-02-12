@@ -24,6 +24,7 @@ import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.disaregistration.controllers.JourneyAnswersController
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import utils.BaseUnitSpec
 
 import scala.concurrent.Future
@@ -63,24 +64,73 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
     }
   }
 
-  "JourneyAnswersController.store" should {
+  "JourneyAnswersController.getOrCreateJourneyData" should {
+
+    "return 201 Created when a new enrolment journey is created" in {
+      authorisedUser()
+
+      val serviceResult = GetOrCreateJourneyData(
+        isNewEnrolment = true,
+        journeyData = testJourneyData
+      )
+
+      when(mockJourneyAnswersService.getOrCreateJourneyData(ArgumentMatchers.eq(testGroupId)))
+        .thenReturn(Future.successful(serviceResult))
+
+      val result = controller.getOrCreateJourneyData(testGroupId)(FakeRequest())
+
+      status(result)        shouldBe CREATED
+      contentAsJson(result) shouldBe Json.toJson(testJourneyData)
+    }
+
+    "return 200 OK when an existing enrolment journey is found" in {
+      authorisedUser()
+
+      val serviceResult = GetOrCreateJourneyData(
+        isNewEnrolment = false,
+        journeyData = testJourneyData
+      )
+
+      when(mockJourneyAnswersService.getOrCreateJourneyData(ArgumentMatchers.eq(testGroupId)))
+        .thenReturn(Future.successful(serviceResult))
+
+      val result = controller.getOrCreateJourneyData(testGroupId)(FakeRequest())
+
+      status(result)        shouldBe OK
+      contentAsJson(result) shouldBe Json.toJson(testJourneyData)
+    }
+
+    "return 500 InternalServerError when the service throws an exception" in {
+      authorisedUser()
+
+      when(mockJourneyAnswersService.getOrCreateJourneyData(ArgumentMatchers.eq(testGroupId)))
+        .thenReturn(Future.failed(new RuntimeException("fubar")))
+
+      val result = controller.getOrCreateJourneyData(testGroupId)(FakeRequest())
+
+      status(result)          shouldBe INTERNAL_SERVER_ERROR
+      contentAsString(result) shouldBe "There has been an issue processing your request"
+    }
+  }
+
+  "JourneyAnswersController.update" should {
 
     "return 204 NoContent when the journey section is successfully updated" in {
       authorisedUser()
 
       when(
-        mockJourneyAnswersService.storeJourneyData(
+        mockJourneyAnswersService.updateJourneyData(
           ArgumentMatchers.eq(testGroupId),
           ArgumentMatchers.eq(taskListJourney),
           ArgumentMatchers.eq(organisationDetails)
         )(any)
-      ).thenReturn(Future.successful(()))
+      ).thenReturn(Future.successful(Some(())))
 
       val request = FakeRequest()
         .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(testGroupId, taskListJourney)(request)
+      val result = controller.update(testGroupId, taskListJourney)(request)
 
       status(result) shouldBe NO_CONTENT
     }
@@ -94,7 +144,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
         .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(testGroupId, invalidJourney)(request)
+      val result = controller.update(testGroupId, invalidJourney)(request)
 
       status(result)        shouldBe BAD_REQUEST
       contentAsString(result) should include("Invalid taskListJourney parameter")
@@ -111,7 +161,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
         .withBody(invalidJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(testGroupId, taskListJourney)(request)
+      val result = controller.update(testGroupId, taskListJourney)(request)
 
       status(result)        shouldBe BAD_REQUEST
       contentAsString(result) should include("Invalid JSON for taskListJourney")
@@ -121,7 +171,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
       authorisedUser()
 
       when(
-        mockJourneyAnswersService.storeJourneyData(
+        mockJourneyAnswersService.updateJourneyData(
           ArgumentMatchers.eq(testGroupId),
           ArgumentMatchers.eq(taskListJourney),
           ArgumentMatchers.eq(organisationDetails)
@@ -132,7 +182,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
         .withBody(organisationDetailsJson)
         .withHeaders("Content-Type" -> "application/json")
 
-      val result = controller.store(testGroupId, taskListJourney)(request)
+      val result = controller.update(testGroupId, taskListJourney)(request)
 
       status(result)          shouldBe INTERNAL_SERVER_ERROR
       contentAsString(result) shouldBe "There has been an issue processing your request"

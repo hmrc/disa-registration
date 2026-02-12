@@ -73,26 +73,62 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
   }
 
-  "upsertJourneyData" should {
+  "getOrCreateJourneyData" should {
 
-    "successfully upsert a new Active document when none exists for this groupId" in {
-      val model = BusinessVerification(
-        businessRegistrationPassed = Some(true),
-        businessVerificationPassed = Some(false),
-        ctUtr = Some("12345678")
-      )
+    "create a new Active enrolment when no Active document exists for the groupId" in {
+      val result = await(repository.getOrCreateEnrolment(testGroupId))
 
-      await(repository.upsertJourneyData(testGroupId, "businessVerification", model))
+      result.isNewEnrolment          shouldBe true
+      result.journeyData.groupId     shouldBe testGroupId
+      result.journeyData.status      shouldBe Active
+      result.journeyData.receiptId   shouldBe None
+      result.journeyData.lastUpdated shouldBe Some(Instant.now(fixedClock))
 
-      val result = await(repository.findById(testGroupId)).get
+      val expectedEnrolmentId = result.journeyData.enrolmentId
 
-      result.groupId              shouldBe testGroupId
-      result.status               shouldBe Active
-      result.receiptId            shouldBe None
-      result.enrolmentId.nonEmpty shouldBe true
-      result.businessVerification shouldBe Some(model)
-      result.lastUpdated          shouldBe Some(Instant.now(fixedClock))
+      val stored = await(repository.collection.find().head())
+      stored.groupId     shouldBe testGroupId
+      stored.status      shouldBe Active
+      stored.enrolmentId shouldBe expectedEnrolmentId
+      stored.receiptId   shouldBe None
+      stored.lastUpdated shouldBe Some(Instant.now(fixedClock))
     }
+
+    "not create a second Active doc if called twice and return the existing one" in {
+      val first  = await(repository.getOrCreateEnrolment(testGroupId))
+      val second = await(repository.getOrCreateEnrolment(testGroupId))
+
+      first.isNewEnrolment  shouldBe true
+      second.isNewEnrolment shouldBe false
+      first.journeyData     shouldBe second.journeyData
+
+      val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
+      allForGroup.count(_.status == Active) shouldBe 1
+    }
+
+    "create a new Active enrolment when only a non-Active document exists for the groupId" in {
+      await(repository.collection.insertOne(submittedJourneyData).toFuture())
+
+      val result = await(repository.getOrCreateEnrolment(testGroupId))
+
+      result.isNewEnrolment          shouldBe true
+      result.journeyData.groupId     shouldBe testGroupId
+      result.journeyData.status      shouldBe Active
+      result.journeyData.receiptId   shouldBe None
+      result.journeyData.lastUpdated shouldBe Some(Instant.now(fixedClock))
+
+      val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
+      allForGroup.size                          shouldBe 2
+      allForGroup.exists(_.status == Submitted) shouldBe true
+      allForGroup.exists(_.status == Active)    shouldBe true
+
+      val active    = allForGroup.find(_.status == Active).get
+      val submitted = allForGroup.find(_.status == Submitted).get
+      active.enrolmentId should not equal submitted.enrolmentId
+    }
+  }
+
+  "updateJourneyData" should {
 
     "successfully updates the existing Active document with the provided data" in {
       await(repository.collection.insertOne(activeJourneyData).toFuture())
@@ -100,7 +136,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       val organisationDetailsUpdate =
         OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some(testZRef))
 
-      await(repository.upsertJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
+      await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
 
       val result = await(repository.findById(testGroupId)).get
 
@@ -112,12 +148,14 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
 
     "upserts and stores CertificatesOfAuthority data" in {
+      await(repository.collection.insertOne(activeJourneyData).toFuture())
+
       val coaJourney = CertificatesOfAuthority(
         dataItem = Some(testString),
         dataItem2 = Some(testString)
       )
 
-      await(repository.upsertJourneyData(testGroupId, "certificatesOfAuthority", coaJourney))
+      await(repository.updateJourneyData(testGroupId, "certificatesOfAuthority", coaJourney))
 
       val result = await(repository.findById(testGroupId)).get
 
@@ -125,32 +163,15 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       result.status                  shouldBe Active
     }
 
-    "creates a new Active document when only a non-Active document exists for the groupId" in {
+    "return None when no Active document exists for the groupId" in {
       await(repository.collection.insertOne(submittedJourneyData).toFuture())
 
-      val model = BusinessVerification(
-        businessRegistrationPassed = Some(true),
-        businessVerificationPassed = Some(false),
-        ctUtr = Some("12345678")
-      )
+      val organisationDetailsUpdate =
+        OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some(testZRef))
 
-      await(repository.upsertJourneyData(testGroupId, "businessVerification", model))
+      val res = await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
 
-      val active = await(repository.findById(testGroupId)).get
-      active.status               shouldBe Active
-      active.businessVerification shouldBe Some(model)
-      active.receiptId            shouldBe None
-      active.lastUpdated          shouldBe Some(Instant.now(fixedClock))
-
-      val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      allForGroup.size shouldBe 2
-
-      val submitted = allForGroup.find(_.status == Submitted).get
-      submitted.status               shouldBe Submitted
-      submitted.receiptId            shouldBe submittedJourneyData.receiptId
-      submitted.businessVerification shouldBe submittedJourneyData.businessVerification
-
-      active.enrolmentId should not equal submitted.enrolmentId
+      res shouldBe None
     }
   }
 

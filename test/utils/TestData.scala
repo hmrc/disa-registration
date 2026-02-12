@@ -39,9 +39,6 @@ trait TestData {
   )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = testGroupId,
-    enrolmentId = testEnrolmentId,
-    receiptId = None,
-    status = Active,
     organisationDetails = Some(organisationDetails),
     businessVerification = Some(businessVerification)
   )

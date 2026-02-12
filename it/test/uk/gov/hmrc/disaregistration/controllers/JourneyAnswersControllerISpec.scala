@@ -21,6 +21,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
 import play.api.{Application, inject}
+import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.mongo.MongoComponent
@@ -71,7 +72,8 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     }
 
     "return 200 OK when journeyData exists" in {
-      storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
+      getOrCreateJourneyDataRequest()
+      updateJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
       val result = retrieveJourneyAnswersRequest(groupId = testGroupId)
 
       result.status                                                               shouldBe OK
@@ -95,12 +97,15 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   "POST /store/:testGroupId/:taskListJourney" should {
 
     "return 204 NoContent when journeyData is successfully stored" in {
-      storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
+      getOrCreateJourneyDataRequest()
+      updateJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
     }
 
-    "allow storing a second journey model into the same document and retrieving combined data" in {
+    "allow updating with a second journey model into the same document and retrieving combined data" in {
+      getOrCreateJourneyDataRequest()
+
       val orgDetailsResult =
-        storeJourneyAnswersRequest(
+        updateJourneyAnswersRequest(
           taskListJourney = "organisationDetails",
           body = body
         )
@@ -118,7 +123,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       )
 
       val verificationResult =
-        storeJourneyAnswersRequest(
+        updateJourneyAnswersRequest(
           taskListJourney = "businessVerification",
           body = businessVerificationJson
         )
@@ -133,7 +138,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     }
 
     "return 400 BadRequest when taskListJourney is invalid" in {
-      val result = storeJourneyAnswersRequest(
+      val result = updateJourneyAnswersRequest(
         taskListJourney = "nonExistentObject",
         body = body
       )
@@ -147,7 +152,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         "registeredToManageIsa" -> "not-a-boolean"
       )
 
-      val result = storeJourneyAnswersRequest(
+      val result = updateJourneyAnswersRequest(
         taskListJourney = "organisationDetails",
         body = invalidJson
       )
@@ -155,9 +160,64 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       result.status shouldBe BAD_REQUEST
       result.body     should include("Invalid JSON for taskListJourney")
     }
+
+    "return 404 Not Found when journeyData does not exist" in {
+      val result = updateJourneyAnswersRequest(
+        taskListJourney = "organisationDetails",
+        body = body
+      ).status shouldBe NOT_FOUND
+    }
   }
 
-  def storeJourneyAnswersRequest(
+  "PUT /journey/:groupId" should {
+
+    "return 201 Created when user starts journey for the first time" in {
+      val first = getOrCreateJourneyDataRequest(groupId = testGroupId)
+
+      first.status                        shouldBe CREATED
+      (first.json \ "groupId").as[String] shouldBe testGroupId
+      (first.json \ "status").as[String]  shouldBe "Active"
+      (first.json \ "receiptId").toOption shouldBe None
+
+      val expectedEnrolmentId = (first.json \ "enrolmentId").as[String]
+
+      val stored = await(repo.findById(testGroupId)).get
+      stored.groupId     shouldBe testGroupId
+      stored.status      shouldBe Active
+      stored.enrolmentId shouldBe expectedEnrolmentId
+    }
+
+    "return 200 OK when user has an existing Active enrolment" in {
+      getOrCreateJourneyDataRequest(groupId = testGroupId).status shouldBe CREATED
+
+      val second = getOrCreateJourneyDataRequest(groupId = testGroupId)
+
+      second.status                        shouldBe OK
+      (second.json \ "groupId").as[String] shouldBe testGroupId
+      (second.json \ "status").as[String]  shouldBe "Active"
+      (second.json \ "receiptId").toOption shouldBe None
+
+      val expectedEnrolmentId = (second.json \ "enrolmentId").as[String]
+
+      val stored = await(repo.findById(testGroupId)).get
+      stored.groupId     shouldBe testGroupId
+      stored.status      shouldBe Active
+      stored.enrolmentId shouldBe expectedEnrolmentId
+    }
+
+    "return 401 Unauthorized for an unauthorised request" in {
+      stubAuthFail()
+
+      val result = await(
+        ws.url(s"http://localhost:$port/disa-registration/journey/$testGroupId")
+          .put(Json.obj())
+      )
+
+      result.status shouldBe UNAUTHORIZED
+    }
+  }
+
+  def updateJourneyAnswersRequest(
     groupId: String = testGroupId,
     taskListJourney: String,
     body: JsValue,
@@ -182,4 +242,17 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         .get()
     )
   }
+
+  def getOrCreateJourneyDataRequest(
+    groupId: String = testGroupId,
+    headers: Seq[(String, String)] = testHeaders
+  ): WSResponse = {
+    stubAuth()
+    await(
+      ws.url(s"http://localhost:$port/disa-registration/journey/$groupId")
+        .withHttpHeaders(headers: _*)
+        .put(Json.obj())
+    )
+  }
+
 }

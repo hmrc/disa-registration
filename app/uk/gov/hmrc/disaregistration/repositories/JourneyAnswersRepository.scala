@@ -16,20 +16,22 @@
 
 package uk.gov.hmrc.disaregistration.repositories
 
+import com.mongodb.client.model
 import com.mongodb.client.model.Indexes.ascending
 import org.mongodb.scala.model._
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.{EnrolmentStatus, JourneyData}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
 import java.time.{Clock, Instant}
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Singleton
 class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appConfig: AppConfig, clock: Clock)(implicit
@@ -63,24 +65,45 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
       .headOption()
 
-  def upsertJourneyData[A: Writes](
+  def getOrCreateEnrolment(groupId: String): Future[GetOrCreateJourneyData] = {
+    val newEnrolment = JourneyData(groupId = groupId, lastUpdated = Some(Instant.now(clock)))
+    val document     = Codecs.toBson(Json.toJson(newEnrolment)).asDocument().entrySet().asScala.toSeq
+
+    collection
+      .findOneAndUpdate(
+        Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
+        Updates.combine(
+          document.map { field =>
+            Updates.setOnInsert(field.getKey, field.getValue)
+          }: _*
+        ),
+        new FindOneAndUpdateOptions().upsert(true).returnDocument(model.ReturnDocument.BEFORE)
+      )
+      .toFuture()
+      .map { existingDocument =>
+        if (existingDocument == null) GetOrCreateJourneyData(isNewEnrolment = true, newEnrolment)
+        else GetOrCreateJourneyData(isNewEnrolment = false, existingDocument)
+      }
+  }
+
+  def updateJourneyData[A: Writes](
     groupId: String,
     objectPath: String,
     journeyData: A
-  ): Future[Unit] =
+  ): Future[Option[Unit]] =
     collection
       .updateOne(
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
-          Updates.setOnInsert("enrolmentId", UUID.randomUUID().toString),
-          Updates.setOnInsert("status", Active),
           Updates.set(objectPath, Codecs.toBson(Json.toJson(journeyData))),
           Updates.set("lastUpdated", Instant.now(clock))
-        ),
-        new UpdateOptions().upsert(true)
+        )
       )
       .toFuture()
-      .map(_ => ())
+      .map { res =>
+        if (res.getMatchedCount == 0) None
+        else Some(())
+      }
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Unit] =
     collection
@@ -93,9 +116,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
         )
       )
       .toFuture()
-      .flatMap { res =>
-        if (res.getMatchedCount == 1) Future.unit
-        else
-          Future.failed(new NoSuchElementException(s"Failed to find document to mark Submitted for groupId [$groupId]"))
+      .map { res =>
+        if (res.getMatchedCount == 1) ()
+        else throw new NoSuchElementException(s"Failed to find document to mark Submitted for groupId [$groupId]")
       }
 }

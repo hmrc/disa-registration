@@ -18,6 +18,7 @@ package uk.gov.hmrc.disaregistration.service
 
 import play.api.Logging
 import play.api.libs.json.Writes
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 
@@ -30,12 +31,15 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
   def retrieve(groupId: String): Future[Option[JourneyData]] =
     repository.findById(groupId)
 
-  def storeJourneyData[A: Writes](
+  def getOrCreateJourneyData(groupId: String): Future[GetOrCreateJourneyData] =
+    repository.getOrCreateEnrolment(groupId)
+
+  def updateJourneyData[A: Writes](
     groupId: String,
     objectPath: String,
     model: A
-  ): Future[Unit] =
-    repository.upsertJourneyData(groupId, objectPath, model)
+  ): Future[Option[Unit]] =
+    repository.updateJourneyData(groupId, objectPath, model)
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String)(implicit
     executionContext: ExecutionContext
