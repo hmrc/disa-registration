@@ -79,7 +79,12 @@ class JourneyAnswersController @Inject() (
               case JsSuccess(model, _) =>
                 journeyAnswersService
                   .storeJourneyData(groupId, taskListJourney, model)(writes)
-                  .map(_ => NoContent)
+                  .map {
+                    case Some(_) => NoContent
+                    case None    =>
+                      logger.warn(s"Failed to find Active document to update for groupId [$groupId]")
+                      NotFound
+                  }
               case JsError(errors)     =>
                 logger.error(s"Invalid JSON for taskListJourney '$taskListJourney': ${JsError.toJson(errors)}")
                 Future.successful(BadRequest(s"Invalid JSON for taskListJourney '$taskListJourney'"))

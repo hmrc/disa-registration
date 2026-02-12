@@ -72,6 +72,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     }
 
     "return 200 OK when journeyData exists" in {
+      getOrCreateEnrolmentRequest()
       storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
       val result = retrieveJourneyAnswersRequest(groupId = testGroupId)
 
@@ -96,10 +97,13 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   "POST /store/:testGroupId/:taskListJourney" should {
 
     "return 204 NoContent when journeyData is successfully stored" in {
+      getOrCreateEnrolmentRequest()
       storeJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
     }
 
     "allow storing a second journey model into the same document and retrieving combined data" in {
+      getOrCreateEnrolmentRequest()
+
       val orgDetailsResult =
         storeJourneyAnswersRequest(
           taskListJourney = "organisationDetails",
@@ -156,6 +160,13 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       result.status shouldBe BAD_REQUEST
       result.body     should include("Invalid JSON for taskListJourney")
     }
+
+    "return 404 Not Found when journeyData does not exist" in {
+      val result = storeJourneyAnswersRequest(
+        taskListJourney = "organisationDetails",
+        body = body
+      ).status shouldBe NOT_FOUND
+    }
   }
 
   "POST /:groupId/enrolment" should {
@@ -175,6 +186,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       stored.groupId     shouldBe testGroupId
       stored.status      shouldBe Active
       stored.enrolmentId shouldBe expectedEnrolmentId
+      Seq.fill()
     }
 
     "return 200 OK and isNewEnrolment=false when user has an existing Active enrolment" in {
@@ -206,11 +218,6 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     headers: Seq[(String, String)] = testHeaders
   ): WSResponse = {
     stubAuth()
-    await(
-      ws.url(s"http://localhost:$port/disa-registration/$groupId/enrolment")
-        .withHttpHeaders(headers: _*)
-        .post(Json.obj())
-    )
     await(
       ws.url(s"http://localhost:$port/disa-registration/store/$groupId/$taskListJourney")
         .withHttpHeaders(headers: _*)

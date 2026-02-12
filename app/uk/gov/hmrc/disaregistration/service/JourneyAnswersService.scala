@@ -38,7 +38,7 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
     groupId: String,
     objectPath: String,
     model: A
-  ): Future[Unit] =
+  ): Future[Option[Unit]] =
     repository.updateJourneyData(groupId, objectPath, model)
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String)(implicit

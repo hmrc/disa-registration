@@ -90,7 +90,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
     groupId: String,
     objectPath: String,
     journeyData: A
-  ): Future[Unit] =
+  ): Future[Option[Unit]] =
     collection
       .updateOne(
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
@@ -101,9 +101,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
       .toFuture()
       .map { res =>
-        if (res.getMatchedCount == 0)
-          throw new NoSuchElementException(s"Failed to find Active document to update for groupId [$groupId]")
-        else ()
+        if (res.getMatchedCount == 0) None
+        else Some(())
       }
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Unit] =

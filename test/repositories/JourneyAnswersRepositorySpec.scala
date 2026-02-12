@@ -163,16 +163,15 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       result.status                  shouldBe Active
     }
 
-    "fail when no Active document exists for the groupId" in {
+    "return None when no Active document exists for the groupId" in {
       await(repository.collection.insertOne(submittedJourneyData).toFuture())
 
       val organisationDetailsUpdate =
         OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some(testZRef))
 
-      val err =
-        await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate).failed)
+      val res = await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
 
-      err shouldBe a[NoSuchElementException]
+      res shouldBe None
     }
   }
 

@@ -34,7 +34,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
     "successfully store journeyData" in {
 
       when(mockRepository.updateJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
-        .thenReturn(Future.successful(()))
+        .thenReturn(Future.successful(Some(())))
 
       await(
         service.storeJourneyData(
@@ -42,7 +42,21 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
           "organisationDetails",
           organisationDetails.copy(registeredToManageIsa = Some(false))
         )
-      ) shouldBe (): Unit
+      ) shouldBe Some(())
+    }
+
+    "return None if there is no data for that groupID" in {
+
+      when(mockRepository.updateJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
+        .thenReturn(Future.successful(None))
+
+      await(
+        service.storeJourneyData(
+          testGroupId,
+          "organisationDetails",
+          organisationDetails.copy(registeredToManageIsa = Some(false))
+        )
+      ) shouldBe None
     }
   }
 
