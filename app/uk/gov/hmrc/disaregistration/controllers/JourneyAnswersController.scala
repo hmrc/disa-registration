@@ -53,12 +53,12 @@ class JourneyAnswersController @Inject() (
       journeyAnswersService
         .getOrCreateJourneyData(groupId)
         .map {
-          case GetOrCreateJourneyData(true, jd)  =>
+          case resp @ GetOrCreateJourneyData(true, _)  =>
             logger.info(s"Created new enrolment journey for groupId [$groupId]")
-            Created(Json.toJson(jd))
-          case GetOrCreateJourneyData(false, jd) =>
+            Created(Json.toJson(resp))
+          case resp @ GetOrCreateJourneyData(false, _) =>
             logger.info(s"Found existing enrolment journey for groupId [$groupId]")
-            Ok(Json.toJson(jd))
+            Ok(Json.toJson(resp))
         }
         .recover { case e =>
           logger.error(s"Unexpected error with getOrCreateJourneyData for $groupId", e)

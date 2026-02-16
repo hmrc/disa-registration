@@ -173,14 +173,15 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   "PUT /journey/:groupId" should {
 
     "return 201 Created when user starts journey for the first time" in {
-      val first = getOrCreateJourneyDataRequest(groupId = testGroupId)
+      val response = getOrCreateJourneyDataRequest(groupId = testGroupId)
 
-      first.status                        shouldBe CREATED
-      (first.json \ "groupId").as[String] shouldBe testGroupId
-      (first.json \ "status").as[String]  shouldBe "Active"
-      (first.json \ "receiptId").toOption shouldBe None
+      response.status                                        shouldBe CREATED
+      (response.json \ "isNewEnrolmentJourney").as[Boolean]  shouldBe true
+      (response.json \ "journeyData" \ "groupId").as[String] shouldBe testGroupId
+      (response.json \ "journeyData" \ "status").as[String]  shouldBe "Active"
+      (response.json \ "journeyData" \ "receiptId").toOption shouldBe None
 
-      val expectedEnrolmentId = (first.json \ "enrolmentId").as[String]
+      val expectedEnrolmentId = (response.json \ "journeyData" \ "enrolmentId").as[String]
 
       val stored = await(repo.findById(testGroupId)).get
       stored.groupId     shouldBe testGroupId
@@ -191,14 +192,15 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     "return 200 OK when user has an existing Active enrolment" in {
       getOrCreateJourneyDataRequest(groupId = testGroupId).status shouldBe CREATED
 
-      val second = getOrCreateJourneyDataRequest(groupId = testGroupId)
+      val response = getOrCreateJourneyDataRequest(groupId = testGroupId)
 
-      second.status                        shouldBe OK
-      (second.json \ "groupId").as[String] shouldBe testGroupId
-      (second.json \ "status").as[String]  shouldBe "Active"
-      (second.json \ "receiptId").toOption shouldBe None
+      response.status                                        shouldBe OK
+      (response.json \ "isNewEnrolmentJourney").as[Boolean]  shouldBe false
+      (response.json \ "journeyData" \ "groupId").as[String] shouldBe testGroupId
+      (response.json \ "journeyData" \ "status").as[String]  shouldBe "Active"
+      (response.json \ "journeyData" \ "receiptId").toOption shouldBe None
 
-      val expectedEnrolmentId = (second.json \ "enrolmentId").as[String]
+      val expectedEnrolmentId = (response.json \ "journeyData" \ "enrolmentId").as[String]
 
       val stored = await(repo.findById(testGroupId)).get
       stored.groupId     shouldBe testGroupId

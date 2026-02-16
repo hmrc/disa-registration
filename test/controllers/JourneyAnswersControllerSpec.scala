@@ -70,7 +70,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
       authorisedUser()
 
       val serviceResult = GetOrCreateJourneyData(
-        isNewEnrolment = true,
+        isNewEnrolmentJourney = true,
         journeyData = testJourneyData
       )
 
@@ -80,14 +80,14 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
       val result = controller.getOrCreateJourneyData(testGroupId)(FakeRequest())
 
       status(result)        shouldBe CREATED
-      contentAsJson(result) shouldBe Json.toJson(testJourneyData)
+      contentAsJson(result) shouldBe Json.toJson(serviceResult)
     }
 
     "return 200 OK when an existing enrolment journey is found" in {
       authorisedUser()
 
       val serviceResult = GetOrCreateJourneyData(
-        isNewEnrolment = false,
+        isNewEnrolmentJourney = false,
         journeyData = testJourneyData
       )
 
@@ -97,7 +97,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
       val result = controller.getOrCreateJourneyData(testGroupId)(FakeRequest())
 
       status(result)        shouldBe OK
-      contentAsJson(result) shouldBe Json.toJson(testJourneyData)
+      contentAsJson(result) shouldBe Json.toJson(serviceResult)
     }
 
     "return 500 InternalServerError when the service throws an exception" in {

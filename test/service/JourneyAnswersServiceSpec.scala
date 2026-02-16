@@ -75,7 +75,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
     "return the GetOrCreateJourneyData from the repository" in {
       val repoResult =
-        GetOrCreateJourneyData(isNewEnrolment = true, journeyData = testJourneyData)
+        GetOrCreateJourneyData(isNewEnrolmentJourney = true, journeyData = testJourneyData)
 
       when(mockRepository.getOrCreateJourneyData(eqTo(testGroupId)))
         .thenReturn(Future.successful(repoResult))

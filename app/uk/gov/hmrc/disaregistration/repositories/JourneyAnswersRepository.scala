@@ -82,8 +82,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       .toFuture()
       .map {
         Option(_) match {
-          case Some(existingDoc) => GetOrCreateJourneyData(isNewEnrolment = false, existingDoc)
-          case _                 => GetOrCreateJourneyData(isNewEnrolment = true, newEnrolment)
+          case Some(existingDoc) => GetOrCreateJourneyData(isNewEnrolmentJourney = false, existingDoc)
+          case _                 => GetOrCreateJourneyData(isNewEnrolmentJourney = true, newEnrolment)
         }
       }
   }

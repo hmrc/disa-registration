@@ -24,14 +24,14 @@ class GetOrCreateJourneyDataSpec extends JsonFormatSpec[GetOrCreateJourneyData] 
 
   override val model: GetOrCreateJourneyData =
     GetOrCreateJourneyData(
-      isNewEnrolment = true,
+      isNewEnrolmentJourney = true,
       journeyData = testJourneyData
     )
 
   override val json: JsValue =
     Json.obj(
-      "isNewEnrolment" -> true,
-      "journeyData"    -> Json.toJson(testJourneyData)
+      "isNewEnrolmentJourney" -> true,
+      "journeyData"           -> Json.toJson(testJourneyData)
     )
 
   override implicit val format: Format[GetOrCreateJourneyData] = GetOrCreateJourneyData.format

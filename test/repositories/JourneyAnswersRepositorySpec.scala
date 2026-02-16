@@ -78,7 +78,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     "create a new Active enrolment when no Active document exists for the groupId" in {
       val result = await(repository.getOrCreateJourneyData(testGroupId))
 
-      result.isNewEnrolment          shouldBe true
+      result.isNewEnrolmentJourney   shouldBe true
       result.journeyData.groupId     shouldBe testGroupId
       result.journeyData.status      shouldBe Active
       result.journeyData.receiptId   shouldBe None
@@ -98,9 +98,9 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       val first  = await(repository.getOrCreateJourneyData(testGroupId))
       val second = await(repository.getOrCreateJourneyData(testGroupId))
 
-      first.isNewEnrolment  shouldBe true
-      second.isNewEnrolment shouldBe false
-      first.journeyData     shouldBe second.journeyData
+      first.isNewEnrolmentJourney  shouldBe true
+      second.isNewEnrolmentJourney shouldBe false
+      first.journeyData            shouldBe second.journeyData
 
       val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
       allForGroup.count(_.status == Active) shouldBe 1
@@ -111,7 +111,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
       val result = await(repository.getOrCreateJourneyData(testGroupId))
 
-      result.isNewEnrolment          shouldBe true
+      result.isNewEnrolmentJourney   shouldBe true
       result.journeyData.groupId     shouldBe testGroupId
       result.journeyData.status      shouldBe Active
       result.journeyData.receiptId   shouldBe None
