@@ -80,8 +80,8 @@ class JourneyAnswersController @Inject() (
                 journeyAnswersService
                   .updateJourneyData(groupId, taskListJourney, model)(writes)
                   .map {
-                    case Some(_) => NoContent
-                    case None    =>
+                    case true  => NoContent
+                    case false =>
                       logger.warn(s"Failed to find Active document to update for groupId [$groupId]")
                       NotFound
                   }

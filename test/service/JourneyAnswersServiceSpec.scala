@@ -34,7 +34,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
     "successfully update journeyData" in {
 
       when(mockRepository.updateJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
-        .thenReturn(Future.successful(Some(())))
+        .thenReturn(Future.successful(true))
 
       await(
         service.updateJourneyData(
@@ -42,13 +42,13 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
           "organisationDetails",
           organisationDetails.copy(registeredToManageIsa = Some(false))
         )
-      ) shouldBe Some(())
+      ) shouldBe true
     }
 
-    "return None if there is no data for that groupID" in {
+    "return false if there is no data for that groupID" in {
 
       when(mockRepository.updateJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
-        .thenReturn(Future.successful(None))
+        .thenReturn(Future.successful(false))
 
       await(
         service.updateJourneyData(
@@ -56,7 +56,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
           "organisationDetails",
           organisationDetails.copy(registeredToManageIsa = Some(false))
         )
-      ) shouldBe None
+      ) shouldBe false
     }
   }
 
@@ -77,7 +77,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
       val repoResult =
         GetOrCreateJourneyData(isNewEnrolment = true, journeyData = testJourneyData)
 
-      when(mockRepository.getOrCreateEnrolment(eqTo(testGroupId)))
+      when(mockRepository.getOrCreateJourneyData(eqTo(testGroupId)))
         .thenReturn(Future.successful(repoResult))
 
       await(service.getOrCreateJourneyData(testGroupId)) shouldBe repoResult
@@ -86,7 +86,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
     "propagate exception when the repository call fails" in {
       val ex = new RuntimeException("fubar")
 
-      when(mockRepository.getOrCreateEnrolment(eqTo(testGroupId)))
+      when(mockRepository.getOrCreateJourneyData(eqTo(testGroupId)))
         .thenReturn(Future.failed(ex))
 
       val thrown = await(service.getOrCreateJourneyData(testGroupId).failed)

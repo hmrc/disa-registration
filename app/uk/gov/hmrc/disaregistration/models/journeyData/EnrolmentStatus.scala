@@ -30,6 +30,7 @@ object EnrolmentStatus extends Enumerable.Implicits {
     case JsString(Active.toString)    => JsSuccess(Active)
     case JsString(Submitted.toString) => JsSuccess(Submitted)
     case JsString(Rejected.toString)  => JsSuccess(Rejected)
+    case _                            => JsError("Invalid value for EnrolmentStatus")
   }
 
   implicit val writes: Writes[EnrolmentStatus] = Writes(status => JsString(status.toString))

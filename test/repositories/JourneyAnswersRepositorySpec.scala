@@ -19,7 +19,7 @@ package repositories
 import org.mongodb.scala.model.Filters
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
-import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CertificatesOfAuthority, JourneyData, OrganisationDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.{CertificatesOfAuthority, JourneyData, OrganisationDetails}
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
 import utils.BaseUnitSpec
@@ -76,7 +76,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
   "getOrCreateJourneyData" should {
 
     "create a new Active enrolment when no Active document exists for the groupId" in {
-      val result = await(repository.getOrCreateEnrolment(testGroupId))
+      val result = await(repository.getOrCreateJourneyData(testGroupId))
 
       result.isNewEnrolment          shouldBe true
       result.journeyData.groupId     shouldBe testGroupId
@@ -95,8 +95,8 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     }
 
     "not create a second Active doc if called twice and return the existing one" in {
-      val first  = await(repository.getOrCreateEnrolment(testGroupId))
-      val second = await(repository.getOrCreateEnrolment(testGroupId))
+      val first  = await(repository.getOrCreateJourneyData(testGroupId))
+      val second = await(repository.getOrCreateJourneyData(testGroupId))
 
       first.isNewEnrolment  shouldBe true
       second.isNewEnrolment shouldBe false
@@ -109,7 +109,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     "create a new Active enrolment when only a non-Active document exists for the groupId" in {
       await(repository.collection.insertOne(submittedJourneyData).toFuture())
 
-      val result = await(repository.getOrCreateEnrolment(testGroupId))
+      val result = await(repository.getOrCreateJourneyData(testGroupId))
 
       result.isNewEnrolment          shouldBe true
       result.journeyData.groupId     shouldBe testGroupId
@@ -163,7 +163,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       result.status                  shouldBe Active
     }
 
-    "return None when no Active document exists for the groupId" in {
+    "return false when no Active document exists for the groupId" in {
       await(repository.collection.insertOne(submittedJourneyData).toFuture())
 
       val organisationDetailsUpdate =
@@ -171,7 +171,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
       val res = await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
 
-      res shouldBe None
+      res shouldBe false
     }
   }
 

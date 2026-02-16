@@ -32,13 +32,13 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
     repository.findById(groupId)
 
   def getOrCreateJourneyData(groupId: String): Future[GetOrCreateJourneyData] =
-    repository.getOrCreateEnrolment(groupId)
+    repository.getOrCreateJourneyData(groupId)
 
   def updateJourneyData[A: Writes](
     groupId: String,
     objectPath: String,
     model: A
-  ): Future[Option[Unit]] =
+  ): Future[Boolean] =
     repository.updateJourneyData(groupId, objectPath, model)
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String)(implicit

@@ -65,7 +65,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       )
       .headOption()
 
-  def getOrCreateEnrolment(groupId: String): Future[GetOrCreateJourneyData] = {
+  def getOrCreateJourneyData(groupId: String): Future[GetOrCreateJourneyData] = {
     val newEnrolment = JourneyData(groupId = groupId, lastUpdated = Some(Instant.now(clock)))
     val document     = Codecs.toBson(Json.toJson(newEnrolment)).asDocument().entrySet().asScala.toSeq
 
@@ -80,9 +80,11 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
         new FindOneAndUpdateOptions().upsert(true).returnDocument(model.ReturnDocument.BEFORE)
       )
       .toFuture()
-      .map { existingDocument =>
-        if (existingDocument == null) GetOrCreateJourneyData(isNewEnrolment = true, newEnrolment)
-        else GetOrCreateJourneyData(isNewEnrolment = false, existingDocument)
+      .map {
+        Option(_) match {
+          case Some(existingDoc) => GetOrCreateJourneyData(isNewEnrolment = false, existingDoc)
+          case _                 => GetOrCreateJourneyData(isNewEnrolment = true, newEnrolment)
+        }
       }
   }
 
@@ -90,7 +92,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
     groupId: String,
     objectPath: String,
     journeyData: A
-  ): Future[Option[Unit]] =
+  ): Future[Boolean] =
     collection
       .updateOne(
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
@@ -100,10 +102,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
         )
       )
       .toFuture()
-      .map { res =>
-        if (res.getMatchedCount == 0) None
-        else Some(())
-      }
+      .map(res => res.getMatchedCount > 0)
 
   def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Unit] =
     collection

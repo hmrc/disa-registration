@@ -165,7 +165,8 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       val result = updateJourneyAnswersRequest(
         taskListJourney = "organisationDetails",
         body = body
-      ).status shouldBe NOT_FOUND
+      ).status
+      result shouldBe NOT_FOUND
     }
   }
 

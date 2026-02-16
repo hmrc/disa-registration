@@ -124,7 +124,7 @@ class JourneyAnswersControllerSpec extends BaseUnitSpec {
           ArgumentMatchers.eq(taskListJourney),
           ArgumentMatchers.eq(organisationDetails)
         )(any)
-      ).thenReturn(Future.successful(Some(())))
+      ).thenReturn(Future.successful(true))
 
       val request = FakeRequest()
         .withBody(organisationDetailsJson)

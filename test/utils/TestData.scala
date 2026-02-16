@@ -16,7 +16,6 @@
 
 package utils
 
-import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, JourneyData, OrganisationDetails}
 
 import java.util.UUID
