@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.libs.json.Writes
 import play.api.test.Helpers.await
+import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import utils.BaseUnitSpec
 
@@ -29,19 +30,33 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
   val service = new JourneyAnswersService(mockRepository)
 
-  "upsertJourneyData" should {
-    "successfully store journeyData" in {
+  "updateJourneyData" should {
+    "successfully update journeyData" in {
 
-      when(mockRepository.upsertJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
-        .thenReturn(Future.successful(()))
+      when(mockRepository.updateJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
+        .thenReturn(Future.successful(true))
 
       await(
-        service.storeJourneyData(
+        service.updateJourneyData(
           testGroupId,
           "organisationDetails",
           organisationDetails.copy(registeredToManageIsa = Some(false))
         )
-      ) shouldBe (): Unit
+      ) shouldBe true
+    }
+
+    "return false if there is no data for that groupID" in {
+
+      when(mockRepository.updateJourneyData(any[String], any[String], any[Any])(any[Writes[Any]]))
+        .thenReturn(Future.successful(false))
+
+      await(
+        service.updateJourneyData(
+          testGroupId,
+          "organisationDetails",
+          organisationDetails.copy(registeredToManageIsa = Some(false))
+        )
+      ) shouldBe false
     }
   }
 
@@ -53,6 +68,30 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
     "return None if repository returns None" in {
       when(mockRepository.findById(testGroupId)).thenReturn(Future.successful(None))
       await(service.retrieve(testGroupId)) shouldBe None
+    }
+  }
+
+  "getOrCreateJourneyData" should {
+
+    "return the GetOrCreateJourneyData from the repository" in {
+      val repoResult =
+        GetOrCreateJourneyData(isNewEnrolmentJourney = true, journeyData = testJourneyData)
+
+      when(mockRepository.getOrCreateJourneyData(eqTo(testGroupId)))
+        .thenReturn(Future.successful(repoResult))
+
+      await(service.getOrCreateJourneyData(testGroupId)) shouldBe repoResult
+    }
+
+    "propagate exception when the repository call fails" in {
+      val ex = new RuntimeException("fubar")
+
+      when(mockRepository.getOrCreateJourneyData(eqTo(testGroupId)))
+        .thenReturn(Future.failed(ex))
+
+      val thrown = await(service.getOrCreateJourneyData(testGroupId).failed)
+
+      thrown shouldBe ex
     }
   }
 

@@ -16,7 +16,6 @@
 
 package utils
 
-import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, JourneyData, OrganisationDetails}
 
 import java.util.UUID
@@ -39,9 +38,6 @@ trait TestData {
   )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = testGroupId,
-    enrolmentId = testEnrolmentId,
-    receiptId = None,
-    status = Active,
     organisationDetails = Some(organisationDetails),
     businessVerification = Some(businessVerification)
   )

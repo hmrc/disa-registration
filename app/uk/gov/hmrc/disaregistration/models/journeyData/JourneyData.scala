@@ -17,16 +17,18 @@
 package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Format, Json, Reads, Writes}
+import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.IsaProducts
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
+import java.util.UUID
 
 case class JourneyData(
   groupId: String,
-  enrolmentId: String,
-  receiptId: Option[String],
-  status: EnrolmentStatus,
+  enrolmentId: String = UUID.randomUUID().toString,
+  receiptId: Option[String] = None,
+  status: EnrolmentStatus = Active,
   businessVerification: Option[BusinessVerification] = None,
   organisationDetails: Option[OrganisationDetails] = None,
   isaProducts: Option[IsaProducts] = None,

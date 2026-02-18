@@ -17,11 +17,33 @@
 package models
 
 import play.api.libs.json.{Format, JsValue, Json}
+import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData._
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import utils.JsonFormatSpec
 
 class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
+
+  "JourneyData" should {
+    "default status to Active and generate enrolmentId on construction" in {
+      val jd = JourneyData(groupId = testGroupId)
+
+      jd.groupId              shouldBe testGroupId
+      jd.status               shouldBe Active
+      jd.enrolmentId.nonEmpty shouldBe true
+
+      jd.receiptId                    shouldBe None
+      jd.feesCommissionsAndIncentives shouldBe None
+      jd.businessVerification         shouldBe None
+      jd.isaProducts                  shouldBe None
+      jd.organisationDetails          shouldBe None
+      jd.certificatesOfAuthority      shouldBe None
+      jd.liaisonOfficers              shouldBe None
+      jd.signatories                  shouldBe None
+      jd.outsourcedAdministration     shouldBe None
+      jd.lastUpdated                  shouldBe None
+    }
+  }
 
   override val model: JourneyData =
     JourneyData(
