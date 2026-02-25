@@ -19,7 +19,9 @@ package repositories
 import org.mongodb.scala.model.Filters
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
-import uk.gov.hmrc.disaregistration.models.journeyData.{CertificatesOfAuthority, JourneyData, OrganisationDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
+import uk.gov.hmrc.disaregistration.models.journeyData.{JourneyData, OrganisationDetails}
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
 import utils.BaseUnitSpec
@@ -151,8 +153,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       await(repository.collection.insertOne(activeJourneyData).toFuture())
 
       val coaJourney = CertificatesOfAuthority(
-        dataItem = Some(testString),
-        dataItem2 = Some(testString)
+        certificatesYesNo = Some(Yes)
       )
 
       await(repository.updateJourneyData(testGroupId, "certificatesOfAuthority", coaJourney))
