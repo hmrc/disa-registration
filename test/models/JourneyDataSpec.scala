@@ -19,6 +19,8 @@ package models
 import play.api.libs.json.{Format, JsValue, Json}
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData._
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.CertificatesOfAuthority
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import utils.JsonFormatSpec
 
@@ -70,7 +72,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
           Some(testString)
         )
       ),
-      certificatesOfAuthority = Some(CertificatesOfAuthority(Some("C"), Some("D"))),
+      certificatesOfAuthority = Some(CertificatesOfAuthority(Some(Seq(Article14)), Some("D"))),
       liaisonOfficers = Some(LiaisonOfficers(Some("L"), Some("LO"))),
       signatories = None,
       outsourcedAdministration = Some(OutsourcedAdministration(Some("O1"), Some("O2"))),
@@ -98,7 +100,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |    "p2pPlatform": "$testString",
        |    "p2pPlatformNumber": "$testString"
        |  },
-       |  "certificatesOfAuthority": { "dataItem": "C", "dataItem2": "D" },
+       |  "certificatesOfAuthority": { "fcaArticles": ["article14"], "dataItem2": "D" },
        |  "liaisonOfficers": { "dataItem": "L", "dataItem2": "LO" },
        |  "outsourcedAdministration": { "dataItem": "O1", "dataItem2": "O2" },
        |  "feesCommissionsAndIncentives": { "dataItem": "F1", "dataItem2": "F2" }

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData
+package uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority
 
 import play.api.libs.json.{Json, OFormat}
 
-case class CertificatesOfAuthority(dataItem: Option[String], dataItem2: Option[String])
+case class CertificatesOfAuthority(fcaArticles: Option[Seq[FcaArticles]], dataItem2: Option[String])
 
 object CertificatesOfAuthority {
   implicit val format: OFormat[CertificatesOfAuthority] = Json.format[CertificatesOfAuthority]
