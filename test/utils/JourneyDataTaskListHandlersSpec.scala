@@ -20,6 +20,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.disaregistration.models.journeyData._
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.CertificatesOfAuthority
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.FcaArticles.Article14
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.CertificatesOfAuthorityYesNo.Yes
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 
 class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
@@ -78,7 +79,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             deserialized shouldBe original
 
           case "certificatesOfAuthority" =>
-            val original     = CertificatesOfAuthority(Some(Seq(Article14)), None)
+            val original     = CertificatesOfAuthority(certificatesYesNo = Some(Yes), fcaArticles = Some(Seq(Article14)))
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[CertificatesOfAuthority]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[CertificatesOfAuthority]])
             deserialized shouldBe original
