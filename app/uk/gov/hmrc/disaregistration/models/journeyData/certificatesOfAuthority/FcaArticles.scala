@@ -27,7 +27,7 @@ object FcaArticles extends Enumerable.Implicits {
   case object Article25 extends WithName("article25") with FcaArticles
   case object Article36H extends WithName("article36H") with FcaArticles
   case object Article37 extends WithName("article37") with FcaArticles
-  case object Article39H extends WithName("article39H") with FcaArticles
+  case object Article39G extends WithName("article39G") with FcaArticles
   case object Article40 extends WithName("article40") with FcaArticles
   case object Article45 extends WithName("article45") with FcaArticles
   case object Article51ZA extends WithName("article51ZA") with FcaArticles
@@ -42,7 +42,7 @@ object FcaArticles extends Enumerable.Implicits {
     Article25,
     Article36H,
     Article37,
-    Article39H,
+    Article39G,
     Article40,
     Article45,
     Article51ZA,
