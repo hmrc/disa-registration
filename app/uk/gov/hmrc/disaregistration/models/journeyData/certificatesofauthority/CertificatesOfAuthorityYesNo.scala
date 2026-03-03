@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority
+package uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority
 
 import uk.gov.hmrc.disaregistration.models.{Enumerable, WithName}
 

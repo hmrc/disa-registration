@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority
+package uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.{CertificatesOfAuthorityYesNo, FcaArticles}
 
 case class CertificatesOfAuthority(
   certificatesYesNo: Option[CertificatesOfAuthorityYesNo] = None,
-  fcaArticles: Option[Seq[FcaArticles]] = None
+  fcaArticles: Option[Seq[FcaArticles]] = None,
+  financialOrganisation: Option[Seq[FinancialOrganisation]]
 )
 
 object CertificatesOfAuthority {

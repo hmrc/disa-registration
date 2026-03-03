@@ -19,9 +19,10 @@ package repositories
 import org.mongodb.scala.model.Filters
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.CertificatesOfAuthority
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.FcaArticles.Article14
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesOfAuthority.CertificatesOfAuthorityYesNo.Yes
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FinancialOrganisation.RegisteredFriendlySociety
 import uk.gov.hmrc.disaregistration.models.journeyData.{JourneyData, OrganisationDetails}
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
@@ -153,7 +154,11 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     "upserts and stores CertificatesOfAuthority data" in {
       await(repository.collection.insertOne(activeJourneyData).toFuture())
 
-      val coaJourney = CertificatesOfAuthority(certificatesYesNo = Some(Yes), fcaArticles = Some(Seq(Article14)))
+      val coaJourney = CertificatesOfAuthority(
+        certificatesYesNo = Some(Yes),
+        fcaArticles = Some(Seq(Article14)),
+        financialOrganisation = Some(Seq(RegisteredFriendlySociety))
+      )
 
       await(repository.updateJourneyData(testGroupId, "certificatesOfAuthority", coaJourney))
 
