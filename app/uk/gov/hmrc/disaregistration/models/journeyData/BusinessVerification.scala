@@ -21,7 +21,8 @@ import play.api.libs.json.{Json, OFormat}
 case class BusinessVerification(
   businessRegistrationPassed: Option[Boolean],
   businessVerificationPassed: Option[Boolean],
-  ctUtr: Option[String]
+  ctUtr: Option[String],
+  companyName: Option[String]
 )
 
 object BusinessVerification {
