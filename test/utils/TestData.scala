@@ -34,7 +34,8 @@ trait TestData {
   val businessVerification: BusinessVerification = BusinessVerification(
     businessRegistrationPassed = Some(true),
     businessVerificationPassed = Some(false),
-    ctUtr = Some("12345678")
+    ctUtr = Some("12345678"),
+    Some(testString)
   )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = testGroupId,

@@ -19,9 +19,8 @@ package utils
 import play.api.libs.json._
 import uk.gov.hmrc.disaregistration.models.journeyData._
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FinancialOrganisation.RegisteredFriendlySociety
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 
@@ -51,7 +50,8 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             val original     = BusinessVerification(
               businessRegistrationPassed = Some(true),
               businessVerificationPassed = Some(false),
-              ctUtr = Some("12345678")
+              ctUtr = Some("12345678"),
+              companyName = Some(testString)
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[BusinessVerification]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[BusinessVerification]])
