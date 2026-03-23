@@ -67,7 +67,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
               addressLine3 = Some("test line 3"),
               postCode = Some("PostCode")
             )
-          )
+          ),
+          Some(testString)
         )
       ),
       organisationDetails = Some(
@@ -122,7 +123,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |      "addressLine2": "test line 2",
        |      "addressLine3": "test line 3",
        |      "postCode": "PostCode"
-       |    }
+       |    },
+       |  "companyName": "$testString"
        |  },
        |  "organisationDetails": {
        |    "registeredToManageIsa": true,
