@@ -23,6 +23,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.F
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.{CertificatesOfAuthority, FinancialOrganisation}
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
+import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
 import utils.JsonFormatSpec
 
 class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
@@ -80,7 +81,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
           financialOrganisation = Some(Seq(FinancialOrganisation.values.head))
         )
       ),
-      liaisonOfficers = Some(LiaisonOfficers(Some("L"), Some("LO"))),
+      liaisonOfficers = Some(LiaisonOfficers(Seq(LiaisonOfficer(testString, Some(testString))))),
       signatories = None,
       outsourcedAdministration = Some(OutsourcedAdministration(Some("O1"), Some("O2"))),
       feesCommissionsAndIncentives = Some(FeesCommissionsAndIncentives(Some("F1"), Some("F2")))
@@ -108,7 +109,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |    "p2pPlatformNumber": "$testString"
        |  },
        |  "certificatesOfAuthority": { "certificatesYesNo":"yes", "fcaArticles": ["article14"], "financialOrganisation":["europeanInstitution"]},
-       |  "liaisonOfficers": { "dataItem": "L", "dataItem2": "LO" },
+       |  "liaisonOfficers": {"liaisonOfficers":[{"id":"test","fullName":"test"}]},
        |  "outsourcedAdministration": { "dataItem": "O1", "dataItem2": "O2" },
        |  "feesCommissionsAndIncentives": { "dataItem": "F1", "dataItem2": "F2" }
        |}
