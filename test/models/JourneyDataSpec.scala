@@ -54,7 +54,21 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
       enrolmentId = testEnrolmentId,
       receiptId = Some(testReceiptId),
       status = EnrolmentStatus.Submitted,
-      businessVerification = Some(BusinessVerification(Some(true), Some(true), None)),
+      businessVerification = Some(
+        BusinessVerification(
+          Some(true),
+          Some(true),
+          None,
+          registeredAddress = Some(
+            RegisteredAddress(
+              addressLine1 = Some("test line 1"),
+              addressLine2 = Some("test line 2"),
+              addressLine3 = Some("test line 3"),
+              postCode = Some("PostCode")
+            )
+          )
+        )
+      ),
       organisationDetails = Some(
         OrganisationDetails(
           registeredToManageIsa = Some(true),
@@ -62,7 +76,15 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
           tradingUsingDifferentName = Some(true),
           tradingName = Some(testString),
           fcaNumber = Some(testString),
-          None
+          registeredAddressCorrespondence = Some(true),
+          correspondenceAddress = Some(
+            CorrespondenceAddress(
+              addressLine1 = Some("test line 1"),
+              addressLine2 = Some("test line 2"),
+              addressLine3 = Some("test line 3"),
+              postCode = Some("PostCode")
+            )
+          )
         )
       ),
       isaProducts = Some(
@@ -93,13 +115,27 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |  "enrolmentId": "$testEnrolmentId",
        |  "receiptId": "$testReceiptId",
        |  "status": "Submitted",
-       |  "businessVerification": { "businessRegistrationPassed": true, "businessVerificationPassed": true },
+       |  "businessVerification": { "businessRegistrationPassed": true, "businessVerificationPassed": true,
+       |  "registeredAddress": {
+       |      "addressLine1": "test line 1",
+       |      "addressLine2": "test line 2",
+       |      "addressLine3": "test line 3",
+       |      "postCode": "PostCode"
+       |    }
+       |  },
        |  "organisationDetails": {
        |    "registeredToManageIsa": true,
        |    "zRefNumber": "$testZRef",
        |    "tradingUsingDifferentName": true,
        |    "tradingName": "$testString",
-       |    "fcaNumber": "$testString"
+       |    "fcaNumber": "$testString",
+       |    "registeredAddressCorrespondence": true,
+       |    "correspondenceAddress": {
+       |      "addressLine1": "test line 1",
+       |      "addressLine2": "test line 2",
+       |      "addressLine3": "test line 3",
+       |      "postCode": "PostCode"
+       |    }
        |  },
        |  "isaProducts": {
        |    "isaProducts": ["cashIsas","cashJuniorIsas","stocksAndSharesIsas","stocksAndSharesJuniorIsas","innovativeFinanceIsas"],

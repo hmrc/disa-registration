@@ -18,13 +18,15 @@ package uk.gov.hmrc.disaregistration.models.journeyData
 
 import play.api.libs.json.{Json, OFormat}
 
-case class CorrespondenceAddress(
-  addressLine1: Option[String],
-  addressLine2: Option[String],
-  addressLine3: Option[String],
-  postCode: Option[String]
-)
 
-object CorrespondenceAddress {
-  implicit val format: OFormat[CorrespondenceAddress] = Json.format[CorrespondenceAddress]
+case class RegisteredAddress(
+                              addressLine1: Option[String] = None,
+                              addressLine2: Option[String] = None,
+                              addressLine3: Option[String] = None,
+                              postCode: Option[String] = None,
+                              uprn: Option[String] = None
+                            )
+
+object RegisteredAddress {
+  implicit val format: OFormat[RegisteredAddress] = Json.format[RegisteredAddress]
 }

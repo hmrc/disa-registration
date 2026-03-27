@@ -16,25 +16,46 @@
 
 package utils
 
-import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, JourneyData, OrganisationDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, JourneyData, OrganisationDetails, RegisteredAddress}
 
 import java.util.UUID
 import scala.util.Random
 
 trait TestData {
-  val testGroupId     = UUID.randomUUID().toString
-  val testEnrolmentId = UUID.randomUUID().toString
-  val testReceiptId   = UUID.randomUUID().toString
-  val testString      = "test"
-  val testZRef        = s"Z${(1 to 4).map(_ => Random.nextInt(10)).mkString}"
+  val testGroupId             = UUID.randomUUID().toString
+  val testEnrolmentId: String = UUID.randomUUID().toString
+  val testReceiptId: String   = UUID.randomUUID().toString
+  val testString              = "test"
+  val testZRef                = s"Z${(1 to 4).map(_ => Random.nextInt(10)).mkString}"
 
   val organisationDetails: OrganisationDetails =
-    OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some("Z1234"))
+    OrganisationDetails(
+      registeredToManageIsa = Some(true),
+      zRefNumber = Some("Z1234"),
+      registeredAddressCorrespondence = Some(true),
+      correspondenceAddress = Some(
+        CorrespondenceAddress(
+          addressLine1 = Some("test line 1"),
+          addressLine2 = Some("test line 2"),
+          addressLine3 = Some("test line 3"),
+          postCode = Some("PostCode")
+        )
+      )
+    )
 
   val businessVerification: BusinessVerification = BusinessVerification(
     businessRegistrationPassed = Some(true),
     businessVerificationPassed = Some(false),
-    ctUtr = Some("12345678")
+    ctUtr = Some("12345678"),
+    registeredAddress = Some(
+      RegisteredAddress(
+        addressLine1 = Some("test line 1"),
+        addressLine2 = Some("test line 2"),
+        addressLine3 = Some("test line 3"),
+        postCode = Some("PostCode"),
+        uprn = None
+      )
+    )
   )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = testGroupId,
