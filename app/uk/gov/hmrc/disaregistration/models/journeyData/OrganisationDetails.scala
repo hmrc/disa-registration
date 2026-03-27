@@ -24,6 +24,7 @@ case class OrganisationDetails(
   tradingUsingDifferentName: Option[Boolean] = None,
   tradingName: Option[String] = None,
   fcaNumber: Option[String] = None,
+  registeredAddressCorrespondence: Option[Boolean],
   correspondenceAddress: Option[CorrespondenceAddress] = None,
   orgTelephoneNumber: Option[String] = None
 )
