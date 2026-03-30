@@ -19,9 +19,8 @@ package utils
 import play.api.libs.json._
 import uk.gov.hmrc.disaregistration.models.journeyData._
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FinancialOrganisation.RegisteredFriendlySociety
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 
@@ -51,7 +50,15 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             val original     = BusinessVerification(
               businessRegistrationPassed = Some(true),
               businessVerificationPassed = Some(false),
-              ctUtr = Some("12345678")
+              ctUtr = Some("12345678"),
+              registeredAddress = Some(
+                RegisteredAddress(
+                  addressLine1 = Some("test line 1"),
+                  addressLine2 = Some("test line 2"),
+                  addressLine3 = Some("test line 3"),
+                  postCode = Some("PostCode")
+                )
+              )
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[BusinessVerification]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[BusinessVerification]])
@@ -63,7 +70,16 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
               zRefNumber = Some("Z1111"),
               tradingUsingDifferentName = Some(true),
               tradingName = Some(testString),
-              fcaNumber = Some("123456")
+              fcaNumber = Some("123456"),
+              registeredAddressCorrespondence = Some(true),
+              correspondenceAddress = Some(
+                CorrespondenceAddress(
+                  addressLine1 = Some("test line 1"),
+                  addressLine2 = Some("test line 2"),
+                  addressLine3 = Some("test line 3"),
+                  postCode = Some("PostCode")
+                )
+              )
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[OrganisationDetails]])

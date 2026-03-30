@@ -23,7 +23,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.F
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FinancialOrganisation.RegisteredFriendlySociety
-import uk.gov.hmrc.disaregistration.models.journeyData.{JourneyData, OrganisationDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.{CorrespondenceAddress, JourneyData, OrganisationDetails, RegisteredAddress}
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
 import utils.BaseUnitSpec
@@ -138,7 +138,19 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       await(repository.collection.insertOne(activeJourneyData).toFuture())
 
       val organisationDetailsUpdate =
-        OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some(testZRef))
+        OrganisationDetails(
+          registeredToManageIsa = Some(true),
+          zRefNumber = Some(testZRef),
+          registeredAddressCorrespondence = Some(true),
+          correspondenceAddress = Some(
+            CorrespondenceAddress(
+              addressLine1 = Some("test line 1"),
+              addressLine2 = Some("test line 2"),
+              addressLine3 = Some("test line 3"),
+              postCode = Some("PostCode")
+            )
+          )
+        )
 
       await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
 
@@ -172,7 +184,19 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
       await(repository.collection.insertOne(submittedJourneyData).toFuture())
 
       val organisationDetailsUpdate =
-        OrganisationDetails(registeredToManageIsa = Some(true), zRefNumber = Some(testZRef))
+        OrganisationDetails(
+          registeredToManageIsa = Some(true),
+          zRefNumber = Some(testZRef),
+          registeredAddressCorrespondence = Some(true),
+          correspondenceAddress = Some(
+            CorrespondenceAddress(
+              addressLine1 = Some("test line 1"),
+              addressLine2 = Some("test line 2"),
+              addressLine3 = Some("test line 3"),
+              postCode = Some("PostCode")
+            )
+          )
+        )
 
       val res = await(repository.updateJourneyData(testGroupId, "organisationDetails", organisationDetailsUpdate))
 
