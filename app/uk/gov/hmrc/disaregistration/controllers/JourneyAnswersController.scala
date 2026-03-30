@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class JourneyAnswersController @Inject() (
   cc: ControllerComponents,
@@ -60,7 +61,7 @@ class JourneyAnswersController @Inject() (
             logger.info(s"Found existing enrolment journey for groupId [$groupId]")
             Ok(Json.toJson(resp))
         }
-        .recover { case e =>
+        .recover { case NonFatal(e) =>
           logger.error(s"Unexpected error with getOrCreateJourneyData for $groupId", e)
           InternalServerError("There has been an issue processing your request")
         }
@@ -90,7 +91,7 @@ class JourneyAnswersController @Inject() (
                 Future.successful(BadRequest(s"Invalid JSON for taskListJourney '$taskListJourney'"))
             }
         }
-      }.recover { case e =>
+      }.recover { case NonFatal(e) =>
         logger.error(s"Unexpected error updating $taskListJourney for $groupId", e)
         InternalServerError("There has been an issue processing your request")
       }

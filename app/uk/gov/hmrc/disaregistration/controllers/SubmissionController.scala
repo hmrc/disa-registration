@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class SubmissionController @Inject() (
   cc: ControllerComponents,
@@ -48,7 +49,7 @@ class SubmissionController @Inject() (
           logger.error(s"Failed to find journey data to submit for groupId [$groupId]")
           Future.successful(NotFound("Failed to find journey data to submit for this request"))
       }
-      .recover { case e =>
+      .recover { case NonFatal(e) =>
         logger.error(s"Enrolment submission failed unexpectedly for [$groupId] with error: [$e]")
         InternalServerError("There has been an issue processing your request")
       }
