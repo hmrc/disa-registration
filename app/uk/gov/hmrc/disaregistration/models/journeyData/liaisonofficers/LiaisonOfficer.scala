@@ -18,7 +18,7 @@ package uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers
 
 import play.api.libs.json.{Json, OFormat}
 
-case class LiaisonOfficer(id: String, fullName: Option[String], phoneNumber: Option[String])
+case class LiaisonOfficer(id: String, fullName: Option[String], phoneNumber: Option[String], email: Option[String])
 
 object LiaisonOfficer {
   implicit val format: OFormat[LiaisonOfficer] = Json.format[LiaisonOfficer]

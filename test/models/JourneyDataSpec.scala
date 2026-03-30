@@ -103,7 +103,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
           financialOrganisation = Some(Seq(FinancialOrganisation.values.head))
         )
       ),
-      liaisonOfficers = Some(LiaisonOfficers(Seq(LiaisonOfficer(testString, Some(testString), Some(testString))))),
+      liaisonOfficers =
+        Some(LiaisonOfficers(Seq(LiaisonOfficer(testString, Some(testString), Some(testString), Some(testString))))),
       signatories = None,
       outsourcedAdministration = Some(OutsourcedAdministration(Some("O1"), Some("O2"))),
       feesCommissionsAndIncentives = Some(FeesCommissionsAndIncentives(Some("F1"), Some("F2")))
@@ -145,7 +146,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |    "p2pPlatformNumber": "$testString"
        |  },
        |  "certificatesOfAuthority": { "certificatesYesNo":"yes", "fcaArticles": ["article14"], "financialOrganisation":["europeanInstitution"]},
-       |  "liaisonOfficers": {"liaisonOfficers":[{"id":"test","fullName":"test","phoneNumber":"test"}]},
+       |  "liaisonOfficers": {"liaisonOfficers":[{"id":"test","fullName":"test","phoneNumber":"test", "email":"test"}]},
        |  "outsourcedAdministration": { "dataItem": "O1", "dataItem2": "O2" },
        |  "feesCommissionsAndIncentives": { "dataItem": "F1", "dataItem2": "F2" }
        |}
