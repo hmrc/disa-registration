@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData
+package uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers
 
 import play.api.libs.json.{Json, OFormat}
 
-case class LiaisonOfficers(dataItem: Option[String], dataItem2: Option[String])
+case class LiaisonOfficers(liaisonOfficers: Seq[LiaisonOfficer])
 
 object LiaisonOfficers {
   implicit val format: OFormat[LiaisonOfficers] = Json.format[LiaisonOfficers]
