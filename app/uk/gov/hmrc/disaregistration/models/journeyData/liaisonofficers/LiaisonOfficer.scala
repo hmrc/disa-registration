@@ -22,7 +22,8 @@ case class LiaisonOfficer(
   id: String,
   fullName: Option[String],
   phoneNumber: Option[String],
-  communication: Set[LiaisonOfficerCommunication]
+  communication: Set[LiaisonOfficerCommunication],
+  email: Option[String]
 )
 
 object LiaisonOfficer {

@@ -111,7 +111,9 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
 
           case "liaisonOfficers" =>
             val original     =
-              LiaisonOfficers(Seq(LiaisonOfficer(testString, Some(testString), Some(testString), Set(ByEmail))))
+              LiaisonOfficers(
+                Seq(LiaisonOfficer(testString, Some(testString), Some(testString), Set(ByEmail), Some(testString)))
+              )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[LiaisonOfficers]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[LiaisonOfficers]])
             deserialized shouldBe original
