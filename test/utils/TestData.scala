@@ -55,7 +55,8 @@ trait TestData {
         postCode = Some("PostCode"),
         uprn = None
       )
-    )
+    ),
+    companyName = Some(testString)
   )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = testGroupId,
