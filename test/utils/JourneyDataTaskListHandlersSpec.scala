@@ -23,6 +23,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.C
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FinancialOrganisation.RegisteredFriendlySociety
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
+import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
 
 class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
@@ -59,7 +60,8 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
                   addressLine3 = Some("test line 3"),
                   postCode = Some("PostCode")
                 )
-              )
+              ),
+              companyName = Some(testString)
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[BusinessVerification]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[BusinessVerification]])
@@ -109,7 +111,9 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
 
           case "liaisonOfficers" =>
             val original     =
-              LiaisonOfficers(Seq(LiaisonOfficer(testString, Some(testString), Some(testString), Some(testString))))
+              LiaisonOfficers(
+                Seq(LiaisonOfficer(testString, Some(testString), Some(testString), Set(ByEmail), Some(testString)))
+              )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[LiaisonOfficers]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[LiaisonOfficers]])
             deserialized shouldBe original

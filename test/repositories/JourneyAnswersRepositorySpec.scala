@@ -19,11 +19,11 @@ package repositories
 import org.mongodb.scala.model.Filters
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FinancialOrganisation.RegisteredFriendlySociety
-import uk.gov.hmrc.disaregistration.models.journeyData.{CorrespondenceAddress, JourneyData, OrganisationDetails, RegisteredAddress}
+import uk.gov.hmrc.disaregistration.models.journeyData.{CorrespondenceAddress, JourneyData, OrganisationDetails}
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
 import utils.BaseUnitSpec
