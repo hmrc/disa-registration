@@ -16,15 +16,22 @@
 
 package uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers
 
-import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.disaregistration.models.{Enumerable, WithName}
 
-case class LiaisonOfficer(
-  id: String,
-  fullName: Option[String],
-  phoneNumber: Option[String],
-  communication: Set[LiaisonOfficerCommunication]
-)
+sealed trait LiaisonOfficerCommunication
 
-object LiaisonOfficer {
-  implicit val format: OFormat[LiaisonOfficer] = Json.format[LiaisonOfficer]
+object LiaisonOfficerCommunication extends Enumerable.Implicits {
+
+  case object ByEmail extends WithName("byEmail") with LiaisonOfficerCommunication
+  case object ByPhone extends WithName("byPhone") with LiaisonOfficerCommunication
+  case object ByPost extends WithName("byPost") with LiaisonOfficerCommunication
+
+  val values: Seq[LiaisonOfficerCommunication] = Seq(
+    ByEmail,
+    ByPhone,
+    ByPost
+  )
+
+  implicit val enumerable: Enumerable[LiaisonOfficerCommunication] =
+    Enumerable(values.map(v => v.toString -> v): _*)
 }
