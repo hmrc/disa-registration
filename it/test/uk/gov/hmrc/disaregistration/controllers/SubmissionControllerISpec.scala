@@ -56,7 +56,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
         groupId = testGroupId,
         enrolmentId = testEnrolmentId,
         receiptId = None,
-        status = Active
+        status = Active,
+        businessVerification = Some(businessVerification)
       )
 
       await(repo.collection.insertOne(jd).toFuture())

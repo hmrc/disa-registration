@@ -16,6 +16,7 @@
 
 package utils
 
+import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, JourneyData, OrganisationDetails, RegisteredAddress}
 
 import java.util.UUID
@@ -53,7 +54,7 @@ trait TestData {
         addressLine2 = Some("test line 2"),
         addressLine3 = Some("test line 3"),
         postCode = Some("PostCode"),
-        uprn = None
+        uprn = Some(testString)
       )
     ),
     companyName = Some(testString)
@@ -63,4 +64,6 @@ trait TestData {
     organisationDetails = Some(organisationDetails),
     businessVerification = Some(businessVerification)
   )
+
+  val testEtmpSubmission: EtmpSubmission = EtmpSubmission(providerDetails = ProviderDetails(uprn = testString))
 }

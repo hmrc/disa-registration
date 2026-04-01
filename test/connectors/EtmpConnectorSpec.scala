@@ -44,19 +44,18 @@ class EtmpConnectorSpec extends BaseUnitSpec {
   "EtmpConnector.declareAndSubmit" should {
 
     "return Right(EnrolmentSubmissionResponse) when the call succeeds" in new TestSetup {
-      val submission: JourneyData = testJourneyData
-      val response                = EnrolmentSubmissionResponse(testString)
+      val response: EnrolmentSubmissionResponse = EnrolmentSubmissionResponse(testString)
 
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, EnrolmentSubmissionResponse]](any(), any()))
         .thenReturn(Future.successful(Right(response)))
 
-      val result = connector.declareAndSubmit(submission).futureValue
+      val result: Either[UpstreamErrorResponse, EnrolmentSubmissionResponse] =
+        connector.declareAndSubmit(testEtmpSubmission).futureValue
 
       result mustBe Right(response)
     }
 
     "return Left(UpstreamErrorResponse) when ETMP returns an UpstreamErrorResponse in the Either" in new TestSetup {
-      val submission: JourneyData                      = testJourneyData
       val upstreamErrorResponse: UpstreamErrorResponse = UpstreamErrorResponse(
         message = "Not authorised",
         statusCode = 401,
@@ -67,19 +66,19 @@ class EtmpConnectorSpec extends BaseUnitSpec {
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, EnrolmentSubmissionResponse]](any(), any()))
         .thenReturn(Future.successful(Left(upstreamErrorResponse)))
 
-      val result = connector.declareAndSubmit(submission).futureValue
+      val result: Either[UpstreamErrorResponse, EnrolmentSubmissionResponse] =
+        connector.declareAndSubmit(testEtmpSubmission).futureValue
 
       result mustBe Left(upstreamErrorResponse)
     }
 
     "propagate Throwable when the call fails with an unexpected exception" in new TestSetup {
-      val submission: JourneyData = testJourneyData
-      val ex                      = new RuntimeException("Connection timeout")
+      val ex = new RuntimeException("Connection timeout")
 
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, EnrolmentSubmissionResponse]](any(), any()))
         .thenReturn(Future.failed(ex))
 
-      val thrown = connector.declareAndSubmit(submission).failed.futureValue
+      val thrown: Throwable = connector.declareAndSubmit(testEtmpSubmission).failed.futureValue
 
       thrown mustBe ex
     }

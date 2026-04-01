@@ -19,7 +19,7 @@ package uk.gov.hmrc.disaregistration.connectors
 import play.api.http.Status.{OK, UNAUTHORIZED}
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
-import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
+import uk.gov.hmrc.disaregistration.models.etmpsubmission.EtmpSubmission
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.disaregistration.utils.WiremockHelper.stubPost
 import uk.gov.hmrc.http.JsValidationException
@@ -30,8 +30,8 @@ class EtmpConnectorISpec extends BaseIntegrationSpec {
 
   "EtmpConnector.declareAndSubmit" should {
 
-    val declareAndSubmitUrl     = "/etmp/enrolment/submission"
-    val submission: JourneyData = testJourneyData
+    val declareAndSubmitUrl        = "/etmp/enrolment/submission"
+    val submission: EtmpSubmission = testEtmpSubmission
 
     "return Right(EnrolmentSubmissionResponse) when backend returns 200 OK with valid json" in {
       val responseBody =
