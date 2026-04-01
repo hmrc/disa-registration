@@ -56,7 +56,7 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
       val model = ProviderDetails("123456789")
 
-      val json = Json.toJson(model)
+      val json         = Json.toJson(model)
       val deserialized = json.as[ProviderDetails]
 
       deserialized mustBe model

@@ -99,7 +99,7 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
         providerDetails = ProviderDetails("123456789")
       )
 
-      val json = Json.toJson(submission)
+      val json         = Json.toJson(submission)
       val deserialized = json.as[EtmpSubmission]
 
       deserialized mustBe submission
