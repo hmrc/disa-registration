@@ -19,19 +19,36 @@ package uk.gov.hmrc.disaregistration.service
 import play.api.Logging
 import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
+import uk.gov.hmrc.disaregistration.models.etmpsubmission.EtmpSubmission
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EtmpService @Inject() (etmpConnector: EtmpConnector, journeyAnswersService: JourneyAnswersService)(implicit
-  ec: ExecutionContext
-) extends Logging {
+class EtmpService @Inject() (
+  etmpConnector: EtmpConnector,
+  journeyAnswersService: JourneyAnswersService
+)(implicit ec: ExecutionContext)
+    extends Logging {
+
   def declareAndSubmit(enrolment: JourneyData)(implicit hc: HeaderCarrier): Future[String] =
-    etmpConnector.declareAndSubmit(enrolment).flatMap {
-      case Left(upstreamError)                           => Future.failed(upstreamError)
-      case Right(EnrolmentSubmissionResponse(receiptId)) =>
-        journeyAnswersService.storeReceiptAndMarkSubmitted(groupId = enrolment.groupId, receiptId = receiptId)
+    EtmpSubmission(enrolment) match {
+
+      case Left(error) =>
+        logger.error(s"[EtmpService] Submission validation failed: $error")
+        Future.failed(new IllegalArgumentException(error))
+
+      case Right(submission) =>
+        etmpConnector.declareAndSubmit(submission).flatMap {
+          case Left(upstreamError) =>
+            Future.failed(upstreamError)
+
+          case Right(EnrolmentSubmissionResponse(receiptId)) =>
+            journeyAnswersService.storeReceiptAndMarkSubmitted(
+              groupId = enrolment.groupId,
+              receiptId = receiptId
+            )
+        }
     }
 }

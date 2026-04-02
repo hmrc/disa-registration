@@ -33,7 +33,7 @@ class EtmpServiceSpec extends BaseUnitSpec {
   "EtmpService.declareAndSubmit" should {
 
     "returns receiptId and stores receipt when ETMP submission succeeds" in {
-      when(mockEtmpConnector.declareAndSubmit(eqTo(testJourneyData))(any[HeaderCarrier]))
+      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testReceiptId))))
 
       when(
@@ -56,7 +56,7 @@ class EtmpServiceSpec extends BaseUnitSpec {
         headers = Map.empty
       )
 
-      when(mockEtmpConnector.declareAndSubmit(eqTo(testJourneyData))(any[HeaderCarrier]))
+      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(upstreamErrorResponse)))
 
       val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
@@ -67,7 +67,7 @@ class EtmpServiceSpec extends BaseUnitSpec {
     "fails when storing receipt fails after successful ETMP submission" in {
       val ex = new RuntimeException("mongo down")
 
-      when(mockEtmpConnector.declareAndSubmit(eqTo(testJourneyData))(any[HeaderCarrier]))
+      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testReceiptId))))
 
       when(
