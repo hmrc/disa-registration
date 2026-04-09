@@ -19,10 +19,10 @@ package uk.gov.hmrc.disaregistration.models.journeyData.signatories
 import play.api.libs.json.{Json, OFormat}
 
 case class Signatory(
-                      id: String,
-                      fullName: Option[String] = None,
-                      jobTitle: Option[String] = None,
-                    )
+  id: String,
+  fullName: Option[String] = None,
+  jobTitle: Option[String] = None
+)
 
 object Signatory {
   implicit val format: OFormat[Signatory] = Json.format[Signatory]
