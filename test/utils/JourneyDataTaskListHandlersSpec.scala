@@ -25,6 +25,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.F
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
+import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
 
 class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
 
@@ -119,7 +120,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             deserialized shouldBe original
 
           case "signatories" =>
-            val original     = Signatories(Some(testString), None)
+            val original     = Signatories(Seq(Signatory(testString, Some(testString), Some(testString))))
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[Signatories]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[Signatories]])
             deserialized shouldBe original

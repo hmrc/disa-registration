@@ -25,6 +25,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.{
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
+import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
 import utils.JsonFormatSpec
 
 class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
@@ -110,7 +111,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
           Seq(LiaisonOfficer(testString, Some(testString), Some(testString), Set(ByEmail), Some(testString)))
         )
       ),
-      signatories = None,
+      signatories = Some(Signatories(Seq(Signatory(testString, Some(testString), Some(testString))))),
       outsourcedAdministration = Some(OutsourcedAdministration(Some("O1"), Some("O2"))),
       feesCommissionsAndIncentives = Some(FeesCommissionsAndIncentives(Some("F1"), Some("F2")))
     )
@@ -153,6 +154,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |  },
        |  "certificatesOfAuthority": { "certificatesYesNo":"yes", "fcaArticles": ["article14"], "financialOrganisation":["europeanInstitution"]},
        |  "liaisonOfficers": {"liaisonOfficers":[{"id":"test","fullName":"test","phoneNumber":"test","communication":["byEmail"], "email":"test"} ]},
+       |  "signatories": {"signatories":[{"id":"test","fullName":"test","jobTitle":"test"} ]},
        |  "outsourcedAdministration": { "dataItem": "O1", "dataItem2": "O2" },
        |  "feesCommissionsAndIncentives": { "dataItem": "F1", "dataItem2": "F2" }
        |}
