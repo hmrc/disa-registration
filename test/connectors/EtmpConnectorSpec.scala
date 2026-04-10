@@ -20,7 +20,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
-import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.http.{StringContextOps, UpstreamErrorResponse}
 import utils.BaseUnitSpec
 
