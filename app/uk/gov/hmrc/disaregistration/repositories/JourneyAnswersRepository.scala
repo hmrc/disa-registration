@@ -66,7 +66,8 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       .headOption()
 
   def getOrCreateJourneyData(groupId: String): Future[GetOrCreateJourneyData] = {
-    val newEnrolment = JourneyData(groupId = groupId, lastUpdated = Some(Instant.now(clock)))
+    val newEnrolment =
+      JourneyData(groupId = groupId, lastUpdated = Some(Instant.now(clock)), thirdPartyOrganisations = None)
     val document     = Codecs.toBson(Json.toJson(newEnrolment)).asDocument().entrySet().asScala.toSeq
 
     collection

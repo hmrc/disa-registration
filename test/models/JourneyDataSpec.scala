@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json.{Format, JsValue, Json}
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData._
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
@@ -26,28 +27,28 @@ import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFi
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
 import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
+import uk.gov.hmrc.disaregistration.models.journeyData.thirdparty.{ThirdParty, ThirdPartyOrganisations}
 import utils.JsonFormatSpec
 
 class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
 
   "JourneyData" should {
     "default status to Active and generate enrolmentId on construction" in {
-      val jd = JourneyData(groupId = testGroupId)
+      val jd = JourneyData(groupId = testGroupId, thirdPartyOrganisations = None)
 
       jd.groupId              shouldBe testGroupId
       jd.status               shouldBe Active
       jd.enrolmentId.nonEmpty shouldBe true
 
-      jd.receiptId                    shouldBe None
-      jd.feesCommissionsAndIncentives shouldBe None
-      jd.businessVerification         shouldBe None
-      jd.isaProducts                  shouldBe None
-      jd.organisationDetails          shouldBe None
-      jd.certificatesOfAuthority      shouldBe None
-      jd.liaisonOfficers              shouldBe None
-      jd.signatories                  shouldBe None
-      jd.outsourcedAdministration     shouldBe None
-      jd.lastUpdated                  shouldBe None
+      jd.receiptId               shouldBe None
+      jd.businessVerification    shouldBe None
+      jd.isaProducts             shouldBe None
+      jd.organisationDetails     shouldBe None
+      jd.certificatesOfAuthority shouldBe None
+      jd.liaisonOfficers         shouldBe None
+      jd.signatories             shouldBe None
+      jd.thirdPartyOrganisations shouldBe None
+      jd.lastUpdated             shouldBe None
     }
   }
 
@@ -112,8 +113,13 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
         )
       ),
       signatories = Some(Signatories(Seq(Signatory(testString, Some(testString), Some(testString))))),
-      outsourcedAdministration = Some(OutsourcedAdministration(Some("O1"), Some("O2"))),
-      feesCommissionsAndIncentives = Some(FeesCommissionsAndIncentives(Some("F1"), Some("F2")))
+      thirdPartyOrganisations = Some(
+        ThirdPartyOrganisations(
+          Some(YesNoAnswer.Yes),
+          Seq(ThirdParty(testString, Some(testString), Some(true), Some(true), Some(1))),
+          Set.empty
+        )
+      )
     )
 
   override val json: JsValue = Json.parse(
@@ -155,8 +161,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |  "certificatesOfAuthority": { "certificatesYesNo":"yes", "fcaArticles": ["article14"], "financialOrganisation":["europeanInstitution"]},
        |  "liaisonOfficers": {"liaisonOfficers":[{"id":"test","fullName":"test","phoneNumber":"test","communication":["byEmail"], "email":"test"} ]},
        |  "signatories": {"signatories":[{"id":"test","fullName":"test","jobTitle":"test"} ]},
-       |  "outsourcedAdministration": { "dataItem": "O1", "dataItem2": "O2" },
-       |  "feesCommissionsAndIncentives": { "dataItem": "F1", "dataItem2": "F2" }
+       |  "thirdPartyOrganisations":{"managedByThirdParty":"yes","thirdParties":[{"id":"test","thirdPartyName":"test","managingIsaReturns":true,"usingInvestorFunds":true,"investorFundsPercentage":1}],"connectedOrganisations":[]}
        |}
        |""".stripMargin
   )

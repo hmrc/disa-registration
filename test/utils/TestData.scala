@@ -61,8 +61,9 @@ trait TestData {
   )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = testGroupId,
+    businessVerification = Some(businessVerification),
     organisationDetails = Some(organisationDetails),
-    businessVerification = Some(businessVerification)
+    thirdPartyOrganisations = None
   )
 
   val testEtmpSubmission: EtmpSubmission = EtmpSubmission(providerDetails = ProviderDetails(uprn = testString))
