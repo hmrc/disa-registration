@@ -24,28 +24,30 @@ import uk.gov.hmrc.disaregistration.service.TaxEnrolmentService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class TaxEnrolmentController @Inject() (
-                                         cc: ControllerComponents,
-                                         service: TaxEnrolmentService
-                                       )
-  extends BackendController(cc) with Logging {
+  cc: ControllerComponents,
+  service: TaxEnrolmentService
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
+    with Logging {
 
-  def callback(): Action[AnyContent] = Action { implicit request =>
-    request.body.asJson.fold {
+  def callback(): Action[AnyContent] = Action.async { implicit request =>
+    request.body.asJson.fold(
+      Future.successful {
         val msg = "Received tax enrolment callback with empty or non-JSON body"
         logger.warn(msg)
         BadRequest(msg)
-    }{ js =>
-        js.validate[TaxEnrolmentCallback].fold(
+      }
+    ) { js =>
+      js.validate[TaxEnrolmentCallback]
+        .fold(
           errors => {
             logger.warn(s"Received invalid tax enrolment callback payload: ${JsError.toJson(errors)}")
-            BadRequest
+            Future.successful(BadRequest)
           },
-          payload => {
-            service.handle(payload)
-            NoContent
-          }
+          payload => service.handle(payload).map(_ => NoContent)
         )
     }
   }

@@ -21,13 +21,13 @@ import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallbackState._
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TaxEnrolmentService  @Inject()
-  extends Logging {
+class TaxEnrolmentService @Inject() (implicit ec: ExecutionContext) extends Logging {
 
-  def handle(callback: TaxEnrolmentCallback): Unit = {
-    callback.state match {
+  def handle(callback: TaxEnrolmentCallback): Future[Unit] =
+    Future(callback.state match {
       case Succeeded =>
         logger.info(
           s"Received Tax Enrolments subscription callback with state [SUCCEEDED] for url [${callback.url}]"
@@ -45,7 +45,8 @@ class TaxEnrolmentService  @Inject()
 
       case Error =>
         logger.error(
-          s"Received Tax Enrolments subscription callback with state [ERROR] for url [${callback.url}]"
+          s"Received Tax Enrolments subscription callback with state [ERROR] for url [${callback.url}] " +
+            s"and errorResponse [${callback.errorResponse.getOrElse("missing errorResponse")}]"
         )
 
       case EnrolmentError =>
@@ -53,6 +54,5 @@ class TaxEnrolmentService  @Inject()
           s"Received Tax Enrolments subscription callback with state [EnrolmentError] for url [${callback.url}] " +
             s"and errorResponse [${callback.errorResponse.getOrElse("missing errorResponse")}]"
         )
-    }
-  }
+    })
 }

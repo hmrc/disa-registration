@@ -16,19 +16,14 @@
 
 package uk.gov.hmrc.disaregistration.models.taxenrolments
 
-import play.api.libs.functional.syntax.{toFunctionalBuilderOps, unlift}
-import play.api.libs.json.{Format, __}
+import play.api.libs.json.{Json, OFormat}
 
 case class TaxEnrolmentCallback(
-                                 url: String,
-                                 state: TaxEnrolmentCallbackState,
-                                 errorResponse: Option[String]
-                               )
+  url: String,
+  state: TaxEnrolmentCallbackState,
+  errorResponse: Option[String]
+)
 
 object TaxEnrolmentCallback {
-  implicit val format: Format[TaxEnrolmentCallback] = (
-    (__ \ "url").format[String] and
-      (__ \ "state").format[TaxEnrolmentCallbackState] and
-      (__ \ "errorResponse").formatNullable[String]
-    )(TaxEnrolmentCallback.apply, unlift(TaxEnrolmentCallback.unapply))
+  implicit val format: OFormat[TaxEnrolmentCallback] = Json.format[TaxEnrolmentCallback]
 }

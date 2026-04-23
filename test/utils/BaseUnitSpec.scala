@@ -16,7 +16,9 @@
 
 package utils
 
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
+import org.mockito.Mockito.when
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -31,12 +33,12 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
-import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService}
+import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService, TaxEnrolmentService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import utils.TestData
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 abstract class BaseUnitSpec
     extends AnyWordSpec
@@ -53,7 +55,10 @@ abstract class BaseUnitSpec
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   implicit val hc: HeaderCarrier    = HeaderCarrier()
 
-  override def beforeEach(): Unit = Mockito.reset()
+  override def beforeEach(): Unit = {
+    when(mockTaxEnrolmentService.handle(any)).thenReturn(Future.unit)
+    Mockito.reset()
+  }
 
   val mockHttpClient: HttpClientV2                     = mock[HttpClientV2]
   val mockAppConfig: AppConfig                         = mock[AppConfig]
@@ -63,13 +68,15 @@ abstract class BaseUnitSpec
   val mockJourneyAnswersService: JourneyAnswersService = mock[JourneyAnswersService]
   val mockEtmpService: EtmpService                     = mock[EtmpService]
   val mockEtmpConnector: EtmpConnector                 = mock[EtmpConnector]
+  val mockTaxEnrolmentService: TaxEnrolmentService     = mock[TaxEnrolmentService]
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .overrides(
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[AppConfig].toInstance(mockAppConfig),
       bind[JourneyAnswersRepository].toInstance(mockRepository),
-      bind[JourneyAnswersService].toInstance(mockJourneyAnswersService)
+      bind[JourneyAnswersService].toInstance(mockJourneyAnswersService),
+      bind[TaxEnrolmentService].toInstance(mockTaxEnrolmentService)
     )
     .build()
 }

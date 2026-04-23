@@ -24,11 +24,11 @@ sealed trait TaxEnrolmentCallbackState {
 
 object TaxEnrolmentCallbackState {
 
-  case object Error          extends TaxEnrolmentCallbackState { val value = "ERROR" }
-  case object Succeeded      extends TaxEnrolmentCallbackState { val value = "SUCCEEDED" }
+  case object Error extends TaxEnrolmentCallbackState { val value = "ERROR" }
+  case object Succeeded extends TaxEnrolmentCallbackState { val value = "SUCCEEDED" }
   case object EnrolmentError extends TaxEnrolmentCallbackState { val value = "EnrolmentError" }
-  case object Enrolled       extends TaxEnrolmentCallbackState { val value = "Enrolled" }
-  case object AuthRefreshed  extends TaxEnrolmentCallbackState { val value = "AuthRefreshed" }
+  case object Enrolled extends TaxEnrolmentCallbackState { val value = "Enrolled" }
+  case object AuthRefreshed extends TaxEnrolmentCallbackState { val value = "AuthRefreshed" }
 
   val values: Seq[TaxEnrolmentCallbackState] =
     Seq(Error, Succeeded, EnrolmentError, Enrolled, AuthRefreshed)
