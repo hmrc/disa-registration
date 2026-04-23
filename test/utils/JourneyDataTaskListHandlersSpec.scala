@@ -129,7 +129,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
           case "thirdPartyOrganisations" =>
             val original     = ThirdPartyOrganisations(
               Some(YesNoAnswer.Yes),
-              Seq(ThirdParty(testString, Some(testString), Some(true), Some(true), Some(1))),
+              Seq(ThirdParty(testString, Some(testString), Some(testString), Some(true), Some(true), Some(1))),
               Set.empty
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[ThirdPartyOrganisations]])
