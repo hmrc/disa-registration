@@ -17,6 +17,7 @@
 package utils
 
 import play.api.libs.json._
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 import uk.gov.hmrc.disaregistration.models.journeyData._
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
@@ -26,6 +27,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFi
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
 import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
+import uk.gov.hmrc.disaregistration.models.journeyData.thirdparty.{ThirdParty, ThirdPartyOrganisations}
 
 class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
 
@@ -39,8 +41,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
         "certificatesOfAuthority",
         "liaisonOfficers",
         "signatories",
-        "outsourcedAdministration",
-        "feesCommissionsAndIncentives"
+        "thirdPartyOrganisations"
       )
 
       JourneyData.taskListJourneyHandlers.keySet shouldBe expectedKeys
@@ -125,16 +126,14 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[Signatories]])
             deserialized shouldBe original
 
-          case "outsourcedAdministration" =>
-            val original     = OutsourcedAdministration(Some(testString), None)
-            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OutsourcedAdministration]])
-            val deserialized = json.as(handler.reads.asInstanceOf[Reads[OutsourcedAdministration]])
-            deserialized shouldBe original
-
-          case "feesCommissionsAndIncentives" =>
-            val original     = FeesCommissionsAndIncentives(Some(testString), None)
-            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[FeesCommissionsAndIncentives]])
-            val deserialized = json.as(handler.reads.asInstanceOf[Reads[FeesCommissionsAndIncentives]])
+          case "thirdPartyOrganisations" =>
+            val original     = ThirdPartyOrganisations(
+              Some(YesNoAnswer.Yes),
+              Seq(ThirdParty(testString, Some(testString), Some(true), Some(true), Some(1))),
+              Set.empty
+            )
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[ThirdPartyOrganisations]])
+            val deserialized = json.as(handler.reads.asInstanceOf[Reads[ThirdPartyOrganisations]])
             deserialized shouldBe original
 
           case other =>

@@ -22,6 +22,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.C
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.IsaProducts
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficers
 import uk.gov.hmrc.disaregistration.models.journeyData.signatories.Signatories
+import uk.gov.hmrc.disaregistration.models.journeyData.thirdparty.ThirdPartyOrganisations
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
@@ -38,8 +39,7 @@ case class JourneyData(
   certificatesOfAuthority: Option[CertificatesOfAuthority] = None,
   liaisonOfficers: Option[LiaisonOfficers] = None,
   signatories: Option[Signatories] = None,
-  outsourcedAdministration: Option[OutsourcedAdministration] = None,
-  feesCommissionsAndIncentives: Option[FeesCommissionsAndIncentives] = None,
+  thirdPartyOrganisations: Option[ThirdPartyOrganisations] = None,
   lastUpdated: Option[Instant] = None
 )
 
@@ -52,16 +52,12 @@ object JourneyData {
   case class TaskListJourney[A](reads: Reads[A], writes: Writes[A])
 
   val taskListJourneyHandlers: Map[String, TaskListJourney[_]] = Map(
-    "businessVerification"         -> TaskListJourney(BusinessVerification.format, BusinessVerification.format),
-    "organisationDetails"          -> TaskListJourney(OrganisationDetails.format, OrganisationDetails.format),
-    "isaProducts"                  -> TaskListJourney(IsaProducts.format, IsaProducts.format),
-    "certificatesOfAuthority"      -> TaskListJourney(CertificatesOfAuthority.format, CertificatesOfAuthority.format),
-    "liaisonOfficers"              -> TaskListJourney(LiaisonOfficers.format, LiaisonOfficers.format),
-    "signatories"                  -> TaskListJourney(Signatories.format, Signatories.format),
-    "outsourcedAdministration"     -> TaskListJourney(OutsourcedAdministration.format, OutsourcedAdministration.format),
-    "feesCommissionsAndIncentives" -> TaskListJourney(
-      FeesCommissionsAndIncentives.format,
-      FeesCommissionsAndIncentives.format
-    )
+    "businessVerification"    -> TaskListJourney(BusinessVerification.format, BusinessVerification.format),
+    "organisationDetails"     -> TaskListJourney(OrganisationDetails.format, OrganisationDetails.format),
+    "isaProducts"             -> TaskListJourney(IsaProducts.format, IsaProducts.format),
+    "certificatesOfAuthority" -> TaskListJourney(CertificatesOfAuthority.format, CertificatesOfAuthority.format),
+    "liaisonOfficers"         -> TaskListJourney(LiaisonOfficers.format, LiaisonOfficers.format),
+    "signatories"             -> TaskListJourney(Signatories.format, Signatories.format),
+    "thirdPartyOrganisations" -> TaskListJourney(ThirdPartyOrganisations.format, ThirdPartyOrganisations.format)
   )
 }
