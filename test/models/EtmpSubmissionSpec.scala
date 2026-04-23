@@ -45,7 +45,8 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
             ),
             companyName = Some("Test Ltd")
           )
-        )
+        ),
+        thirdPartyOrganisations = None
       )
 
       val result = EtmpSubmission(journeyData)
@@ -59,10 +60,7 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
 
     "fail when businessVerification is missing" in {
 
-      val journeyData = JourneyData(
-        groupId = "group-1",
-        businessVerification = None
-      )
+      val journeyData = JourneyData(groupId = "group-1", businessVerification = None, thirdPartyOrganisations = None)
 
       val result = EtmpSubmission(journeyData)
 
@@ -81,7 +79,8 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
             registeredAddress = None,
             companyName = None
           )
-        )
+        ),
+        thirdPartyOrganisations = None
       )
 
       val result = EtmpSubmission(journeyData)

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData.signatories
+package uk.gov.hmrc.disaregistration.models.journeyData.thirdparty
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 
-case class Signatory(
-  id: String,
-  fullName: Option[String] = None,
-  jobTitle: Option[String] = None
+case class ThirdPartyOrganisations(
+  managedByThirdParty: Option[YesNoAnswer] = None,
+  thirdParties: Seq[ThirdParty] = Nil,
+  connectedOrganisations: Set[String] = Set.empty
 )
 
-object Signatory {
-  implicit val format: OFormat[Signatory] = Json.format[Signatory]
+object ThirdPartyOrganisations {
+  implicit val format: OFormat[ThirdPartyOrganisations] = Json.format[ThirdPartyOrganisations]
 }

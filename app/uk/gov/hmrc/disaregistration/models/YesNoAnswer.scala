@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData.signatories
+package uk.gov.hmrc.disaregistration.models
 
-import play.api.libs.json.{Json, OFormat}
+sealed trait YesNoAnswer
 
-case class Signatory(
-  id: String,
-  fullName: Option[String] = None,
-  jobTitle: Option[String] = None
-)
+object YesNoAnswer extends Enumerable.Implicits {
 
-object Signatory {
-  implicit val format: OFormat[Signatory] = Json.format[Signatory]
+  case object Yes extends WithName("yes") with YesNoAnswer
+  case object No extends WithName("no") with YesNoAnswer
+
+  val values: Seq[YesNoAnswer] = Seq(
+    Yes,
+    No
+  )
+
+  implicit val enumerable: Enumerable[YesNoAnswer] =
+    Enumerable(values.map(v => v.toString -> v): _*)
 }

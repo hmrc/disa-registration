@@ -47,17 +47,14 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
   }
 
   private def activeJourneyData: JourneyData =
-    testJourneyData.copy(
-      status = Active,
-      receiptId = None,
-      lastUpdated = None
-    )
+    testJourneyData.copy(receiptId = None, status = Active, lastUpdated = None, thirdPartyOrganisations = None)
 
   private def submittedJourneyData: JourneyData =
     testJourneyData.copy(
-      status = Submitted,
       receiptId = Some(testReceiptId),
-      lastUpdated = None
+      status = Submitted,
+      lastUpdated = None,
+      thirdPartyOrganisations = None
     )
 
   "findById" should {

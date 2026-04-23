@@ -57,7 +57,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
         enrolmentId = testEnrolmentId,
         receiptId = None,
         status = Active,
-        businessVerification = Some(businessVerification)
+        businessVerification = Some(businessVerification),
+        thirdPartyOrganisations = None
       )
 
       await(repo.collection.insertOne(jd).toFuture())
@@ -103,7 +104,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
         groupId = testGroupId,
         enrolmentId = testString,
         receiptId = Some(testReceiptId),
-        status = Submitted
+        status = Submitted,
+        thirdPartyOrganisations = None
       )
 
       await(repo.collection.insertOne(jd).toFuture())
@@ -133,7 +135,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
         groupId = testGroupId,
         enrolmentId = testEnrolmentId,
         receiptId = None,
-        status = Active
+        status = Active,
+        thirdPartyOrganisations = None
       )
 
       await(repo.collection.insertOne(jd).toFuture())

@@ -53,7 +53,13 @@ class SubmissionControllerSpec extends BaseUnitSpec {
 
       val app             = application
       val jd: JourneyData =
-        JourneyData(groupId = testGroupId, enrolmentId = testEnrolmentId, status = Active, receiptId = None)
+        JourneyData(
+          groupId = testGroupId,
+          enrolmentId = testEnrolmentId,
+          receiptId = None,
+          status = Active,
+          thirdPartyOrganisations = None
+        )
       val receiptId       = testString
 
       when(mockJourneyAnswersService.retrieve(eqTo(testGroupId)))
@@ -111,7 +117,13 @@ class SubmissionControllerSpec extends BaseUnitSpec {
 
       val app             = application
       val jd: JourneyData =
-        JourneyData(groupId = testGroupId, enrolmentId = testEnrolmentId, status = Active, receiptId = None)
+        JourneyData(
+          groupId = testGroupId,
+          enrolmentId = testEnrolmentId,
+          receiptId = None,
+          status = Active,
+          thirdPartyOrganisations = None
+        )
 
       when(mockJourneyAnswersService.retrieve(eqTo(testGroupId)))
         .thenReturn(Future.successful(Some(jd)))
