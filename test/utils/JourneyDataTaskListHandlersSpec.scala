@@ -136,7 +136,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
                   Some(testString),
                   Some(YesNoAnswer.Yes),
                   Some(YesNoAnswer.Yes),
-                  Some(1)
+                  Some("1")
                 )
               ),
               Set.empty
