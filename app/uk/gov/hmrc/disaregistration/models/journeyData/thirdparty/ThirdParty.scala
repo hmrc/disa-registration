@@ -17,13 +17,15 @@
 package uk.gov.hmrc.disaregistration.models.journeyData.thirdparty
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 
 case class ThirdParty(
   id: String,
   thirdPartyName: Option[String] = None,
-  managingIsaReturns: Option[Boolean] = None,
-  usingInvestorFunds: Option[Boolean] = None,
-  investorFundsPercentage: Option[Int] = None
+  thirdPartyFrn: Option[String] = None,
+  managingIsaReturns: Option[YesNoAnswer] = None,
+  usingInvestorFunds: Option[YesNoAnswer] = None,
+  investorFundsPercentage: Option[String] = None
 )
 
 object ThirdParty {
