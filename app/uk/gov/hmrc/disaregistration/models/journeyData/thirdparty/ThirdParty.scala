@@ -21,6 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 case class ThirdParty(
   id: String,
   thirdPartyName: Option[String] = None,
+  thirdPartyFrn: Option[String] = None,
   managingIsaReturns: Option[Boolean] = None,
   usingInvestorFunds: Option[Boolean] = None,
   investorFundsPercentage: Option[Int] = None
