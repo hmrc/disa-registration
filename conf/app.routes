@@ -6,3 +6,6 @@ GET  /store/:groupId                         uk.gov.hmrc.disaregistration.contro
 PUT  /journey/:groupId                   uk.gov.hmrc.disaregistration.controllers.JourneyAnswersController.getOrCreateJourneyData(groupId: String)
 
 POST /:groupId/declare-and-submit            uk.gov.hmrc.disaregistration.controllers.SubmissionController.declareAndSubmit(groupId:String)
+
+## Callbacks
+POST   /callback/subscriptions               uk.gov.hmrc.disaregistration.controllers.TaxEnrolmentController.callback()
