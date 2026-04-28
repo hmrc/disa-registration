@@ -130,7 +130,14 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             val original     = ThirdPartyOrganisations(
               Some(YesNoAnswer.Yes),
               Seq(
-                ThirdParty(testString, Some(testString), Some(testString), Some(YesNoAnswer.Yes), Some(true), Some(1))
+                ThirdParty(
+                  testString,
+                  Some(testString),
+                  Some(testString),
+                  Some(YesNoAnswer.Yes),
+                  Some(YesNoAnswer.Yes),
+                  Some(1)
+                )
               ),
               Set.empty
             )

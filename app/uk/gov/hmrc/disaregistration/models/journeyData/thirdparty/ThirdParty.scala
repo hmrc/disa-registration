@@ -24,7 +24,7 @@ case class ThirdParty(
   thirdPartyName: Option[String] = None,
   thirdPartyFrn: Option[String] = None,
   managingIsaReturns: Option[YesNoAnswer] = None,
-  usingInvestorFunds: Option[Boolean] = None,
+  usingInvestorFunds: Option[YesNoAnswer] = None,
   investorFundsPercentage: Option[Int] = None
 )
 
