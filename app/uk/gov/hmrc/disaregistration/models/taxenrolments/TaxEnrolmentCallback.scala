@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData.thirdparty
+package uk.gov.hmrc.disaregistration.models.taxenrolments
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 
-case class ThirdParty(
-  id: String,
-  thirdPartyName: Option[String] = None,
-  thirdPartyFrn: Option[String] = None,
-  managingIsaReturns: Option[YesNoAnswer] = None,
-  usingInvestorFunds: Option[YesNoAnswer] = None,
-  investorFundsPercentage: Option[String] = None
+case class TaxEnrolmentCallback(
+  url: String,
+  state: TaxEnrolmentCallbackState,
+  errorResponse: Option[String]
 )
 
-object ThirdParty {
-  implicit val format: OFormat[ThirdParty] = Json.format[ThirdParty]
+object TaxEnrolmentCallback {
+  implicit val format: OFormat[TaxEnrolmentCallback] = Json.format[TaxEnrolmentCallback]
 }
