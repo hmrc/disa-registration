@@ -23,7 +23,8 @@ case class BusinessVerification(
   businessVerificationPassed: Option[Boolean],
   ctUtr: Option[String],
   registeredAddress: Option[RegisteredAddress],
-  companyName: Option[String]
+  companyName: Option[String],
+  businessPartnerId: Option[String]
 )
 
 object BusinessVerification {
