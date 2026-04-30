@@ -63,7 +63,8 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
                   postCode = Some("PostCode")
                 )
               ),
-              companyName = Some(testString)
+              companyName = Some(testString),
+              businessPartnerId = Some(testString)
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[BusinessVerification]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[BusinessVerification]])
