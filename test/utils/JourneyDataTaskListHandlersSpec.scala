@@ -139,7 +139,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
                   Some("1")
                 )
               ),
-              Set.empty
+              Seq.empty
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[ThirdPartyOrganisations]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[ThirdPartyOrganisations]])
