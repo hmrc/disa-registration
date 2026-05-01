@@ -22,7 +22,7 @@ import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 case class ThirdPartyOrganisations(
   managedByThirdParty: Option[YesNoAnswer] = None,
   thirdParties: Seq[ThirdParty] = Nil,
-  connectedOrganisations: Set[String] = Set.empty
+  connectedOrganisations: Seq[String] = Seq.empty
 )
 
 object ThirdPartyOrganisations {
