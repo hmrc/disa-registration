@@ -34,13 +34,15 @@ class TaxEnrolmentService @Inject() (implicit ec: ExecutionContext) extends Logg
         )
 
       case Enrolled =>
-        logger.info(
-          s"Received Tax Enrolments subscription callback with state [Enrolled] for url [${callback.url}]"
+        logger.warn(
+          s"Received Tax Enrolments subscription callback with state [Enrolled] for url [${callback.url}]" +
+            s"and errorResponse [${callback.errorResponse.getOrElse("missing errorResponse")}]"
         )
 
       case AuthRefreshed =>
-        logger.info(
-          s"Received Tax Enrolments subscription callback with state [AuthRefreshed] for url [${callback.url}]"
+        logger.warn(
+          s"Received Tax Enrolments subscription callback with state [AuthRefreshed] for url [${callback.url}]" +
+            s"and errorResponse [${callback.errorResponse.getOrElse("missing errorResponse")}]"
         )
 
       case Error =>
@@ -50,7 +52,7 @@ class TaxEnrolmentService @Inject() (implicit ec: ExecutionContext) extends Logg
         )
 
       case EnrolmentError =>
-        logger.error(
+        logger.warn(
           s"Received Tax Enrolments subscription callback with state [EnrolmentError] for url [${callback.url}] " +
             s"and errorResponse [${callback.errorResponse.getOrElse("missing errorResponse")}]"
         )
