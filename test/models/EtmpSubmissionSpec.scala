@@ -43,7 +43,8 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
                 uprn = Some("123456789")
               )
             ),
-            companyName = Some("Test Ltd")
+            companyName = Some("Test Ltd"),
+            businessPartnerId = Some("TestBusinessPartnerId")
           )
         ),
         thirdPartyOrganisations = None
@@ -77,7 +78,8 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
             businessVerificationPassed = None,
             ctUtr = None,
             registeredAddress = None,
-            companyName = None
+            companyName = None,
+            businessPartnerId = None
           )
         ),
         thirdPartyOrganisations = None
