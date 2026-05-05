@@ -126,7 +126,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
               Some("1")
             )
           ),
-          Set.empty
+          Seq(testString, testString)
         )
       )
     )
@@ -170,7 +170,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |  "certificatesOfAuthority": { "certificatesYesNo":"yes", "fcaArticles": ["article14"], "financialOrganisation":["europeanInstitution"]},
        |  "liaisonOfficers": {"liaisonOfficers":[{"id":"test","fullName":"test","phoneNumber":"test","communication":["byEmail"], "email":"test"} ]},
        |  "signatories": {"signatories":[{"id":"test","fullName":"test","jobTitle":"test"} ]},
-       |  "thirdPartyOrganisations":{"managedByThirdParty":"yes","thirdParties":[{"id":"test","thirdPartyName":"test","thirdPartyFrn":"test","managingIsaReturns":"yes","usingInvestorFunds":"yes","investorFundsPercentage":"1"}],"connectedOrganisations":[]}
+       |  "thirdPartyOrganisations":{"managedByThirdParty":"yes","thirdParties":[{"id":"test","thirdPartyName":"test","thirdPartyFrn":"test","managingIsaReturns":"yes","usingInvestorFunds":"yes","investorFundsPercentage":"1"}],"connectedOrganisations":["test", "test"]}
        |}
        |""".stripMargin
   )
