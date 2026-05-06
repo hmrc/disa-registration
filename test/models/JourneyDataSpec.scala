@@ -44,6 +44,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
       jd.businessVerification    shouldBe None
       jd.isaProducts             shouldBe None
       jd.organisationDetails     shouldBe None
+      jd.organisationEmail       shouldBe None
       jd.certificatesOfAuthority shouldBe None
       jd.liaisonOfficers         shouldBe None
       jd.signatories             shouldBe None
@@ -93,6 +94,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
           )
         )
       ),
+      organisationEmail = Some(OrganisationEmail(Some("example@example.com"), Some(true))),
       isaProducts = Some(
         IsaProducts(
           Some(IsaProduct.values),
@@ -162,6 +164,10 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |      "addressLine3": "test line 3",
        |      "postCode": "PostCode"
        |    }
+       |  },
+       |  "organisationEmail": {
+       |    "organisationEmail": "example@example.com",
+       |    "verified": true
        |  },
        |  "isaProducts": {
        |    "isaProducts": ["cashIsas","cashJuniorIsas","stocksAndSharesIsas","stocksAndSharesJuniorIsas","innovativeFinanceIsas"],

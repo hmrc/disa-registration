@@ -35,6 +35,7 @@ case class JourneyData(
   status: EnrolmentStatus = Active,
   businessVerification: Option[BusinessVerification] = None,
   organisationDetails: Option[OrganisationDetails] = None,
+  organisationEmail: Option[OrganisationEmail] = None,
   isaProducts: Option[IsaProducts] = None,
   certificatesOfAuthority: Option[CertificatesOfAuthority] = None,
   liaisonOfficers: Option[LiaisonOfficers] = None,
@@ -54,6 +55,7 @@ object JourneyData {
   val taskListJourneyHandlers: Map[String, TaskListJourney[_]] = Map(
     "businessVerification"    -> TaskListJourney(BusinessVerification.format, BusinessVerification.format),
     "organisationDetails"     -> TaskListJourney(OrganisationDetails.format, OrganisationDetails.format),
+    "organisationEmail"       -> TaskListJourney(OrganisationEmail.format, OrganisationEmail.format),
     "isaProducts"             -> TaskListJourney(IsaProducts.format, IsaProducts.format),
     "certificatesOfAuthority" -> TaskListJourney(CertificatesOfAuthority.format, CertificatesOfAuthority.format),
     "liaisonOfficers"         -> TaskListJourney(LiaisonOfficers.format, LiaisonOfficers.format),
