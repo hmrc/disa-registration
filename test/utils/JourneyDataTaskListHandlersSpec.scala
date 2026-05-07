@@ -37,6 +37,7 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
       val expectedKeys = Set(
         "businessVerification",
         "organisationDetails",
+        "organisationEmail",
         "isaProducts",
         "certificatesOfAuthority",
         "liaisonOfficers",
@@ -89,6 +90,13 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[OrganisationDetails]])
+            deserialized shouldBe original
+
+          case "organisationEmail" =>
+            val original     = OrganisationEmail(Some("example@example.com"), Some(true))
+            val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationEmail]])
+            val deserialized = json.as(handler.reads.asInstanceOf[Reads[OrganisationEmail]])
+
             deserialized shouldBe original
 
           case "isaProducts" =>
