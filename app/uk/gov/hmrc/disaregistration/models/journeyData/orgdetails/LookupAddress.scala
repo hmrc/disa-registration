@@ -19,12 +19,12 @@ package uk.gov.hmrc.disaregistration.models.journeyData.orgdetails
 import play.api.libs.json.{Json, OFormat}
 
 case class LookupAddress(
-                          addressLine1: Option[String] = None,
-                          addressLine2: Option[String] = None,
-                          addressLine3: Option[String] = None,
-                          postCode: Option[String] = None,
-                          uprn: Option[String] = None
-                        )
+  addressLine1: Option[String] = None,
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  postCode: Option[String] = None,
+  uprn: Option[String] = None
+)
 
 object LookupAddress {
   implicit val writes: OFormat[LookupAddress] = Json.format[LookupAddress]

@@ -19,10 +19,10 @@ package uk.gov.hmrc.disaregistration.models.journeyData.orgdetails
 import play.api.libs.json.{Json, OFormat}
 
 case class AddAnotherAddress(
-                              postcode: String,
-                              filter: Option[String],
-                              addresses: Seq[LookupAddress]
-                            )
+  postcode: String,
+  filter: Option[String],
+  addresses: Seq[LookupAddress]
+)
 
 object AddAnotherAddress {
   implicit val format: OFormat[AddAnotherAddress] = Json.format[AddAnotherAddress]

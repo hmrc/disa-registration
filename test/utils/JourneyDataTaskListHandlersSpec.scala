@@ -88,7 +88,8 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
                   postCode = Some("PostCode")
                 )
               ),
-              addAnotherAddress = Some(AddAnotherAddress(postcode = testString, filter = Some(testString), addresses = Seq.empty))
+              addAnotherAddress =
+                Some(AddAnotherAddress(postcode = testString, filter = Some(testString), addresses = Seq.empty))
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[OrganisationDetails]])
