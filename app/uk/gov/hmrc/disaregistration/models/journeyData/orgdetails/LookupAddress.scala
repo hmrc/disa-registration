@@ -23,7 +23,8 @@ case class LookupAddress(
   addressLine2: Option[String] = None,
   addressLine3: Option[String] = None,
   postCode: Option[String] = None,
-  uprn: Option[String] = None
+  uprn: Option[String] = None,
+  country: Option[String] = None
 )
 
 object LookupAddress {
