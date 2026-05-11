@@ -23,7 +23,8 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.C
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FinancialOrganisation.RegisteredFriendlySociety
-import uk.gov.hmrc.disaregistration.models.journeyData.{CorrespondenceAddress, JourneyData, OrganisationDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.OrganisationDetails
+import uk.gov.hmrc.disaregistration.models.journeyData.{CorrespondenceAddress, JourneyData}
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.mongo.MongoComponent
 import utils.BaseUnitSpec

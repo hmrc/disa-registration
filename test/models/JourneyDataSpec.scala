@@ -26,6 +26,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.{
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
+import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.{AddAnotherAddress, AddressLookupResult, LookupAddress, OrganisationDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
 import uk.gov.hmrc.disaregistration.models.journeyData.thirdparty.{ThirdParty, ThirdPartyOrganisations}
 import utils.JsonFormatSpec
@@ -91,7 +92,9 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
               addressLine3 = Some("test line 3"),
               postCode = Some("PostCode")
             )
-          )
+          ),
+          addAnotherAddress = Some(AddAnotherAddress(postcode = testString, filter = Some(testString),
+            addresses = Seq(LookupAddress(addressLine1 = Some(testString), addressLine2 = Some(testString), addressLine3 = Some(testString), postCode = Some(testString), uprn = None))))
         )
       ),
       organisationEmail = Some(OrganisationEmail(Some("example@example.com"), Some(true))),
@@ -163,7 +166,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |      "addressLine2": "test line 2",
        |      "addressLine3": "test line 3",
        |      "postCode": "PostCode"
-       |    }
+       |    },
+       |    "addAnotherAddress":{"postcode":"test","filter":"test","addresses":[{"addressLine1":"test","addressLine2":"test","addressLine3":"test","postCode":"test"}]}
        |  },
        |  "organisationEmail": {
        |    "organisationEmail": "example@example.com",

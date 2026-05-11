@@ -17,7 +17,8 @@
 package utils
 
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
-import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, JourneyData, OrganisationDetails, RegisteredAddress}
+import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.OrganisationDetails
+import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, JourneyData, RegisteredAddress}
 
 import java.util.UUID
 import scala.util.Random

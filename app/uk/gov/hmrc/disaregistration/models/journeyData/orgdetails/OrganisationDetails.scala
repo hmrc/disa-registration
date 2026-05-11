@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData
+package uk.gov.hmrc.disaregistration.models.journeyData.orgdetails
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.disaregistration.models.journeyData.CorrespondenceAddress
 
 case class OrganisationDetails(
   registeredToManageIsa: Option[Boolean] = None,
@@ -26,7 +27,8 @@ case class OrganisationDetails(
   fcaNumber: Option[String] = None,
   registeredAddressCorrespondence: Option[Boolean],
   correspondenceAddress: Option[CorrespondenceAddress] = None,
-  orgTelephoneNumber: Option[String] = None
+  orgTelephoneNumber: Option[String] = None,
+  addAnotherAddress: Option[AddAnotherAddress] = None
 )
 
 object OrganisationDetails {
