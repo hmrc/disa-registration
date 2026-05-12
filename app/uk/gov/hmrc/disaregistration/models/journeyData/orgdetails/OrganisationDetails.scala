@@ -28,7 +28,8 @@ case class OrganisationDetails(
   registeredAddressCorrespondence: Option[Boolean],
   correspondenceAddress: Option[CorrespondenceAddress] = None,
   orgTelephoneNumber: Option[String] = None,
-  addAnotherAddress: Option[AddAnotherAddress] = None
+  addAnotherAddress: Option[AddAnotherAddress] = None,
+  chooseAddressAnswer: Option[ChooseAddressAnswer] = None
 )
 
 object OrganisationDetails {
