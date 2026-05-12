@@ -16,20 +16,19 @@
 
 package models
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData._
+import utils.BaseUnitSpec
 
-class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
+class EtmpSubmissionSpec extends BaseUnitSpec {
 
   "EtmpSubmission.apply" should {
 
     "successfully build an EtmpSubmission when businessVerification and registeredAddress are present" in {
 
       val journeyData = JourneyData(
-        groupId = "group-1",
+        groupId = testGroupId,
         businessVerification = Some(
           BusinessVerification(
             businessRegistrationPassed = Some(true),
@@ -52,26 +51,24 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
 
       val result = EtmpSubmission(journeyData)
 
-      result mustBe Right(
-        EtmpSubmission(
-          providerDetails = ProviderDetails("123456789")
-        )
+      result shouldBe Right(
+        EtmpSubmission(testGroupId, providerDetails = ProviderDetails("123456789"))
       )
     }
 
     "fail when businessVerification is missing" in {
 
-      val journeyData = JourneyData(groupId = "group-1", businessVerification = None, thirdPartyOrganisations = None)
+      val journeyData = JourneyData(groupId = testGroupId, businessVerification = None, thirdPartyOrganisations = None)
 
       val result = EtmpSubmission(journeyData)
 
-      result mustBe Left("Missing businessVerification")
+      result shouldBe Left("Missing businessVerification")
     }
 
     "fail when registeredAddress is missing" in {
 
       val journeyData = JourneyData(
-        groupId = "group-1",
+        groupId = testGroupId,
         businessVerification = Some(
           BusinessVerification(
             businessRegistrationPassed = None,
@@ -87,7 +84,7 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
 
       val result = EtmpSubmission(journeyData)
 
-      result mustBe Left("Missing registeredAddress")
+      result shouldBe Left("Missing registeredAddress")
     }
   }
 
@@ -95,14 +92,12 @@ class EtmpSubmissionSpec extends AnyWordSpec with Matchers {
 
     "serialize and deserialize correctly" in {
 
-      val submission = EtmpSubmission(
-        providerDetails = ProviderDetails("123456789")
-      )
+      val submission = EtmpSubmission(testGroupId, providerDetails = ProviderDetails("123456789"))
 
       val json         = Json.toJson(submission)
       val deserialized = json.as[EtmpSubmission]
 
-      deserialized mustBe submission
+      deserialized shouldBe submission
     }
   }
 }

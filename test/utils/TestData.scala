@@ -67,5 +67,6 @@ trait TestData {
     thirdPartyOrganisations = None
   )
 
-  val testEtmpSubmission: EtmpSubmission = EtmpSubmission(providerDetails = ProviderDetails(uprn = testString))
+  val testEtmpSubmission: EtmpSubmission =
+    EtmpSubmission(testGroupId, providerDetails = ProviderDetails(uprn = testString))
 }

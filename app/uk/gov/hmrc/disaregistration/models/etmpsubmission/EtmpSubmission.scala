@@ -19,7 +19,7 @@ package uk.gov.hmrc.disaregistration.models.etmpsubmission
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 
-case class EtmpSubmission(providerDetails: ProviderDetails)
+case class EtmpSubmission(groupId: String, providerDetails: ProviderDetails)
 
 object EtmpSubmission {
   implicit val format: OFormat[EtmpSubmission] = Json.format[EtmpSubmission]
@@ -34,5 +34,5 @@ object EtmpSubmission {
 
       providerDetails = ProviderDetails.fromJourneyAddress(addr)
 
-    } yield EtmpSubmission(providerDetails)
+    } yield EtmpSubmission(journeyData.groupId, providerDetails)
 }
