@@ -41,9 +41,9 @@ class SubmissionController @Inject() (
     journeyDataRetrieval
       .flatMap {
         case Some(jd) =>
-          etmpService.declareAndSubmit(jd).map { receiptId =>
-            logger.info(s"Enrolment submission successful for IM: [$groupId] with receipt: [$receiptId]")
-            Ok(Json.toJson(EnrolmentSubmissionResponse(receiptId)))
+          etmpService.declareAndSubmit(jd).map { subscriptionId =>
+            logger.info(s"Enrolment submission successful for IM: [$groupId] with receipt: [$subscriptionId]")
+            Ok(Json.toJson(EnrolmentSubmissionResponse(subscriptionId)))
           }
         case None     =>
           logger.error(s"Failed to find journey data to submit for groupId [$groupId]")

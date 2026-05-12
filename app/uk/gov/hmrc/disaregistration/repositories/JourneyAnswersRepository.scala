@@ -60,9 +60,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
 
   def findById(groupId: String): Future[Option[JourneyData]] =
     collection
-      .find(
-        Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active))
-      )
+      .find(Filters.eq("groupId", groupId))
       .headOption()
 
   def getOrCreateJourneyData(groupId: String): Future[GetOrCreateJourneyData] = {
@@ -105,12 +103,12 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       .toFuture()
       .map(res => res.getMatchedCount > 0)
 
-  def storeReceiptAndMarkSubmitted(groupId: String, receiptId: String): Future[Unit] =
+  def storeReceiptAndMarkSubmitted(groupId: String, subscriptionId: String): Future[Unit] =
     collection
       .updateOne(
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
-          Updates.set("receiptId", receiptId),
+          Updates.set("subscriptionId", subscriptionId),
           Updates.set("status", Submitted),
           Updates.set("lastUpdated", Instant.now(clock))
         )
