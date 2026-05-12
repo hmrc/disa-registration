@@ -21,7 +21,8 @@ import play.api.libs.json.{Json, OFormat}
 case class AddAnotherAddress(
   postcode: String,
   filter: Option[String],
-  addresses: Seq[LookupAddress]
+  addresses: Seq[LookupAddress],
+  selectedAddress: Option[SelectedCorrespondenceAddress]
 )
 
 object AddAnotherAddress {
