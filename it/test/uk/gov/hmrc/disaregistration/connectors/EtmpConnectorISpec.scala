@@ -36,13 +36,13 @@ class EtmpConnectorISpec extends BaseIntegrationSpec {
     "return Right(EnrolmentSubmissionResponse) when backend returns 200 OK with valid json" in {
       val responseBody =
         s"""
-           | {"receiptId": "$testReceiptId"}
+           | {"subscriptionId": "$testSubscriptionId"}
            | """.stripMargin
       stubPost(declareAndSubmitUrl, OK, responseBody)
 
       val response = await(connector.declareAndSubmit(submission))
 
-      response shouldBe Right(EnrolmentSubmissionResponse(testReceiptId))
+      response shouldBe Right(EnrolmentSubmissionResponse(testSubscriptionId))
     }
 
     "return Left(UpstreamErrorResponse) when backend returns 4xx/5xx and the http client materialises it as Left" in {

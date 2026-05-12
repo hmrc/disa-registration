@@ -45,7 +45,7 @@ class EtmpService @Inject() (
             Future.failed(upstreamError)
 
           case Right(EnrolmentSubmissionResponse(subscriptionId)) =>
-            journeyAnswersService.storeReceiptAndMarkSubmitted(
+            journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
               groupId = enrolment.groupId,
               subscriptionId = subscriptionId
             )
