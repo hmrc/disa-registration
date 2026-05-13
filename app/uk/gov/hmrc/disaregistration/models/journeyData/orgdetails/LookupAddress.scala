@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.models.journeyData
+package uk.gov.hmrc.disaregistration.models.journeyData.orgdetails
 
 import play.api.libs.json.{Json, OFormat}
 
-case class OrganisationDetails(
-  registeredToManageIsa: Option[Boolean] = None,
-  zRefNumber: Option[String] = None,
-  tradingUsingDifferentName: Option[Boolean] = None,
-  tradingName: Option[String] = None,
-  fcaNumber: Option[String] = None,
-  registeredAddressCorrespondence: Option[Boolean],
-  correspondenceAddress: Option[CorrespondenceAddress] = None,
-  orgTelephoneNumber: Option[String] = None
+case class LookupAddress(
+  addressLine1: Option[String] = None,
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  postCode: Option[String] = None,
+  uprn: Option[String] = None,
+  country: Option[String] = None
 )
 
-object OrganisationDetails {
-  implicit val format: OFormat[OrganisationDetails] = Json.format[OrganisationDetails]
+object LookupAddress {
+  implicit val writes: OFormat[LookupAddress] = Json.format[LookupAddress]
 }
