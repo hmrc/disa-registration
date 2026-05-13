@@ -26,7 +26,6 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.{
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
-import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.SelectedCorrespondenceAddress.ManualEntry
 import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.{AddAnotherAddress, LookupAddress, OrganisationDetails, SelectedCorrespondenceAddress}
 import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
 import uk.gov.hmrc.disaregistration.models.journeyData.thirdparty.{ThirdParty, ThirdPartyOrganisations}
