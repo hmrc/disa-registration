@@ -51,11 +51,11 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
   "SubmissionController.declareAndSubmit" should {
     val url = s"http://localhost:$port/disa-registration/$testGroupId/declare-and-submit"
 
-    "return 200 with receiptId JSON and mark journey as Submitted when journey data exists" in {
+    "return 200 with subscriptionId JSON and mark journey as Submitted when journey data exists" in {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testEnrolmentId,
-        receiptId = None,
+        subscriptionId = None,
         status = Active,
         businessVerification = Some(businessVerification),
         thirdPartyOrganisations = None
@@ -64,7 +64,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       await(repo.collection.insertOne(jd).toFuture())
 
       val etmpResponse = s"""
-           | {"receiptId": "$testReceiptId"}
+           | {"subscriptionId": "$testSubscriptionId"}
            | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
@@ -75,17 +75,17 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       )
 
       response.status shouldBe OK
-      response.json   shouldBe Json.toJson(EnrolmentSubmissionResponse(testReceiptId))
+      response.json   shouldBe Json.toJson(EnrolmentSubmissionResponse(testSubscriptionId))
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      stored.size           shouldBe 1
-      stored.head.status    shouldBe Submitted
-      stored.head.receiptId shouldBe Some(testReceiptId)
+      stored.size                shouldBe 1
+      stored.head.status         shouldBe Submitted
+      stored.head.subscriptionId shouldBe Some(testSubscriptionId)
     }
 
     "return 404 when journey data does not exist" in {
       val etmpResponse = s"""
-                            | {"receiptId": "$testReceiptId"}
+                            | {"subscriptionId": "$testSubscriptionId"}
                             | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
@@ -99,19 +99,20 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       response.body   shouldBe "Failed to find journey data to submit for this request"
     }
 
-    "return 404 when journey exists but no Active journey is available to submit" in {
+    "return 500 when journey exists but no Active journey is available to submit" in {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testString,
-        receiptId = Some(testReceiptId),
+        subscriptionId = Some(testSubscriptionId),
         status = Submitted,
+        businessVerification = Some(businessVerification),
         thirdPartyOrganisations = None
       )
 
       await(repo.collection.insertOne(jd).toFuture())
 
       val etmpResponse = s"""
-                            | {"receiptId": "$testReceiptId"}
+                            | {"subscriptionId": "$testSubscriptionId"}
                             | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
@@ -121,20 +122,20 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
           .post("")
       )
 
-      response.status shouldBe NOT_FOUND
-      response.body   shouldBe "Failed to find journey data to submit for this request"
+      response.status shouldBe INTERNAL_SERVER_ERROR
+      response.body   shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      stored.size           shouldBe 1
-      stored.head.status    shouldBe Submitted
-      stored.head.receiptId shouldBe Some(testReceiptId)
+      stored.size                shouldBe 1
+      stored.head.status         shouldBe Submitted
+      stored.head.subscriptionId shouldBe Some(testSubscriptionId)
     }
 
     "return 500 when ETMP returns an error response" in {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testEnrolmentId,
-        receiptId = None,
+        subscriptionId = None,
         status = Active,
         thirdPartyOrganisations = None
       )
@@ -157,9 +158,9 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       response.body   shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      stored.size           shouldBe 1
-      stored.head.status    shouldBe Active
-      stored.head.receiptId shouldBe None
+      stored.size                shouldBe 1
+      stored.head.status         shouldBe Active
+      stored.head.subscriptionId shouldBe None
     }
   }
 }

@@ -40,8 +40,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
       jd.groupId              shouldBe testGroupId
       jd.status               shouldBe Active
       jd.enrolmentId.nonEmpty shouldBe true
+      jd.subscriptionId       shouldBe None
 
-      jd.receiptId               shouldBe None
       jd.businessVerification    shouldBe None
       jd.isaProducts             shouldBe None
       jd.organisationDetails     shouldBe None
@@ -58,7 +58,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
     JourneyData(
       groupId = testGroupId,
       enrolmentId = testEnrolmentId,
-      receiptId = Some(testReceiptId),
+      subscriptionId = Some(testSubscriptionId),
       status = EnrolmentStatus.Submitted,
       businessVerification = Some(
         BusinessVerification(
@@ -155,7 +155,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |{
        |  "groupId": "$testGroupId",
        |  "enrolmentId": "$testEnrolmentId",
-       |  "receiptId": "$testReceiptId",
+       |  "subscriptionId": "$testSubscriptionId",
        |  "status": "Submitted",
        |  "businessVerification": { "businessRegistrationPassed": true, "businessVerificationPassed": true,
        |  "registeredAddress": {

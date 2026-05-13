@@ -24,11 +24,11 @@ import java.util.UUID
 import scala.util.Random
 
 trait TestData {
-  val testGroupId             = UUID.randomUUID().toString
-  val testEnrolmentId: String = UUID.randomUUID().toString
-  val testReceiptId: String   = UUID.randomUUID().toString
-  val testString              = "test"
-  val testZRef                = s"Z${(1 to 4).map(_ => Random.nextInt(10)).mkString}"
+  val testGroupId                = UUID.randomUUID().toString
+  val testEnrolmentId: String    = UUID.randomUUID().toString
+  val testSubscriptionId: String = UUID.randomUUID().toString
+  val testString                 = "test"
+  val testZRef                   = s"Z${(1 to 4).map(_ => Random.nextInt(10)).mkString}"
 
   val organisationDetails: OrganisationDetails =
     OrganisationDetails(
@@ -68,5 +68,6 @@ trait TestData {
     thirdPartyOrganisations = None
   )
 
-  val testEtmpSubmission: EtmpSubmission = EtmpSubmission(providerDetails = ProviderDetails(uprn = testString))
+  val testEtmpSubmission: EtmpSubmission =
+    EtmpSubmission(testGroupId, providerDetails = ProviderDetails(uprn = testString))
 }

@@ -32,20 +32,21 @@ class EtmpServiceSpec extends BaseUnitSpec {
 
   "EtmpService.declareAndSubmit" should {
 
-    "returns receiptId and stores receipt when ETMP submission succeeds" in {
+    "returns subscriptionId and stores receipt when ETMP submission succeeds" in {
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testReceiptId))))
+        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testSubscriptionId))))
 
       when(
-        mockJourneyAnswersService.storeReceiptAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testReceiptId))(
-          any[ExecutionContext]
-        )
+        mockJourneyAnswersService
+          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testSubscriptionId))(
+            any[ExecutionContext]
+          )
       )
-        .thenReturn(Future.successful(testReceiptId))
+        .thenReturn(Future.successful(testSubscriptionId))
 
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
-      result mustEqual testReceiptId
+      result mustEqual testSubscriptionId
     }
 
     "fails when ETMP returns Left(UpstreamErrorResponse)" in {
@@ -68,12 +69,13 @@ class EtmpServiceSpec extends BaseUnitSpec {
       val ex = new RuntimeException("mongo down")
 
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testReceiptId))))
+        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testSubscriptionId))))
 
       when(
-        mockJourneyAnswersService.storeReceiptAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testReceiptId))(
-          any[ExecutionContext]
-        )
+        mockJourneyAnswersService
+          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testSubscriptionId))(
+            any[ExecutionContext]
+          )
       )
         .thenReturn(Future.failed(ex))
 
