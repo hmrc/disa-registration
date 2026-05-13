@@ -20,13 +20,13 @@ import play.api.libs.json.{Format, JsValue, Json}
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData._
-import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
+import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.FcaArticles.Article14
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.{CertificatesOfAuthority, FinancialOrganisation}
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
-import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.{AddAnotherAddress, LookupAddress, OrganisationDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.{AddAnotherAddress, LookupAddress, OrganisationDetails, SelectedCorrespondenceAddress}
 import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
 import uk.gov.hmrc.disaregistration.models.journeyData.thirdparty.{ThirdParty, ThirdPartyOrganisations}
 import utils.JsonFormatSpec
@@ -105,7 +105,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
                   postCode = Some(testString),
                   uprn = None
                 )
-              )
+              ),
+              selectedAddress = Some(SelectedCorrespondenceAddress.LookupAddress(0))
             )
           )
         )
@@ -180,7 +181,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |      "addressLine3": "test line 3",
        |      "postCode": "PostCode"
        |    },
-       |    "addAnotherAddress":{"postcode":"test","filter":"test","addresses":[{"addressLine1":"test","addressLine2":"test","addressLine3":"test","postCode":"test"}]}
+       |  "addAnotherAddress":{"postcode":"test","filter":"test","addresses":[{"addressLine1":"test","addressLine2":"test","addressLine3":"test","postCode":"test"}],"selectedAddress":{"type":"lookup","index":0}}
        |  },
        |  "organisationEmail": {
        |    "organisationEmail": "example@example.com",

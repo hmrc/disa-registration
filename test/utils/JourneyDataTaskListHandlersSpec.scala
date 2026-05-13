@@ -26,6 +26,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.F
 import uk.gov.hmrc.disaregistration.models.journeyData.isaProducts.{InnovativeFinancialProduct, IsaProduct, IsaProducts}
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.LiaisonOfficerCommunication.ByEmail
 import uk.gov.hmrc.disaregistration.models.journeyData.liaisonofficers.{LiaisonOfficer, LiaisonOfficers}
+import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.SelectedCorrespondenceAddress.ManualEntry
 import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.{AddAnotherAddress, OrganisationDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData.signatories.{Signatories, Signatory}
 import uk.gov.hmrc.disaregistration.models.journeyData.thirdparty.{ThirdParty, ThirdPartyOrganisations}
@@ -88,8 +89,14 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
                   postCode = Some("PostCode")
                 )
               ),
-              addAnotherAddress =
-                Some(AddAnotherAddress(postcode = testString, filter = Some(testString), addresses = Seq.empty))
+              addAnotherAddress = Some(
+                AddAnotherAddress(
+                  postcode = testString,
+                  filter = Some(testString),
+                  addresses = Seq.empty,
+                  selectedAddress = Some(ManualEntry)
+                )
+              )
             )
             val json         = Json.toJson(original)(handler.writes.asInstanceOf[Writes[OrganisationDetails]])
             val deserialized = json.as(handler.reads.asInstanceOf[Reads[OrganisationDetails]])
