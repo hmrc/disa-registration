@@ -16,8 +16,6 @@
 
 package models
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData._
@@ -45,6 +43,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
               )
             ),
             companyName = Some("Test Ltd"),
+            companyNumber = Some(testString),
             businessPartnerId = Some("TestBusinessPartnerId")
           )
         ),
@@ -78,6 +77,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
             ctUtr = None,
             registeredAddress = None,
             companyName = None,
+            companyNumber = None,
             businessPartnerId = None
           )
         ),
