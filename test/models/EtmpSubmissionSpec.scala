@@ -16,8 +16,6 @@
 
 package models
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData._

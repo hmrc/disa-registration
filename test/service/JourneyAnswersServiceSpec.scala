@@ -21,6 +21,7 @@ import org.mockito.Mockito._
 import play.api.libs.json.Writes
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer.{No, Yes}
 import uk.gov.hmrc.disaregistration.service.JourneyAnswersService
 import utils.BaseUnitSpec
 
@@ -40,7 +41,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
         service.updateJourneyData(
           testGroupId,
           "organisationDetails",
-          organisationDetails.copy(registeredToManageIsa = Some(false))
+          organisationDetails.copy(registeredToManageIsa = Some(Yes))
         )
       ) shouldBe true
     }
@@ -54,7 +55,7 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
         service.updateJourneyData(
           testGroupId,
           "organisationDetails",
-          organisationDetails.copy(registeredToManageIsa = Some(false))
+          organisationDetails.copy(registeredToManageIsa = Some(No))
         )
       ) shouldBe false
     }

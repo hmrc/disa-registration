@@ -79,12 +79,12 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
       ),
       organisationDetails = Some(
         OrganisationDetails(
-          registeredToManageIsa = Some(true),
+          registeredToManageIsa = Some(YesNoAnswer.Yes),
           zRefNumber = Some(testZRef),
-          tradingUsingDifferentName = Some(true),
+          tradingUsingDifferentName = Some(YesNoAnswer.Yes),
           tradingName = Some(testString),
           fcaNumber = Some(testString),
-          registeredAddressCorrespondence = Some(true),
+          registeredAddressCorrespondence = Some(YesNoAnswer.Yes),
           correspondenceAddress = Some(
             CorrespondenceAddress(
               addressLine1 = Some("test line 1"),
@@ -169,12 +169,12 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |  "businessPartnerId": "$testString"
        |  },
        |  "organisationDetails": {
-       |    "registeredToManageIsa": true,
+       |    "registeredToManageIsa": "yes",
        |    "zRefNumber": "$testZRef",
-       |    "tradingUsingDifferentName": true,
+       |    "tradingUsingDifferentName": "yes",
        |    "tradingName": "$testString",
        |    "fcaNumber": "$testString",
-       |    "registeredAddressCorrespondence": true,
+       |    "registeredAddressCorrespondence": "yes",
        |    "correspondenceAddress": {
        |      "addressLine1": "test line 1",
        |      "addressLine2": "test line 2",
