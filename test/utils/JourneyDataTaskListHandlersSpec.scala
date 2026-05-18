@@ -75,12 +75,12 @@ class JourneyDataTaskListHandlersSpec extends BaseUnitSpec {
 
           case "organisationDetails" =>
             val original     = OrganisationDetails(
-              registeredToManageIsa = Some(true),
+              registeredToManageIsa = Some(YesNoAnswer.Yes),
               zRefNumber = Some("Z1111"),
-              tradingUsingDifferentName = Some(true),
+              tradingUsingDifferentName = Some(YesNoAnswer.Yes),
               tradingName = Some(testString),
               fcaNumber = Some("123456"),
-              registeredAddressCorrespondence = Some(true),
+              registeredAddressCorrespondence = Some(YesNoAnswer.Yes),
               correspondenceAddress = Some(
                 CorrespondenceAddress(
                   addressLine1 = Some("test line 1"),

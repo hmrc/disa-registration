@@ -21,6 +21,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
 import play.api.{Application, inject}
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer.{No, Yes}
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
@@ -49,7 +51,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     s"""{
       |  "id": "$testGroupId",
       |  "organisationDetails": {
-      |    "registeredToManageIsa": false,
+      |    "registeredToManageIsa": "no",
       |    "zRefNumber": "$testZRef",
       |    "fcaNumber": "6743765"
       |  },
@@ -58,7 +60,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
   val organisationDetailsJson: String =
     s"""{
-      |    "registeredToManageIsa": false,
+      |    "registeredToManageIsa": "no",
       |    "zRefNumber": "$testZRef",
       |    "fcaNumber": "6743765"
       |}""".stripMargin
@@ -76,11 +78,11 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       updateJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
       val result = retrieveJourneyAnswersRequest(groupId = testGroupId)
 
-      result.status                                                               shouldBe OK
-      (result.json \ "groupId").as[String]                                        shouldBe testGroupId
-      (result.json \ "organisationDetails" \ "registeredToManageIsa").as[Boolean] shouldBe false
-      (result.json \ "organisationDetails" \ "zRefNumber").as[String]             shouldBe testZRef
-      (result.json \ "organisationDetails" \ "fcaNumber").as[String]              shouldBe "6743765"
+      result.status                                                                   shouldBe OK
+      (result.json \ "groupId").as[String]                                            shouldBe testGroupId
+      (result.json \ "organisationDetails" \ "registeredToManageIsa").as[YesNoAnswer] shouldBe No
+      (result.json \ "organisationDetails" \ "zRefNumber").as[String]                 shouldBe testZRef
+      (result.json \ "organisationDetails" \ "fcaNumber").as[String]                  shouldBe "6743765"
     }
 
     "return 401 Unauthorized for an unauthorised request" in {

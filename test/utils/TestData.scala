@@ -16,6 +16,7 @@
 
 package utils
 
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer.Yes
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.OrganisationDetails
 import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, JourneyData, RegisteredAddress}
@@ -32,9 +33,9 @@ trait TestData {
 
   val organisationDetails: OrganisationDetails =
     OrganisationDetails(
-      registeredToManageIsa = Some(true),
+      registeredToManageIsa = Some(Yes),
       zRefNumber = Some("Z1234"),
-      registeredAddressCorrespondence = Some(true),
+      registeredAddressCorrespondence = Some(Yes),
       correspondenceAddress = Some(
         CorrespondenceAddress(
           addressLine1 = Some("test line 1"),
