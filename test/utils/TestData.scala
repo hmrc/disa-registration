@@ -27,7 +27,7 @@ import scala.util.Random
 trait TestData {
   val testGroupId              = UUID.randomUUID().toString
   val testEnrolmentId: String  = UUID.randomUUID().toString
-  val testFormBundleId: String = UUID.randomUUID().toString
+  val testFormBundleId: String = Random.between(100000000000L, 999999999999L).toString
   val testString               = "test"
   val testZRef                 = s"Z${(1 to 4).map(_ => Random.nextInt(10)).mkString}"
 
