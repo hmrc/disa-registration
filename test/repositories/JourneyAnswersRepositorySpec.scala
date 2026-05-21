@@ -18,6 +18,7 @@ package repositories
 
 import org.mongodb.scala.model.Filters
 import play.api.test.Helpers.await
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthority
 import uk.gov.hmrc.disaregistration.models.journeyData.certificatesofauthority.CertificatesOfAuthorityYesNo.Yes
@@ -132,9 +133,9 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
       val organisationDetailsUpdate =
         OrganisationDetails(
-          registeredToManageIsa = Some(true),
+          registeredToManageIsa = Some(YesNoAnswer.Yes),
           zRefNumber = Some(testZRef),
-          registeredAddressCorrespondence = Some(true),
+          registeredAddressCorrespondence = Some(YesNoAnswer.Yes),
           correspondenceAddress = Some(
             CorrespondenceAddress(
               addressLine1 = Some("test line 1"),
@@ -178,9 +179,9 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
       val organisationDetailsUpdate =
         OrganisationDetails(
-          registeredToManageIsa = Some(true),
+          registeredToManageIsa = Some(YesNoAnswer.Yes),
           zRefNumber = Some(testZRef),
-          registeredAddressCorrespondence = Some(true),
+          registeredAddressCorrespondence = Some(YesNoAnswer.Yes),
           correspondenceAddress = Some(
             CorrespondenceAddress(
               addressLine1 = Some("test line 1"),

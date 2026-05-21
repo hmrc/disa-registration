@@ -17,15 +17,16 @@
 package uk.gov.hmrc.disaregistration.models.journeyData.orgdetails
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 import uk.gov.hmrc.disaregistration.models.journeyData.CorrespondenceAddress
 
 case class OrganisationDetails(
-  registeredToManageIsa: Option[Boolean] = None,
+  registeredToManageIsa: Option[YesNoAnswer] = None,
   zRefNumber: Option[String] = None,
-  tradingUsingDifferentName: Option[Boolean] = None,
+  tradingUsingDifferentName: Option[YesNoAnswer] = None,
   tradingName: Option[String] = None,
   fcaNumber: Option[String] = None,
-  registeredAddressCorrespondence: Option[Boolean],
+  registeredAddressCorrespondence: Option[YesNoAnswer],
   correspondenceAddress: Option[CorrespondenceAddress] = None,
   orgTelephoneNumber: Option[String] = None,
   addAnotherAddress: Option[AddAnotherAddress] = None
