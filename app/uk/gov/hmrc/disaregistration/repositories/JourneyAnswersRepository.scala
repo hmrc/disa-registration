@@ -103,12 +103,12 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       .toFuture()
       .map(res => res.getMatchedCount > 0)
 
-  def storeSubscriptionIdAndMarkSubmitted(groupId: String, subscriptionId: String): Future[Unit] =
+  def storeSubscriptionIdAndMarkSubmitted(groupId: String, formBundleId: String): Future[Unit] =
     collection
       .updateOne(
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
-          Updates.set("subscriptionId", subscriptionId),
+          Updates.set("formBundleId", formBundleId),
           Updates.set("status", Submitted),
           Updates.set("lastUpdated", Instant.now(clock))
         )

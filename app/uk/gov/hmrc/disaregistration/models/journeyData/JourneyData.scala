@@ -32,7 +32,7 @@ import java.util.UUID
 case class JourneyData(
   groupId: String,
   enrolmentId: String = UUID.randomUUID().toString,
-  subscriptionId: Option[String] = None,
+  formBundleId: Option[String] = None,
   status: EnrolmentStatus = Active,
   businessVerification: Option[BusinessVerification] = None,
   organisationDetails: Option[OrganisationDetails] = None,

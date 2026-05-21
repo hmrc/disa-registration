@@ -98,22 +98,22 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
 
   "storeSubscriptionIdAndMarkSubmitted" should {
 
-    "return the subscriptionId when the repository call succeeds" in {
-      when(mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testSubscriptionId)))
+    "return the formBundleId when the repository call succeeds" in {
+      when(mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testFormBundleId)))
         .thenReturn(Future.successful(()))
 
-      val result = await(service.storeSubscriptionIdAndMarkSubmitted(testGroupId, testSubscriptionId))
+      val result = await(service.storeSubscriptionIdAndMarkSubmitted(testGroupId, testFormBundleId))
 
-      result shouldBe testSubscriptionId
+      result shouldBe testFormBundleId
     }
 
     "propagate exception when the repository call fails" in {
       val ex = new RuntimeException("mongo down")
 
-      when(mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testSubscriptionId)))
+      when(mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testFormBundleId)))
         .thenReturn(Future.failed(ex))
 
-      val thrown = await(service.storeSubscriptionIdAndMarkSubmitted(testGroupId, testSubscriptionId).failed)
+      val thrown = await(service.storeSubscriptionIdAndMarkSubmitted(testGroupId, testFormBundleId).failed)
 
       thrown shouldBe ex
     }

@@ -56,17 +56,17 @@ class SubmissionControllerSpec extends BaseUnitSpec {
         JourneyData(
           groupId = testGroupId,
           enrolmentId = testEnrolmentId,
-          subscriptionId = None,
+          formBundleId = None,
           status = Active,
           thirdPartyOrganisations = None
         )
-      val subscriptionId  = testString
+      val formBundleId    = testString
 
       when(mockJourneyAnswersService.retrieve(eqTo(testGroupId)))
         .thenReturn(Future.successful(Some(jd)))
 
       when(mockEtmpService.declareAndSubmit(eqTo(jd))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(subscriptionId))
+        .thenReturn(Future.successful(formBundleId))
 
       running(app) {
         val request = FakeRequest(POST, routes.SubmissionController.declareAndSubmit(testGroupId).url)
@@ -75,7 +75,7 @@ class SubmissionControllerSpec extends BaseUnitSpec {
 
         status(result) mustEqual OK
         contentType(result) mustEqual Some("application/json")
-        contentAsString(result) mustEqual Json.toJson(EnrolmentSubmissionResponse(subscriptionId)).toString
+        contentAsString(result) mustEqual Json.toJson(EnrolmentSubmissionResponse(formBundleId)).toString
       }
     }
 
@@ -120,7 +120,7 @@ class SubmissionControllerSpec extends BaseUnitSpec {
         JourneyData(
           groupId = testGroupId,
           enrolmentId = testEnrolmentId,
-          subscriptionId = None,
+          formBundleId = None,
           status = Active,
           thirdPartyOrganisations = None
         )

@@ -44,10 +44,10 @@ class EtmpService @Inject() (
           case Left(upstreamError) =>
             Future.failed(upstreamError)
 
-          case Right(EnrolmentSubmissionResponse(subscriptionId)) =>
+          case Right(EnrolmentSubmissionResponse(formBundleId)) =>
             journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
               groupId = enrolment.groupId,
-              subscriptionId = subscriptionId
+              formBundleId = formBundleId
             )
         }
     }

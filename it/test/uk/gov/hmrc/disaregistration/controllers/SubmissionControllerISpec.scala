@@ -51,11 +51,11 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
   "SubmissionController.declareAndSubmit" should {
     val url = s"http://localhost:$port/disa-registration/$testGroupId/declare-and-submit"
 
-    "return 200 with subscriptionId JSON and mark journey as Submitted when journey data exists" in {
+    "return 200 with formBundleId JSON and mark journey as Submitted when journey data exists" in {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testEnrolmentId,
-        subscriptionId = None,
+        formBundleId = None,
         status = Active,
         businessVerification = Some(businessVerification),
         thirdPartyOrganisations = None
@@ -64,7 +64,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       await(repo.collection.insertOne(jd).toFuture())
 
       val etmpResponse = s"""
-           | {"subscriptionId": "$testSubscriptionId"}
+           | {"formBundleId": "$testFormBundleId"}
            | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
@@ -75,17 +75,17 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       )
 
       response.status shouldBe OK
-      response.json   shouldBe Json.toJson(EnrolmentSubmissionResponse(testSubscriptionId))
+      response.json   shouldBe Json.toJson(EnrolmentSubmissionResponse(testFormBundleId))
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      stored.size                shouldBe 1
-      stored.head.status         shouldBe Submitted
-      stored.head.subscriptionId shouldBe Some(testSubscriptionId)
+      stored.size              shouldBe 1
+      stored.head.status       shouldBe Submitted
+      stored.head.formBundleId shouldBe Some(testFormBundleId)
     }
 
     "return 404 when journey data does not exist" in {
       val etmpResponse = s"""
-                            | {"subscriptionId": "$testSubscriptionId"}
+                            | {"formBundleId": "$testFormBundleId"}
                             | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
@@ -103,7 +103,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testString,
-        subscriptionId = Some(testSubscriptionId),
+        formBundleId = Some(testFormBundleId),
         status = Submitted,
         businessVerification = Some(businessVerification),
         thirdPartyOrganisations = None
@@ -112,7 +112,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       await(repo.collection.insertOne(jd).toFuture())
 
       val etmpResponse = s"""
-                            | {"subscriptionId": "$testSubscriptionId"}
+                            | {"formBundleId": "$testFormBundleId"}
                             | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
 
@@ -126,16 +126,16 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       response.body   shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      stored.size                shouldBe 1
-      stored.head.status         shouldBe Submitted
-      stored.head.subscriptionId shouldBe Some(testSubscriptionId)
+      stored.size              shouldBe 1
+      stored.head.status       shouldBe Submitted
+      stored.head.formBundleId shouldBe Some(testFormBundleId)
     }
 
     "return 500 when ETMP returns an error response" in {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testEnrolmentId,
-        subscriptionId = None,
+        formBundleId = None,
         status = Active,
         thirdPartyOrganisations = None
       )
@@ -158,9 +158,9 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
       response.body   shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      stored.size                shouldBe 1
-      stored.head.status         shouldBe Active
-      stored.head.subscriptionId shouldBe None
+      stored.size              shouldBe 1
+      stored.head.status       shouldBe Active
+      stored.head.formBundleId shouldBe None
     }
   }
 }

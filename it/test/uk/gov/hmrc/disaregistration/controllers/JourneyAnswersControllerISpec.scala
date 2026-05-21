@@ -177,11 +177,11 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
     "return 201 Created when user starts journey for the first time" in {
       val response = getOrCreateJourneyDataRequest(groupId = testGroupId)
 
-      response.status                                             shouldBe CREATED
-      (response.json \ "isNewEnrolmentJourney").as[Boolean]       shouldBe true
-      (response.json \ "journeyData" \ "groupId").as[String]      shouldBe testGroupId
-      (response.json \ "journeyData" \ "status").as[String]       shouldBe "Active"
-      (response.json \ "journeyData" \ "subscriptionId").toOption shouldBe None
+      response.status                                           shouldBe CREATED
+      (response.json \ "isNewEnrolmentJourney").as[Boolean]     shouldBe true
+      (response.json \ "journeyData" \ "groupId").as[String]    shouldBe testGroupId
+      (response.json \ "journeyData" \ "status").as[String]     shouldBe "Active"
+      (response.json \ "journeyData" \ "formBundleId").toOption shouldBe None
 
       val expectedEnrolmentId = (response.json \ "journeyData" \ "enrolmentId").as[String]
 
@@ -196,11 +196,11 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
       val response = getOrCreateJourneyDataRequest(groupId = testGroupId)
 
-      response.status                                             shouldBe OK
-      (response.json \ "isNewEnrolmentJourney").as[Boolean]       shouldBe false
-      (response.json \ "journeyData" \ "groupId").as[String]      shouldBe testGroupId
-      (response.json \ "journeyData" \ "status").as[String]       shouldBe "Active"
-      (response.json \ "journeyData" \ "subscriptionId").toOption shouldBe None
+      response.status                                           shouldBe OK
+      (response.json \ "isNewEnrolmentJourney").as[Boolean]     shouldBe false
+      (response.json \ "journeyData" \ "groupId").as[String]    shouldBe testGroupId
+      (response.json \ "journeyData" \ "status").as[String]     shouldBe "Active"
+      (response.json \ "journeyData" \ "formBundleId").toOption shouldBe None
 
       val expectedEnrolmentId = (response.json \ "journeyData" \ "enrolmentId").as[String]
 
