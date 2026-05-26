@@ -24,6 +24,7 @@ case class BusinessVerification(
   ctUtr: Option[String],
   registeredAddress: Option[RegisteredAddress],
   companyName: Option[String],
+  companyNumber: Option[String],
   businessPartnerId: Option[String]
 )
 

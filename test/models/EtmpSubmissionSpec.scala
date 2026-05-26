@@ -43,6 +43,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
               )
             ),
             companyName = Some("Test Ltd"),
+            companyNumber = Some(testString),
             businessPartnerId = Some("TestBusinessPartnerId")
           )
         ),
@@ -76,6 +77,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
             ctUtr = None,
             registeredAddress = None,
             companyName = None,
+            companyNumber = None,
             businessPartnerId = None
           )
         ),

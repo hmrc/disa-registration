@@ -60,6 +60,7 @@ trait TestData {
       )
     ),
     companyName = Some(testString),
+    companyNumber = Some(testString),
     businessPartnerId = Some(testString)
   )
   val testJourneyData: JourneyData               = JourneyData(

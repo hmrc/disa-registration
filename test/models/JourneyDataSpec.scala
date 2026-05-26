@@ -74,6 +74,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
             )
           ),
           Some(testString),
+          Some(testString),
           Some(testString)
         )
       ),
@@ -166,6 +167,7 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |      "postCode": "PostCode"
        |    },
        |  "companyName": "$testString",
+       |  "companyNumber": "$testString",
        |  "businessPartnerId": "$testString"
        |  },
        |  "organisationDetails": {
