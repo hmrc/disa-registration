@@ -17,14 +17,51 @@
 package uk.gov.hmrc.disaregistration.service
 
 import play.api.Logging
+import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.connectors.TaxEnrolmentsConnector
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallbackState._
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentSubscriberRequest
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
-class TaxEnrolmentService @Inject() (implicit ec: ExecutionContext) extends Logging {
+class TaxEnrolmentService @Inject() (
+  taxEnrolmentsConnector: TaxEnrolmentsConnector,
+  appConfig: AppConfig
+)(implicit ec: ExecutionContext)
+    extends Logging {
+
+  def subscribe(subscriberId: String, etmpId: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val request = TaxEnrolmentSubscriberRequest(
+      serviceName = appConfig.taxEnrolmentsServiceName,
+      callback = appConfig.taxEnrolmentsCallbackUrl,
+      etmpId = etmpId
+    )
+
+    taxEnrolmentsConnector
+      .subscribe(subscriberId, request)
+      .map {
+        case Right(_)            =>
+          logger.info(
+            s"Tax Enrolments subscription request successful for subscriberId [$subscriberId] and etmpId [$etmpId]"
+          )
+        case Left(upstreamError) =>
+          logger.error(
+            s"Tax Enrolments subscription request failed for subscriberId [$subscriberId] and etmpId [$etmpId] " +
+              s"with status [${upstreamError.statusCode}] and message [${upstreamError.message}]"
+          )
+      }
+      .recover { case NonFatal(e) =>
+        logger.error(
+          s"Tax Enrolments subscription request failed unexpectedly for subscriberId [$subscriberId] and etmpId [$etmpId]",
+          e
+        )
+      }
+  }
 
   def handle(callback: TaxEnrolmentCallback): Future[Unit] =
     Future(callback.state match {

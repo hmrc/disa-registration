@@ -25,10 +25,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class EtmpService @Inject() (
   etmpConnector: EtmpConnector,
-  journeyAnswersService: JourneyAnswersService
+  journeyAnswersService: JourneyAnswersService,
+  taxEnrolmentService: TaxEnrolmentService
 )(implicit ec: ExecutionContext)
     extends Logging {
 
@@ -45,10 +47,33 @@ class EtmpService @Inject() (
             Future.failed(upstreamError)
 
           case Right(EnrolmentSubmissionResponse(formBundleId)) =>
-            journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
-              groupId = enrolment.groupId,
-              formBundleId = formBundleId
-            )
+            journeyAnswersService
+              .storeSubscriptionIdAndMarkSubmitted(
+                groupId = enrolment.groupId,
+                formBundleId = formBundleId
+              )
+              .flatMap(storedSubscriptionId => subscribeToTaxEnrolments(enrolment, storedSubscriptionId))
         }
+    }
+
+  private def subscribeToTaxEnrolments(enrolment: JourneyData, subscriberId: String)(implicit
+    hc: HeaderCarrier
+  ): Future[String] =
+    enrolment.businessVerification.flatMap(_.businessPartnerId) match {
+      case Some(bpSafeId) =>
+        taxEnrolmentService
+          .subscribe(subscriberId, bpSafeId)
+          .recover { case NonFatal(e) =>
+            logger.error(
+              s"Tax Enrolments subscription failed for subscriberId [$subscriberId] and bpSafeId [$bpSafeId]",
+              e
+            )
+          }
+          .map(_ => subscriberId)
+      case None           =>
+        logger.error(
+          s"Tax Enrolments subscription failed for subscriberId [$subscriberId]: missing bpSafeId/businessPartnerId"
+        )
+        Future.successful(subscriberId)
     }
 }

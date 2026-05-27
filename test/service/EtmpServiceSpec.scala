@@ -17,9 +17,10 @@
 package service
 
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, verifyNoInteractions, when}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
+import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.disaregistration.service.EtmpService
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseUnitSpec
@@ -28,11 +29,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpServiceSpec extends BaseUnitSpec {
 
-  private val service = new EtmpService(mockEtmpConnector, mockJourneyAnswersService)
+  private val service = new EtmpService(mockEtmpConnector, mockJourneyAnswersService, mockTaxEnrolmentService)
 
   "EtmpService.declareAndSubmit" should {
 
-    "returns formBundleId and stores receipt when ETMP submission succeeds" in {
+    "returns formBundleId, stores receipt and subscribes to Tax Enrolments when ETMP submission succeeds" in {
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
 
@@ -44,9 +45,13 @@ class EtmpServiceSpec extends BaseUnitSpec {
       )
         .thenReturn(Future.successful(testFormBundleId))
 
+      when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
+        .thenReturn(Future.unit)
+
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
       result mustEqual testFormBundleId
+      verify(mockTaxEnrolmentService).subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier])
     }
 
     "fails when ETMP returns Left(UpstreamErrorResponse)" in {
@@ -63,6 +68,7 @@ class EtmpServiceSpec extends BaseUnitSpec {
       val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
 
       thrown mustBe upstreamErrorResponse
+      verifyNoInteractions(mockTaxEnrolmentService)
     }
 
     "fails when storing receipt fails after successful ETMP submission" in {
@@ -82,6 +88,51 @@ class EtmpServiceSpec extends BaseUnitSpec {
       val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
 
       thrown mustBe ex
+      verifyNoInteractions(mockTaxEnrolmentService)
+    }
+
+    "returns formBundleId when Tax Enrolments subscription fails after successful ETMP submission" in {
+      val ex = new RuntimeException("tax enrolments down")
+
+      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
+
+      when(
+        mockJourneyAnswersService
+          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
+            any[ExecutionContext]
+          )
+      )
+        .thenReturn(Future.successful(testFormBundleId))
+
+      when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(ex))
+
+      val result = service.declareAndSubmit(testJourneyData).futureValue
+
+      result mustEqual testFormBundleId
+    }
+
+    "returns formBundleId and does not subscribe when bpSafeId is missing" in {
+      val journeyDataWithoutBpSafeId: JourneyData = testJourneyData.copy(
+        businessVerification = testJourneyData.businessVerification.map(_.copy(businessPartnerId = None))
+      )
+
+      when(mockEtmpConnector.declareAndSubmit(any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
+
+      when(
+        mockJourneyAnswersService
+          .storeSubscriptionIdAndMarkSubmitted(eqTo(journeyDataWithoutBpSafeId.groupId), eqTo(testFormBundleId))(
+            any[ExecutionContext]
+          )
+      )
+        .thenReturn(Future.successful(testFormBundleId))
+
+      val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).futureValue
+
+      result mustEqual testFormBundleId
+      verifyNoInteractions(mockTaxEnrolmentService)
     }
   }
 }

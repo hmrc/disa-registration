@@ -22,7 +22,7 @@ import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
 import play.api.{Application, inject}
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer
-import uk.gov.hmrc.disaregistration.models.YesNoAnswer.{No, Yes}
+import uk.gov.hmrc.disaregistration.models.YesNoAnswer.No
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec

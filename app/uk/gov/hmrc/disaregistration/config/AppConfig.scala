@@ -25,5 +25,13 @@ class AppConfig @Inject() (config: ServicesConfig) {
 
   lazy val etmpBaseUrl: String = config.baseUrl(serviceName = "etmp")
 
+  lazy val selfBaseUrl: String = config.baseUrl("self")
+
+  lazy val taxEnrolmentsBaseUrl: String = config.baseUrl(serviceName = "tax-enrolments")
+
+  lazy val taxEnrolmentsServiceName: String = config.getString("tax-enrolments.service-name")
+
+  lazy val taxEnrolmentsCallbackUrl: String = s"$selfBaseUrl/disa-registration/callback/subscriptions"
+
   lazy val timeToLive: Int = config.getInt("mongodb.timeToLive")
 }
