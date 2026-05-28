@@ -42,7 +42,7 @@ class SubmissionController @Inject() (
       .flatMap {
         case Some(jd) =>
           etmpService.declareAndSubmit(jd).map { formBundleId =>
-            logger.info(s"Enrolment submission successful for IM: [$groupId] with receipt: [$formBundleId]")
+            logger.info(s"Enrolment submission successful for IM: [$groupId] with formBundleId: [$formBundleId]")
             Ok(Json.toJson(EnrolmentSubmissionResponse(formBundleId)))
           }
         case None     =>

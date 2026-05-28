@@ -35,7 +35,7 @@ class TaxEnrolmentService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def subscribe(subscriberId: String, etmpId: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def subscribe(formBundleId: String, etmpId: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     val request = TaxEnrolmentSubscriberRequest(
       serviceName = appConfig.taxEnrolmentsServiceName,
       callback = appConfig.taxEnrolmentsCallbackUrl,
@@ -43,21 +43,21 @@ class TaxEnrolmentService @Inject() (
     )
 
     taxEnrolmentsConnector
-      .subscribe(subscriberId, request)
+      .subscribe(formBundleId, request)
       .map {
         case Right(_)            =>
           logger.info(
-            s"Tax Enrolments subscription request successful for subscriberId [$subscriberId] and etmpId [$etmpId]"
+            s"Tax Enrolments subscription request successful for formBundleId [$formBundleId] and etmpId [$etmpId]"
           )
         case Left(upstreamError) =>
           logger.error(
-            s"Tax Enrolments subscription request failed for subscriberId [$subscriberId] and etmpId [$etmpId] " +
+            s"Tax Enrolments subscription request failed for formBundleId [$formBundleId] and etmpId [$etmpId] " +
               s"with status [${upstreamError.statusCode}] and message [${upstreamError.message}]"
           )
       }
       .recover { case NonFatal(e) =>
         logger.error(
-          s"Tax Enrolments subscription request failed unexpectedly for subscriberId [$subscriberId] and etmpId [$etmpId]",
+          s"Tax Enrolments subscription request failed unexpectedly for formBundleId [$formBundleId] and etmpId [$etmpId]",
           e
         )
       }

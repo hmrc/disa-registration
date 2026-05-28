@@ -49,7 +49,7 @@ class SubmissionControllerSpec extends BaseUnitSpec {
 
   "SubmissionController.declareAndSubmit" should {
 
-    "must return OK and a receipt json response when journey data exists and ETMP submission succeeds" in {
+    "must return OK and a formBundleId json response when journey data exists and ETMP submission succeeds" in {
 
       val app             = application
       val jd: JourneyData =

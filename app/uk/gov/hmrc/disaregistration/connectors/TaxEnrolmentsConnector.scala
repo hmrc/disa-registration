@@ -29,10 +29,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class TaxEnrolmentsConnector @Inject() (http: HttpClientV2, appConfig: AppConfig)(implicit ec: ExecutionContext) {
 
   def subscribe(
-    subscriberId: String,
+    formBundleId: String,
     request: TaxEnrolmentSubscriberRequest
   )(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, HttpResponse]] = {
-    val url = s"${appConfig.taxEnrolmentsBaseUrl}/tax-enrolments/subscriptions/$subscriberId/subscriber"
+    val url = s"${appConfig.taxEnrolmentsBaseUrl}/tax-enrolments/subscriptions/$formBundleId/subscriber"
 
     http
       .put(url"$url")

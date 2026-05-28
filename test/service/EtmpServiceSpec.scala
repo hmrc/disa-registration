@@ -33,7 +33,7 @@ class EtmpServiceSpec extends BaseUnitSpec {
 
   "EtmpService.declareAndSubmit" should {
 
-    "returns formBundleId, stores receipt and subscribes to Tax Enrolments when ETMP submission succeeds" in {
+    "returns formBundleId, stores formBundleId and subscribes to Tax Enrolments when ETMP submission succeeds" in {
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
 
@@ -71,7 +71,7 @@ class EtmpServiceSpec extends BaseUnitSpec {
       verifyNoInteractions(mockTaxEnrolmentService)
     }
 
-    "fails when storing receipt fails after successful ETMP submission" in {
+    "fails when storing formBundleId fails after successful ETMP submission" in {
       val ex = new RuntimeException("mongo down")
 
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))

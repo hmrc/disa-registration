@@ -56,24 +56,24 @@ class EtmpService @Inject() (
         }
     }
 
-  private def subscribeToTaxEnrolments(enrolment: JourneyData, subscriberId: String)(implicit
+  private def subscribeToTaxEnrolments(enrolment: JourneyData, formBundleId: String)(implicit
     hc: HeaderCarrier
   ): Future[String] =
     enrolment.businessVerification.flatMap(_.businessPartnerId) match {
       case Some(bpSafeId) =>
         taxEnrolmentService
-          .subscribe(subscriberId, bpSafeId)
+          .subscribe(formBundleId, bpSafeId)
           .recover { case NonFatal(e) =>
             logger.error(
-              s"Tax Enrolments subscription failed for subscriberId [$subscriberId] and bpSafeId [$bpSafeId]",
+              s"Tax Enrolments subscription failed for formBundleId [$formBundleId] and bpSafeId [$bpSafeId]",
               e
             )
           }
-          .map(_ => subscriberId)
+          .map(_ => formBundleId)
       case None           =>
         logger.error(
-          s"Tax Enrolments subscription failed for subscriberId [$subscriberId]: missing bpSafeId/businessPartnerId"
+          s"Tax Enrolments subscription failed for formBundleId [$formBundleId]: missing bpSafeId/businessPartnerId"
         )
-        Future.successful(subscriberId)
+        Future.successful(formBundleId)
     }
 }
