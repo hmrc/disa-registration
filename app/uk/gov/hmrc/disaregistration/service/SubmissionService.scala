@@ -27,7 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
-class EtmpService @Inject() (
+class SubmissionService @Inject() (
   etmpConnector: EtmpConnector,
   journeyAnswersService: JourneyAnswersService,
   taxEnrolmentService: TaxEnrolmentService
@@ -38,7 +38,7 @@ class EtmpService @Inject() (
     EtmpSubmission(enrolment) match {
 
       case Left(error) =>
-        logger.error(s"[EtmpService] Submission validation failed: $error")
+        logger.error(s"[SubmissionService] Submission validation failed: $error")
         Future.failed(new IllegalArgumentException(error))
 
       case Right(submission) =>

@@ -21,17 +21,17 @@ import org.mockito.Mockito.{verify, verifyNoInteractions, when}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
-import uk.gov.hmrc.disaregistration.service.EtmpService
+import uk.gov.hmrc.disaregistration.service.SubmissionService
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseUnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EtmpServiceSpec extends BaseUnitSpec {
+class SubmissionServiceSpec extends BaseUnitSpec {
 
-  private val service = new EtmpService(mockEtmpConnector, mockJourneyAnswersService, mockTaxEnrolmentService)
+  private val service = new SubmissionService(mockEtmpConnector, mockJourneyAnswersService, mockTaxEnrolmentService)
 
-  "EtmpService.declareAndSubmit" should {
+  "SubmissionService.declareAndSubmit" should {
 
     "returns formBundleId, stores formBundleId and subscribes to Tax Enrolments when ETMP submission succeeds" in {
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
