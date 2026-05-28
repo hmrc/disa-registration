@@ -41,10 +41,10 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
   ): Future[Boolean] =
     repository.updateJourneyData(groupId, objectPath, model)
 
-  def storeSubscriptionIdAndMarkSubmitted(groupId: String, subscriptionId: String)(implicit
+  def storeSubscriptionIdAndMarkSubmitted(groupId: String, formBundleId: String)(implicit
     executionContext: ExecutionContext
   ): Future[String] = {
-    logger.info(s"Storing receipt [$subscriptionId] for groupId [$groupId] and marking as submitted")
-    repository.storeSubscriptionIdAndMarkSubmitted(groupId, subscriptionId).map(_ => subscriptionId)
+    logger.info(s"Storing receipt [$formBundleId] for groupId [$groupId] and marking as submitted")
+    repository.storeSubscriptionIdAndMarkSubmitted(groupId, formBundleId).map(_ => formBundleId)
   }
 }

@@ -32,21 +32,21 @@ class EtmpServiceSpec extends BaseUnitSpec {
 
   "EtmpService.declareAndSubmit" should {
 
-    "returns subscriptionId and stores receipt when ETMP submission succeeds" in {
+    "returns formBundleId and stores receipt when ETMP submission succeeds" in {
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testSubscriptionId))))
+        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
 
       when(
         mockJourneyAnswersService
-          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testSubscriptionId))(
+          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
             any[ExecutionContext]
           )
       )
-        .thenReturn(Future.successful(testSubscriptionId))
+        .thenReturn(Future.successful(testFormBundleId))
 
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
-      result mustEqual testSubscriptionId
+      result mustEqual testFormBundleId
     }
 
     "fails when ETMP returns Left(UpstreamErrorResponse)" in {
@@ -69,11 +69,11 @@ class EtmpServiceSpec extends BaseUnitSpec {
       val ex = new RuntimeException("mongo down")
 
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testSubscriptionId))))
+        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
 
       when(
         mockJourneyAnswersService
-          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testSubscriptionId))(
+          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
             any[ExecutionContext]
           )
       )

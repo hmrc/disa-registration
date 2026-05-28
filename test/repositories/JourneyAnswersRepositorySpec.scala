@@ -49,11 +49,11 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
   }
 
   private def activeJourneyData: JourneyData =
-    testJourneyData.copy(subscriptionId = None, status = Active, lastUpdated = None, thirdPartyOrganisations = None)
+    testJourneyData.copy(formBundleId = None, status = Active, lastUpdated = None, thirdPartyOrganisations = None)
 
   private def submittedJourneyData: JourneyData =
     testJourneyData.copy(
-      subscriptionId = Some(testSubscriptionId),
+      formBundleId = Some(testFormBundleId),
       status = Submitted,
       lastUpdated = None,
       thirdPartyOrganisations = None
@@ -76,20 +76,20 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
     "create a new Active enrolment when no Active document exists for the groupId" in {
       val result = await(repository.getOrCreateJourneyData(testGroupId))
 
-      result.isNewEnrolmentJourney      shouldBe true
-      result.journeyData.groupId        shouldBe testGroupId
-      result.journeyData.status         shouldBe Active
-      result.journeyData.subscriptionId shouldBe None
-      result.journeyData.lastUpdated    shouldBe Some(Instant.now(fixedClock))
+      result.isNewEnrolmentJourney    shouldBe true
+      result.journeyData.groupId      shouldBe testGroupId
+      result.journeyData.status       shouldBe Active
+      result.journeyData.formBundleId shouldBe None
+      result.journeyData.lastUpdated  shouldBe Some(Instant.now(fixedClock))
 
       val expectedEnrolmentId = result.journeyData.enrolmentId
 
       val stored = await(repository.collection.find().head())
-      stored.groupId        shouldBe testGroupId
-      stored.status         shouldBe Active
-      stored.enrolmentId    shouldBe expectedEnrolmentId
-      stored.subscriptionId shouldBe None
-      stored.lastUpdated    shouldBe Some(Instant.now(fixedClock))
+      stored.groupId      shouldBe testGroupId
+      stored.status       shouldBe Active
+      stored.enrolmentId  shouldBe expectedEnrolmentId
+      stored.formBundleId shouldBe None
+      stored.lastUpdated  shouldBe Some(Instant.now(fixedClock))
     }
 
     "not create a second Active doc if called twice and return the existing one" in {
@@ -109,11 +109,11 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
       val result = await(repository.getOrCreateJourneyData(testGroupId))
 
-      result.isNewEnrolmentJourney      shouldBe true
-      result.journeyData.groupId        shouldBe testGroupId
-      result.journeyData.status         shouldBe Active
-      result.journeyData.subscriptionId shouldBe None
-      result.journeyData.lastUpdated    shouldBe Some(Instant.now(fixedClock))
+      result.isNewEnrolmentJourney    shouldBe true
+      result.journeyData.groupId      shouldBe testGroupId
+      result.journeyData.status       shouldBe Active
+      result.journeyData.formBundleId shouldBe None
+      result.journeyData.lastUpdated  shouldBe Some(Instant.now(fixedClock))
 
       val allForGroup = await(repository.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
       allForGroup.size                          shouldBe 2
@@ -200,22 +200,22 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
   "storeSubscriptionIdAndMarkSubmitted" should {
 
-    "stores subscriptionId, sets status to Submitted and updates lastUpdated when an Active document exists" in {
+    "stores formBundleId, sets status to Submitted and updates lastUpdated when an Active document exists" in {
       await(repository.collection.insertOne(activeJourneyData).toFuture())
 
-      await(repository.storeSubscriptionIdAndMarkSubmitted(testGroupId, testSubscriptionId))
+      await(repository.storeSubscriptionIdAndMarkSubmitted(testGroupId, testFormBundleId))
 
       val stored = await(
         repository.collection.find(Filters.eq("groupId", testGroupId)).headOption()
       ).get
 
-      stored.status         shouldBe Submitted
-      stored.subscriptionId shouldBe Some(testSubscriptionId)
-      stored.lastUpdated    shouldBe Some(Instant.now(fixedClock))
+      stored.status       shouldBe Submitted
+      stored.formBundleId shouldBe Some(testFormBundleId)
+      stored.lastUpdated  shouldBe Some(Instant.now(fixedClock))
     }
 
     "fails when no Active document exists for the groupId" in {
-      val err = await(repository.storeSubscriptionIdAndMarkSubmitted(testGroupId, testSubscriptionId).failed)
+      val err = await(repository.storeSubscriptionIdAndMarkSubmitted(testGroupId, testFormBundleId).failed)
       err          shouldBe a[NoSuchElementException]
       err.getMessage should include(s"Failed to find document to mark Submitted for groupId [$testGroupId]")
     }

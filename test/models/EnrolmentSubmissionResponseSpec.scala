@@ -22,9 +22,9 @@ import utils.JsonFormatSpec
 
 class EnrolmentSubmissionResponseSpec extends JsonFormatSpec[EnrolmentSubmissionResponse] {
 
-  def model = EnrolmentSubmissionResponse(testSubscriptionId)
+  def model = EnrolmentSubmissionResponse(testFormBundleId)
 
-  def json: JsValue = Json.parse(s"""{"subscriptionId":"$testSubscriptionId"}""")
+  def json: JsValue = Json.parse(s"""{"formBundleId":"$testFormBundleId"}""")
 
   implicit def format: OFormat[EnrolmentSubmissionResponse] = EnrolmentSubmissionResponse.format
 }
