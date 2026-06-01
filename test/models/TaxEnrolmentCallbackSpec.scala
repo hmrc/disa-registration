@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, OFormat}
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallbackState.Succeeded
 import utils.JsonFormatSpec
@@ -41,5 +41,5 @@ class TaxEnrolmentCallbackSpec extends JsonFormatSpec[TaxEnrolmentCallback] {
         |""".stripMargin
     )
 
-  override implicit def format = TaxEnrolmentCallback.format
+  override implicit def format: OFormat[TaxEnrolmentCallback] = TaxEnrolmentCallback.format
 }

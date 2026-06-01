@@ -44,7 +44,7 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
   def storeSubscriptionIdAndMarkSubmitted(groupId: String, formBundleId: String)(implicit
     executionContext: ExecutionContext
   ): Future[String] = {
-    logger.info(s"Storing receipt [$formBundleId] for groupId [$groupId] and marking as submitted")
+    logger.info(s"Storing formBundleId [$formBundleId] for groupId [$groupId] and marking as submitted")
     repository.storeSubscriptionIdAndMarkSubmitted(groupId, formBundleId).map(_ => formBundleId)
   }
 }

@@ -31,9 +31,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.disaregistration.config.AppConfig
-import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
+import uk.gov.hmrc.disaregistration.connectors.{EtmpConnector, TaxEnrolmentsConnector}
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
-import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService, TaxEnrolmentService}
+import uk.gov.hmrc.disaregistration.service.{JourneyAnswersService, SubmissionService, TaxEnrolmentService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import utils.TestData
@@ -55,20 +56,33 @@ abstract class BaseUnitSpec
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   implicit val hc: HeaderCarrier    = HeaderCarrier()
 
-  override def beforeEach(): Unit = {
-    when(mockTaxEnrolmentService.handle(any)).thenReturn(Future.unit)
-    Mockito.reset()
-  }
+  val mockHttpClient: HttpClientV2                       = mock[HttpClientV2]
+  val mockAppConfig: AppConfig                           = mock[AppConfig]
+  val mockRequestBuilder: RequestBuilder                 = mock[RequestBuilder]
+  val mockAuthConnector: AuthConnector                   = mock[AuthConnector]
+  val mockRepository: JourneyAnswersRepository           = mock[JourneyAnswersRepository]
+  val mockJourneyAnswersService: JourneyAnswersService   = mock[JourneyAnswersService]
+  val mockSubmissionService: SubmissionService           = mock[SubmissionService]
+  val mockEtmpConnector: EtmpConnector                   = mock[EtmpConnector]
+  val mockTaxEnrolmentsConnector: TaxEnrolmentsConnector = mock[TaxEnrolmentsConnector]
+  val mockTaxEnrolmentService: TaxEnrolmentService       = mock[TaxEnrolmentService]
 
-  val mockHttpClient: HttpClientV2                     = mock[HttpClientV2]
-  val mockAppConfig: AppConfig                         = mock[AppConfig]
-  val mockRequestBuilder: RequestBuilder               = mock[RequestBuilder]
-  val mockAuthConnector: AuthConnector                 = mock[AuthConnector]
-  val mockRepository: JourneyAnswersRepository         = mock[JourneyAnswersRepository]
-  val mockJourneyAnswersService: JourneyAnswersService = mock[JourneyAnswersService]
-  val mockEtmpService: EtmpService                     = mock[EtmpService]
-  val mockEtmpConnector: EtmpConnector                 = mock[EtmpConnector]
-  val mockTaxEnrolmentService: TaxEnrolmentService     = mock[TaxEnrolmentService]
+  override def beforeEach(): Unit = {
+    val mocksToReset: Seq[AnyRef] = Seq(
+      mockHttpClient,
+      mockAppConfig,
+      mockRequestBuilder,
+      mockAuthConnector,
+      mockRepository,
+      mockJourneyAnswersService,
+      mockSubmissionService,
+      mockEtmpConnector,
+      mockTaxEnrolmentsConnector,
+      mockTaxEnrolmentService
+    )
+    Mockito.reset(mocksToReset: _*)
+    when(mockTaxEnrolmentService.handle(any[TaxEnrolmentCallback])).thenReturn(Future.unit)
+  }
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .overrides(

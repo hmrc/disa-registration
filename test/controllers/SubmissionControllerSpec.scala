@@ -30,7 +30,7 @@ import uk.gov.hmrc.disaregistration.controllers.routes
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
-import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService}
+import uk.gov.hmrc.disaregistration.service.{JourneyAnswersService, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.BaseUnitSpec
 
@@ -42,14 +42,14 @@ class SubmissionControllerSpec extends BaseUnitSpec {
     new GuiceApplicationBuilder()
       .overrides(
         bind[JourneyAnswersService].toInstance(mockJourneyAnswersService),
-        bind[EtmpService].toInstance(mockEtmpService),
+        bind[SubmissionService].toInstance(mockSubmissionService),
         bind[AuthConnector].toInstance(mockAuthConnector)
       )
       .build()
 
   "SubmissionController.declareAndSubmit" should {
 
-    "must return OK and a receipt json response when journey data exists and ETMP submission succeeds" in {
+    "must return OK and a formBundleId json response when journey data exists and ETMP submission succeeds" in {
 
       val app             = application
       val jd: JourneyData =
@@ -65,7 +65,7 @@ class SubmissionControllerSpec extends BaseUnitSpec {
       when(mockJourneyAnswersService.retrieve(eqTo(testGroupId)))
         .thenReturn(Future.successful(Some(jd)))
 
-      when(mockEtmpService.declareAndSubmit(eqTo(jd))(any[HeaderCarrier]))
+      when(mockSubmissionService.declareAndSubmit(eqTo(jd))(any[HeaderCarrier]))
         .thenReturn(Future.successful(formBundleId))
 
       running(app) {
@@ -128,7 +128,7 @@ class SubmissionControllerSpec extends BaseUnitSpec {
       when(mockJourneyAnswersService.retrieve(eqTo(testGroupId)))
         .thenReturn(Future.successful(Some(jd)))
 
-      when(mockEtmpService.declareAndSubmit(eqTo(jd))(any[HeaderCarrier]))
+      when(mockSubmissionService.declareAndSubmit(eqTo(jd))(any[HeaderCarrier]))
         .thenReturn(Future.failed(new RuntimeException("etmp down")))
 
       running(app) {

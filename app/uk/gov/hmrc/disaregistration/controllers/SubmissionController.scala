@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
-import uk.gov.hmrc.disaregistration.service.{EtmpService, JourneyAnswersService}
+import uk.gov.hmrc.disaregistration.service.{JourneyAnswersService, SubmissionService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
@@ -30,7 +30,7 @@ import scala.util.control.NonFatal
 class SubmissionController @Inject() (
   cc: ControllerComponents,
   journeyAnswersService: JourneyAnswersService,
-  etmpService: EtmpService
+  submissionService: SubmissionService
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
@@ -41,8 +41,8 @@ class SubmissionController @Inject() (
     journeyDataRetrieval
       .flatMap {
         case Some(jd) =>
-          etmpService.declareAndSubmit(jd).map { formBundleId =>
-            logger.info(s"Enrolment submission successful for IM: [$groupId] with receipt: [$formBundleId]")
+          submissionService.declareAndSubmit(jd).map { formBundleId =>
+            logger.info(s"Enrolment submission successful for IM: [$groupId] with formBundleId: [$formBundleId]")
             Ok(Json.toJson(EnrolmentSubmissionResponse(formBundleId)))
           }
         case None     =>
