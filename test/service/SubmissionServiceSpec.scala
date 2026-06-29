@@ -29,7 +29,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends BaseUnitSpec {
 
-  private val service = new SubmissionService(mockEtmpConnector, mockJourneyAnswersService, mockTaxEnrolmentService)
+  private val service =
+    new SubmissionService(mockEtmpConnector, mockJourneyAnswersService, mockSubscribeTaxEnrollmentWorkItemRepository)
 
   "SubmissionService.declareAndSubmit" should {
 

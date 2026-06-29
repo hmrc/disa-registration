@@ -21,16 +21,17 @@ import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.EtmpSubmission
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
+import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrollmentWorkItemRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 class SubmissionService @Inject() (
   etmpConnector: EtmpConnector,
   journeyAnswersService: JourneyAnswersService,
-  taxEnrolmentService: TaxEnrolmentService
+  workItemRepo: SubscribeTaxEnrollmentWorkItemRepository
 )(implicit ec: ExecutionContext)
     extends Logging {
 
@@ -52,28 +53,17 @@ class SubmissionService @Inject() (
                 groupId = enrolment.groupId,
                 formBundleId = formBundleId
               )
-              .flatMap(storedSubscriptionId => subscribeToTaxEnrolments(enrolment, storedSubscriptionId))
+              .flatMap { storedFormBundleId =>
+                enrolment.businessVerification.flatMap(_.businessPartnerId) match {
+                  case Some(bpSafeId) =>
+                    workItemRepo
+                      .pushNew(TaxEnrolmentWorkItem(storedFormBundleId, bpSafeId))
+                      .map(_ => storedFormBundleId)
+                  case None           =>
+                    logger.error(s"[SubmissionService] Missing bpSafeId for formBundleId [$storedFormBundleId]")
+                    Future.successful(storedFormBundleId)
+                }
+              }
         }
-    }
-
-  private def subscribeToTaxEnrolments(enrolment: JourneyData, formBundleId: String)(implicit
-    hc: HeaderCarrier
-  ): Future[String] =
-    enrolment.businessVerification.flatMap(_.businessPartnerId) match {
-      case Some(bpSafeId) =>
-        taxEnrolmentService
-          .subscribe(formBundleId, bpSafeId)
-          .recover { case NonFatal(e) =>
-            logger.error(
-              s"Tax Enrolments subscription failed for formBundleId [$formBundleId] and bpSafeId [$bpSafeId]",
-              e
-            )
-          }
-          .map(_ => formBundleId)
-      case None           =>
-        logger.error(
-          s"Tax Enrolments subscription failed for formBundleId [$formBundleId]: missing bpSafeId/businessPartnerId"
-        )
-        Future.successful(formBundleId)
     }
 }

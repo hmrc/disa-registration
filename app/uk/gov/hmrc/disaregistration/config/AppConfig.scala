@@ -25,7 +25,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.jdk.DurationConverters.JavaDurationOps
 
 @Singleton
-class AppConfig @Inject() (config: Configuration,servicesConfig: ServicesConfig) {
+class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
 
   lazy val etmpBaseUrl: String = servicesConfig.baseUrl(serviceName = "etmp")
 
