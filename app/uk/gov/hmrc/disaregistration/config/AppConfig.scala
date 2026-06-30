@@ -46,5 +46,9 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
     .getOptional[Duration]("registration-work-item-job.inProgressRetryAfter")
     .getOrElse(Duration.ofMinutes(5))
 
+  val subscriptionTaxEnrollmentJobFailedRetryAfter: Duration = config
+    .getOptional[Duration]("registration-work-item-job.failedRetryAfter")
+    .getOrElse(Duration.ofMinutes(5))
+
   lazy val timeToLive: Int = servicesConfig.getInt("mongodb.timeToLive")
 }

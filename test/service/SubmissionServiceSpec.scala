@@ -49,9 +49,6 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(mockSubscribeTaxEnrollmentWorkItemRepository.enqueue(any(), any()))
         .thenReturn(Future.successful(dummyWorkItem(testWorkItem)))
 
-      when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
-        .thenReturn(Future.unit)
-
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
       result mustEqual testFormBundleId
@@ -95,8 +92,8 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       verifyNoInteractions(mockTaxEnrolmentService)
     }
 
-    "returns formBundleId when Tax Enrolments subscription fails after successful ETMP submission" in {
-      val ex = new RuntimeException("tax enrolments down")
+    "fails when enqueuing the Tax Enrolments work item fails after successful ETMP submission" in {
+      val ex = new RuntimeException("mongo down")
 
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
@@ -109,12 +106,12 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       )
         .thenReturn(Future.successful(testFormBundleId))
 
-      when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
+      when(mockSubscribeTaxEnrollmentWorkItemRepository.enqueue(eqTo(testFormBundleId), eqTo(testString)))
         .thenReturn(Future.failed(ex))
 
-      val result = service.declareAndSubmit(testJourneyData).futureValue
+      val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
 
-      result mustEqual testFormBundleId
+      thrown mustBe ex
     }
 
     "returns formBundleId and does not subscribe when bpSafeId is missing" in {

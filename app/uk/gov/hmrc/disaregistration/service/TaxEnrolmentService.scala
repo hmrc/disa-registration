@@ -22,11 +22,10 @@ import uk.gov.hmrc.disaregistration.connectors.TaxEnrolmentsConnector
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallbackState._
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentSubscriberRequest
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 @Singleton
 class TaxEnrolmentService @Inject() (
@@ -35,7 +34,9 @@ class TaxEnrolmentService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def subscribe(formBundleId: String, etmpId: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def subscribe(formBundleId: String, etmpId: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, Unit]] = {
     val request = TaxEnrolmentSubscriberRequest(
       serviceName = appConfig.taxEnrolmentsServiceName,
       callback = appConfig.taxEnrolmentsCallbackUrl,
@@ -49,17 +50,13 @@ class TaxEnrolmentService @Inject() (
           logger.info(
             s"Tax Enrolments subscription request successful for formBundleId [$formBundleId] and etmpId [$etmpId]"
           )
+          Right(())
         case Left(upstreamError) =>
           logger.error(
             s"Tax Enrolments subscription request failed for formBundleId [$formBundleId] and etmpId [$etmpId] " +
               s"with status [${upstreamError.statusCode}] and message [${upstreamError.message}]"
           )
-      }
-      .recover { case NonFatal(e) =>
-        logger.error(
-          s"Tax Enrolments subscription request failed unexpectedly for formBundleId [$formBundleId] and etmpId [$etmpId]",
-          e
-        )
+          Left(upstreamError)
       }
   }
 
