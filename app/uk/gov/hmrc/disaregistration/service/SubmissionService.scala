@@ -57,7 +57,7 @@ class SubmissionService @Inject() (
                 enrolment.businessVerification.flatMap(_.businessPartnerId) match {
                   case Some(bpSafeId) =>
                     workItemRepo
-                      .pushNew(TaxEnrolmentWorkItem(storedFormBundleId, bpSafeId))
+                      .enqueue(storedFormBundleId, bpSafeId)
                       .map(_ => storedFormBundleId)
                   case None           =>
                     logger.error(s"[SubmissionService] Missing bpSafeId for formBundleId [$storedFormBundleId]")
