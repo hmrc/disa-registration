@@ -45,6 +45,7 @@ import utils.TestData
 
 import java.time.{Clock, Instant}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 
 abstract class BaseUnitSpec
     extends AnyWordSpec
@@ -115,4 +116,8 @@ abstract class BaseUnitSpec
 
   def dummyWorkItem[A](item: A): WorkItem[A] =
     WorkItem(new ObjectId(), Instant.now(), Instant.now(), Instant.now(), ProcessingStatus.Succeeded, 0, item)
+
+  protected def inject[T: ClassTag]: T =
+    app.injector.instanceOf[T]
+
 }

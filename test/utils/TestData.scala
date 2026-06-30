@@ -20,7 +20,6 @@ import uk.gov.hmrc.disaregistration.models.YesNoAnswer.Yes
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.OrganisationDetails
 import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, JourneyData, RegisteredAddress}
-import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
 
 import java.util.UUID
 import scala.util.Random
@@ -31,8 +30,6 @@ trait TestData {
   val testFormBundleId: String = Random.between(100000000000L, 999999999999L).toString
   val testString               = "test"
   val testZRef                 = s"Z${(1 to 4).map(_ => Random.nextInt(10)).mkString}"
-
-  val testWorkItem = TaxEnrolmentWorkItem(testFormBundleId, "bpSafeId")
 
   val organisationDetails: OrganisationDetails =
     OrganisationDetails(
