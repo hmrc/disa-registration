@@ -61,7 +61,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
         businessVerification = Some(businessVerification),
         thirdPartyOrganisations = None
       )
-
+      //TODO fix this
       await(repo.collection.insertOne(jd).toFuture())
 
       val etmpResponse = s"""

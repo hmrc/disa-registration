@@ -46,13 +46,16 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       )
         .thenReturn(Future.successful(testFormBundleId))
 
+      when(mockSubscribeTaxEnrollmentWorkItemRepository.enqueue(any(), any()))
+        .thenReturn(Future.successful(dummyWorkItem(testWorkItem)))
+
       when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
         .thenReturn(Future.unit)
 
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
       result mustEqual testFormBundleId
-      verify(mockTaxEnrolmentService).subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier])
+      verify(mockSubscribeTaxEnrollmentWorkItemRepository).enqueue(eqTo(testFormBundleId), eqTo(testString))
     }
 
     "fails when ETMP returns Left(UpstreamErrorResponse)" in {

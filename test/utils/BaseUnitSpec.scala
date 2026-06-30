@@ -16,6 +16,7 @@
 
 package utils
 
+import org.bson.types.ObjectId
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
@@ -37,8 +38,10 @@ import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, Subs
 import uk.gov.hmrc.disaregistration.service.{JourneyAnswersService, SubmissionService, TaxEnrolmentService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem}
 import utils.TestData
 
+import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class BaseUnitSpec
@@ -95,4 +98,7 @@ abstract class BaseUnitSpec
       bind[TaxEnrolmentService].toInstance(mockTaxEnrolmentService)
     )
     .build()
+
+  def dummyWorkItem[A](item: A): WorkItem[A] =
+    WorkItem(new ObjectId(), Instant.now(), Instant.now(), Instant.now(), ProcessingStatus.Succeeded, 0, item)
 }
