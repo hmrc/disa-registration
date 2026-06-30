@@ -19,10 +19,9 @@ package uk.gov.hmrc.disaregistration.jobs
 import org.apache.pekko.actor.ActorSystem
 import play.api.inject.ApplicationLifecycle
 import uk.gov.hmrc.disaregistration.config.AppConfig
-import uk.gov.hmrc.disaregistration.connectors.TaxEnrolmentsConnector
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
 import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrollmentWorkItemRepository
-import uk.gov.hmrc.disaregistration.service.{SubmissionService, TaxEnrolmentService}
+import uk.gov.hmrc.disaregistration.service.TaxEnrolmentService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem}
 

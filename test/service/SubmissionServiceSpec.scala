@@ -47,7 +47,7 @@ class SubmissionServiceSpec extends BaseUnitSpec {
         .thenReturn(Future.successful(testFormBundleId))
 
       when(mockSubscribeTaxEnrollmentWorkItemRepository.enqueue(any(), any()))
-        .thenReturn(Future.successful(dummyWorkItem(testWorkItem)))
+        .thenReturn(Future.successful(dummyWorkItem(testWorkItemPayload)))
 
       when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
         .thenReturn(Future.unit)
