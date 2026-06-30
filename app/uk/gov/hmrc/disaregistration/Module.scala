@@ -16,11 +16,18 @@
 
 package uk.gov.hmrc.disaregistration
 
-import play.api.{Configuration, Environment, inject}
-import play.api.inject.{Binding, bind => binding}
+import com.google.inject.AbstractModule
+import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 
-class Module extends play.api.inject.Module {
-  override def bindings(environment: Environment, configuration: Configuration): collection.Seq[Binding[_]] =
-    Seq(inject.bind[SubscriptionEnrolmentWorkItemJob].toSelf, binding[AppInitialiser].toSelf.eagerly())
+import java.time.{Clock, ZoneOffset}
+
+class Module extends AbstractModule {
+
+  override def configure(): Unit = {
+    bind(classOf[AppConfig]).asEagerSingleton()
+    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+    bind(classOf[SubscriptionEnrolmentWorkItemJob])
+    bind(classOf[AppInitialiser]).asEagerSingleton()
+  }
 }

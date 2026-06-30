@@ -33,15 +33,17 @@ import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.connectors.{EtmpConnector, TaxEnrolmentsConnector}
+import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
 import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, SubscribeTaxEnrollmentWorkItemRepository}
 import uk.gov.hmrc.disaregistration.service.{JourneyAnswersService, SubmissionService, TaxEnrolmentService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem}
 import utils.TestData
 
-import java.time.Instant
+import java.time.{Clock, Instant}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
@@ -72,6 +74,10 @@ abstract class BaseUnitSpec
   val mockTaxEnrolmentService: TaxEnrolmentService                                           = mock[TaxEnrolmentService]
   val mockSubscribeTaxEnrollmentWorkItemRepository: SubscribeTaxEnrollmentWorkItemRepository =
     mock[SubscribeTaxEnrollmentWorkItemRepository]
+  val mockBaseMongoComponent: MongoComponent                                                 = mock[MongoComponent]
+  val mockClock: Clock                                                                       = mock[Clock]
+  val mockSubscriptionEnrolmentWorkItemJob: SubscriptionEnrolmentWorkItemJob                 =
+    mock[SubscriptionEnrolmentWorkItemJob]
 
   override def beforeEach(): Unit = {
     val mocksToReset: Seq[AnyRef] = Seq(
@@ -84,7 +90,11 @@ abstract class BaseUnitSpec
       mockSubmissionService,
       mockEtmpConnector,
       mockTaxEnrolmentsConnector,
-      mockTaxEnrolmentService
+      mockTaxEnrolmentService,
+      mockSubscribeTaxEnrollmentWorkItemRepository,
+      mockBaseMongoComponent,
+      mockClock,
+      mockSubscriptionEnrolmentWorkItemJob
     )
     Mockito.reset(mocksToReset: _*)
     when(mockTaxEnrolmentService.handle(any[TaxEnrolmentCallback])).thenReturn(Future.unit)
@@ -96,7 +106,11 @@ abstract class BaseUnitSpec
       bind[AppConfig].toInstance(mockAppConfig),
       bind[JourneyAnswersRepository].toInstance(mockRepository),
       bind[JourneyAnswersService].toInstance(mockJourneyAnswersService),
-      bind[TaxEnrolmentService].toInstance(mockTaxEnrolmentService)
+      bind[TaxEnrolmentService].toInstance(mockTaxEnrolmentService),
+      bind[MongoComponent].toInstance(mockBaseMongoComponent),
+      bind[Clock].toInstance(mockClock),
+      bind[SubscribeTaxEnrollmentWorkItemRepository].toInstance(mockSubscribeTaxEnrollmentWorkItemRepository),
+      bind[SubscriptionEnrolmentWorkItemJob].toInstance(mockSubscriptionEnrolmentWorkItemJob)
     )
     .build()
 

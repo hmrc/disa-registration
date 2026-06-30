@@ -29,6 +29,7 @@ import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.util.control.NonFatal
+
 @Singleton
 class SubscriptionEnrolmentWorkItemJob @Inject() (
   actorSystem: ActorSystem,
@@ -43,10 +44,13 @@ class SubscriptionEnrolmentWorkItemJob @Inject() (
       lifecycle = lifecycle,
       workItemRepository = workItemRepository,
       dispatcherName = "contexts.registration-work-item",
-      pollInterval = appConfig.subscriptionTaxEnrollmentJobPollInterval
+      pollInterval = appConfig.subscriptionTaxEnrollmentJobPollInterval,
+      failedRetryAfter = appConfig.subscriptionTaxEnrollmentJobFailedRetryAfter
     ) {
-  override protected val jobName: String = "SubscribeTaxEnrollmentWorkItemRepository"
+
   private implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  override protected val jobName: String = "SubscriptionEnrolmentWorkItemJob"
 
   override protected def processWorkItem(
     workerId: Int,
@@ -55,22 +59,31 @@ class SubscriptionEnrolmentWorkItemJob @Inject() (
     val bpSafeId     = workItem.item.bpSafeId
     val formBundleId = workItem.item.formBundleId
     logger.info(
-      s"[SubscribeTaxEnrollmentWorkItemRepository][processWorkItem] Worker $workerId processing work item for " +
+      s"[SubscriptionEnrolmentWorkItemJob][processWorkItem] Worker $workerId processing work item for " +
         s"formBundleId [$formBundleId], bpSafeId [$bpSafeId]."
     )
 
     taxEnrolmentService
       .subscribe(formBundleId, bpSafeId)
-      .recover { case NonFatal(e) =>
+      .flatMap {
+        case Right(_)    =>
+          workItemRepository.markAs(workItem.id, ProcessingStatus.Succeeded)
+        case Left(error) =>
+          logger.error(
+            s"Tax Enrolments subscription failed for formBundleId [$formBundleId] and bpSafeId [$bpSafeId] " +
+              s"with status [${error.statusCode}] and message [${error.message}]"
+          )
+          workItemRepository.markAs(workItem.id, ProcessingStatus.Failed)
+      }
+      .recoverWith { case NonFatal(e) =>
         logger.error(
           s"Tax Enrolments subscription failed for formBundleId [$formBundleId] and bpSafeId [$bpSafeId]",
           e
         )
         workItemRepository.markAs(workItem.id, ProcessingStatus.Failed)
       }
-      .map(_ => workItemRepository.markAs(workItem.id, ProcessingStatus.Succeeded))
       // Indicates a work item was pulled and handled/attempted.
-      // It does not mean the file upload business processing succeeded.
+      // It does not mean the job succeeded.
       .map(_ => true)
   }
 

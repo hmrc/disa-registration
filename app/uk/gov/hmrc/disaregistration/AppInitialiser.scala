@@ -20,14 +20,12 @@ import play.api.Logging
 import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 @Singleton
 class AppInitialiser @Inject() (
   subscriptionWorkItemJob: SubscriptionEnrolmentWorkItemJob
-)(implicit ec: ExecutionContext)
-    extends Logging {
+) extends Logging {
 
   Try(subscriptionWorkItemJob.start()).failed.foreach { exception =>
     logger.error("[AppInitialiser] Monthly return work item job failed to start", exception)
