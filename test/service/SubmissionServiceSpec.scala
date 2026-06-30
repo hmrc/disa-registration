@@ -21,6 +21,7 @@ import org.mockito.Mockito.{verify, verifyNoInteractions, when}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
 import uk.gov.hmrc.disaregistration.service.SubmissionService
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseUnitSpec
@@ -35,6 +36,7 @@ class SubmissionServiceSpec extends BaseUnitSpec {
   "SubmissionService.declareAndSubmit" should {
 
     "returns formBundleId, stores formBundleId and subscribes to Tax Enrolments when ETMP submission succeeds" in {
+      val testWorkItemPayload = TaxEnrolmentWorkItem(testFormBundleId, "bpSafeId")
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
 

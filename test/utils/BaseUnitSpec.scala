@@ -28,7 +28,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.disaregistration.config.AppConfig

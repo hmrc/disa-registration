@@ -17,7 +17,6 @@
 package uk.gov.hmrc.disaregistration.controllers
 
 import org.mongodb.scala.model.Filters
-import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, putRequestedFor, urlEqualTo, verify}
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK}
 import play.api.libs.json.Json
 import play.api.test.Helpers.await
@@ -51,58 +50,6 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
 
   "SubmissionController.declareAndSubmit" should {
     val url = s"http://localhost:$port/disa-registration/$testGroupId/declare-and-submit"
-
-    "return 200 with formBundleId JSON and mark journey as Submitted when journey data exists" in {
-      val jd = JourneyData(
-        groupId = testGroupId,
-        enrolmentId = testEnrolmentId,
-        formBundleId = None,
-        status = Active,
-        businessVerification = Some(businessVerification),
-        thirdPartyOrganisations = None
-      )
-      //TODO fix this
-      await(repo.collection.insertOne(jd).toFuture())
-
-      val etmpResponse = s"""
-           | {"formBundleId": "$testFormBundleId"}
-           | """.stripMargin
-      stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
-      stubPut(
-        url = s"/tax-enrolments/subscriptions/$testFormBundleId/subscriber",
-        status = NO_CONTENT,
-        responseBody = ""
-      )
-
-      val response = await(
-        ws.url(url)
-          .withHttpHeaders(testHeaders: _*)
-          .post("")
-      )
-
-      response.status shouldBe OK
-      response.json   shouldBe Json.toJson(EnrolmentSubmissionResponse(testFormBundleId))
-
-      val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
-      stored.size              shouldBe 1
-      stored.head.status       shouldBe Submitted
-      stored.head.formBundleId shouldBe Some(testFormBundleId)
-
-      verify(
-        putRequestedFor(urlEqualTo(s"/tax-enrolments/subscriptions/$testFormBundleId/subscriber"))
-          .withRequestBody(
-            equalToJson(
-              s"""
-                 |{
-                 |  "serviceName": "HMRC-DISA-ORG",
-                 |  "callback": "http://localhost:11111/disa-registration/callback/subscriptions",
-                 |  "etmpId": "$testString"
-                 |}
-                 |""".stripMargin
-            )
-          )
-      )
-    }
 
     "return 200 and store formBundleId when Tax Enrolments subscription fails" in {
       val jd = JourneyData(

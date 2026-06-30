@@ -34,11 +34,11 @@ import scala.concurrent.{Future, Promise}
 
 class WorkItemJobSpec extends BaseUnitSpec {
 
-  private val workerCount    =
+  private val workerCount      =
     math.max(1, Runtime.getRuntime.availableProcessors() / 2)
-  private val now            = Instant.parse("2026-06-08T12:00:00Z")
-  private val clock          = Clock.fixed(now, ZoneOffset.UTC)
-  private val testWorkItem   = WorkItem(
+  private val now              = Instant.parse("2026-06-08T12:00:00Z")
+  private val clock            = Clock.fixed(now, ZoneOffset.UTC)
+  private val testBaseWorkItem = WorkItem(
     id = new ObjectId(),
     receivedAt = now,
     updatedAt = now,
@@ -47,9 +47,9 @@ class WorkItemJobSpec extends BaseUnitSpec {
     failureCount = 0,
     item = "test-item"
   )
-  private val actorSystem    = inject[ActorSystem]
-  private val dispatcherName = "contexts.registration-work-item"
-  private val pollInterval   = 1.hour
+  private val actorSystem      = inject[ActorSystem]
+  private val dispatcherName   = "contexts.registration-work-item"
+  private val pollInterval     = 1.hour
 
   "start" should {
 
@@ -65,18 +65,18 @@ class WorkItemJobSpec extends BaseUnitSpec {
 
     "must process an outstanding work item" in new TestSetup {
       when(mockWorkItemRepository.pullOutstanding(any[Instant], any[Instant]))
-        .thenReturn(Future.successful(Some(testWorkItem)), Future.successful(None))
+        .thenReturn(Future.successful(Some(testBaseWorkItem)), Future.successful(None))
 
       job.start()
 
-      processedWorkItem.future.futureValue mustBe testWorkItem
+      processedWorkItem.future.futureValue mustBe testBaseWorkItem
     }
 
     "must immediately poll again when a work item was processed" in new TestSetup {
       override def processResult: Future[Boolean] = Future.successful(true)
 
       when(mockWorkItemRepository.pullOutstanding(any[Instant], any[Instant]))
-        .thenReturn(Future.successful(Some(testWorkItem)), Future.successful(None))
+        .thenReturn(Future.successful(Some(testBaseWorkItem)), Future.successful(None))
 
       job.start()
 
@@ -139,9 +139,9 @@ class WorkItemJobSpec extends BaseUnitSpec {
       override protected val jobName: String = "TestWorkItemJob"
 
       override protected def processWorkItem(
-                                              workerId: Int,
-                                              workItem: WorkItem[String]
-                                            ): Future[Boolean] = {
+        workerId: Int,
+        workItem: WorkItem[String]
+      ): Future[Boolean] = {
         processedWorkItem.trySuccess(workItem)
         processResult
       }
