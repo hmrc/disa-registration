@@ -23,6 +23,8 @@ import uk.gov.hmrc.disaregistration.models.etmpsubmission.EtmpSubmission
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrolmentWorkItemRepository
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,9 +32,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmissionService @Inject() (
   etmpConnector: EtmpConnector,
   journeyAnswersService: JourneyAnswersService,
-  workItemRepo: SubscribeTaxEnrolmentWorkItemRepository
+  workItemRepo: SubscribeTaxEnrolmentWorkItemRepository,
+  val mongoComponent: MongoComponent
 )(implicit ec: ExecutionContext)
-    extends Logging {
+    extends Logging
+    with Transactions {
+  private implicit val tc: TransactionConfiguration = TransactionConfiguration.strict
 
   def declareAndSubmit(enrolment: JourneyData)(implicit hc: HeaderCarrier): Future[String] =
     EtmpSubmission(enrolment) match {
@@ -47,22 +52,21 @@ class SubmissionService @Inject() (
             Future.failed(upstreamError)
 
           case Right(EnrolmentSubmissionResponse(formBundleId)) =>
-            journeyAnswersService
-              .storeSubscriptionIdAndMarkSubmitted(
-                groupId = enrolment.groupId,
-                formBundleId = formBundleId
-              )
-              .flatMap { storedFormBundleId =>
-                enrolment.businessVerification.flatMap(_.businessPartnerId) match {
-                  case Some(bpSafeId) =>
-                    workItemRepo
-                      .enqueue(storedFormBundleId, bpSafeId)
-                      .map(_ => storedFormBundleId)
-                  case None           =>
-                    logger.error(s"[SubmissionService] Missing bpSafeId for formBundleId [$storedFormBundleId]")
-                    Future.successful(storedFormBundleId)
-                }
-              }
+            withSessionAndTransaction[String] { implicit session =>
+              for {
+                storedFormBundleId <- journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
+                                        groupId = enrolment.groupId,
+                                        formBundleId = formBundleId
+                                      )
+                _                  <- enrolment.businessVerification.flatMap(_.businessPartnerId) match {
+                                        case Some(bpSafeId) =>
+                                          workItemRepo.enqueue(storedFormBundleId, bpSafeId)
+                                        case None           =>
+                                          logger.error(s"[SubmissionService] Missing bpSafeId for formBundleId [$storedFormBundleId]")
+                                          Future.successful(())
+                                      }
+              } yield storedFormBundleId
+            }
         }
     }
 }

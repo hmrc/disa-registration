@@ -18,6 +18,7 @@ package service
 
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
+import org.mongodb.scala.ClientSession
 import play.api.libs.json.Writes
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
@@ -97,9 +98,14 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
   }
 
   "storeSubscriptionIdAndMarkSubmitted" should {
+    implicit val session: ClientSession = await(mockMongoComponent.client.startSession().toFuture())
 
     "return the formBundleId when the repository call succeeds" in {
-      when(mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testFormBundleId)))
+      when(
+        mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testFormBundleId))(
+          any[ClientSession]
+        )
+      )
         .thenReturn(Future.successful(()))
 
       val result = await(service.storeSubscriptionIdAndMarkSubmitted(testGroupId, testFormBundleId))
@@ -110,7 +116,11 @@ class JourneyAnswersServiceSpec extends BaseUnitSpec {
     "propagate exception when the repository call fails" in {
       val ex = new RuntimeException("mongo down")
 
-      when(mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testFormBundleId)))
+      when(
+        mockRepository.storeSubscriptionIdAndMarkSubmitted(eqTo(testGroupId), eqTo(testFormBundleId))(
+          any[ClientSession]
+        )
+      )
         .thenReturn(Future.failed(ex))
 
       val thrown = await(service.storeSubscriptionIdAndMarkSubmitted(testGroupId, testFormBundleId).failed)

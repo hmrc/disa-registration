@@ -79,6 +79,10 @@ abstract class BaseUnitSpec
   val mockSubscriptionEnrolmentWorkItemJob: SubscriptionEnrolmentWorkItemJob               =
     mock[SubscriptionEnrolmentWorkItemJob]
 
+  protected val databaseName: String          = "disa-journeyData-test"
+  protected val mongoUri: String              = s"mongodb://127.0.0.1:27017/$databaseName"
+  lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
+
   override def beforeEach(): Unit = {
     val mocksToReset: Seq[AnyRef] = Seq(
       mockHttpClient,

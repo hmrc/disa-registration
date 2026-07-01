@@ -18,7 +18,9 @@ package service
 
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{verify, verifyNoInteractions, when}
+import org.mongodb.scala.ClientSession
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
@@ -31,7 +33,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmissionServiceSpec extends BaseUnitSpec {
 
   private val service =
-    new SubmissionService(mockEtmpConnector, mockJourneyAnswersService, mockSubscribeTaxEnrolmentWorkItemRepository)
+    new SubmissionService(
+      mockEtmpConnector,
+      mockJourneyAnswersService,
+      mockSubscribeTaxEnrolmentWorkItemRepository,
+      mockMongoComponent
+    )
+
+  implicit val session: ClientSession = await(mockMongoComponent.client.startSession().toFuture())
 
   "SubmissionService.declareAndSubmit" should {
 
@@ -43,18 +52,21 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
         .thenReturn(Future.successful(testFormBundleId))
 
-      when(mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(any(), any()))
+      when(mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(any(), any())(any[ClientSession]))
         .thenReturn(Future.successful(dummyWorkItem(testWorkItemPayload)))
 
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
       result mustEqual testFormBundleId
-      verify(mockSubscribeTaxEnrolmentWorkItemRepository).enqueue(eqTo(testFormBundleId), eqTo(testString))
+      verify(mockSubscribeTaxEnrolmentWorkItemRepository).enqueue(eqTo(testFormBundleId), eqTo(testString))(
+        any[ClientSession]
+      )
     }
 
     "fails when ETMP returns Left(UpstreamErrorResponse)" in {
@@ -83,7 +95,8 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
         .thenReturn(Future.failed(ex))
@@ -103,12 +116,17 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
         .thenReturn(Future.successful(testFormBundleId))
 
-      when(mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(eqTo(testFormBundleId), eqTo(testString)))
+      when(
+        mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(eqTo(testFormBundleId), eqTo(testString))(
+          any[ClientSession]
+        )
+      )
         .thenReturn(Future.failed(ex))
 
       val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
@@ -127,7 +145,8 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(journeyDataWithoutBpSafeId.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
         .thenReturn(Future.successful(testFormBundleId))

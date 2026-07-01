@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.disaregistration.repositories
 
-import org.mongodb.scala.model.Filters
+import org.bson.types.ObjectId
+import org.mongodb.scala.ClientSession
 import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.workitem.{WorkItem, WorkItemFields, WorkItemRepository}
+import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem, WorkItemFields, WorkItemRepository}
 
 import java.time.{Clock, Duration, Instant}
 import javax.inject.{Inject, Singleton}
@@ -47,6 +48,17 @@ class SubscribeTaxEnrolmentWorkItemRepository @Inject() (
   def enqueue(
     formBundleId: String,
     bpSafeId: String
-  ): Future[WorkItem[TaxEnrolmentWorkItem]] =
-    pushNew(TaxEnrolmentWorkItem(formBundleId, bpSafeId))
+  )(implicit session: ClientSession): Future[WorkItem[TaxEnrolmentWorkItem]] = {
+    val item     = TaxEnrolmentWorkItem(formBundleId, bpSafeId)
+    val workItem = WorkItem(
+      id = new ObjectId(),
+      receivedAt = now(),
+      updatedAt = now(),
+      availableAt = now(),
+      status = ProcessingStatus.ToDo,
+      failureCount = 0,
+      item = item
+    )
+    collection.insertOne(session, workItem).toFuture().map(_ => workItem)
+  }
 }
