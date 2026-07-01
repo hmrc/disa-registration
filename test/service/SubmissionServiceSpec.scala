@@ -149,11 +149,12 @@ class SubmissionServiceSpec extends BaseUnitSpec {
             any[ClientSession]
           )
       )
-        .thenReturn(Future.successful(testFormBundleId))
+        .thenReturn(Future.failed(testEx))
 
-      val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).futureValue
+      val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).failed.futureValue
 
-      result mustEqual testFormBundleId
+      result mustBe a[IllegalStateException]
+      result.getMessage must include("Missing bpSafeId for formBundleId")
       verifyNoInteractions(mockTaxEnrolmentService)
     }
   }

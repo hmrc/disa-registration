@@ -62,8 +62,11 @@ class SubmissionService @Inject() (
                                         case Some(bpSafeId) =>
                                           workItemRepo.enqueue(storedFormBundleId, bpSafeId)
                                         case None           =>
-                                          logger.error(s"[SubmissionService] Missing bpSafeId for formBundleId [$storedFormBundleId]")
-                                          Future.successful(())
+                                          val ex = new IllegalStateException(
+                                            s"Missing bpSafeId for formBundleId [$storedFormBundleId]"
+                                          )
+                                          logger.error(ex.getMessage)
+                                          Future.failed(ex)
                                       }
               } yield storedFormBundleId
             }

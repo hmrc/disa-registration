@@ -31,6 +31,10 @@ trait TestData {
   val testString               = "test"
   val testZRef                 = s"Z${(1 to 4).map(_ => Random.nextInt(10)).mkString}"
 
+  val testEx = new IllegalStateException(
+    s"Missing bpSafeId for formBundleId [$testFormBundleId]"
+  )
+
   val organisationDetails: OrganisationDetails =
     OrganisationDetails(
       registeredToManageIsa = Some(Yes),
