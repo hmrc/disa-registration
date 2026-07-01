@@ -41,11 +41,11 @@ class SubscribeTaxEnrolmentWorkItemRepositoryISpec
     with PlayMongoRepositorySupport[WorkItem[TaxEnrolmentWorkItem]]
     with Transactions {
 
-  val mockAppConfig: AppConfig                                               = mock[AppConfig]
- val mockClock: Clock =Clock.systemUTC()
+  val mockAppConfig: AppConfig = mock[AppConfig]
+  val mockClock: Clock         = Clock.systemUTC()
 
   override protected val repository: SubscribeTaxEnrolmentWorkItemRepository =
-    new SubscribeTaxEnrolmentWorkItemRepository(mockClock, mockAppConfig,mongoComponent)
+    new SubscribeTaxEnrolmentWorkItemRepository(mockClock, mockAppConfig, mongoComponent)
 
   implicit val tc: TransactionConfiguration = TransactionConfiguration.strict
 
@@ -73,18 +73,20 @@ class SubscribeTaxEnrolmentWorkItemRepositoryISpec
     }
 
     "not persist the WorkItem if the transaction is rolled back" in {
-      val rollbackFormBundleId = "rollback-test-form-bundle-id"
+      val rollbackFormBundleId   = "rollback-test-form-bundle-id"
       val session: ClientSession = mongoComponent.client.startSession().toFuture().futureValue
-      session.startTransaction()
+      try {
+        session.startTransaction()
 
-      val result = (for {
-        _ <- repository.enqueue(rollbackFormBundleId, testBpSafeId)(session)
-        _ <- Future.failed[Unit](new RuntimeException("simulated failure after enqueue"))
-      } yield ()).recoverWith { case _ =>
-        SingleObservable(session.abortTransaction()).toFuture().map(_ => ())
-      }
+        val result = (for {
+          _ <- repository.enqueue(rollbackFormBundleId, testBpSafeId)(session)
+          _ <- Future.failed[Unit](new RuntimeException("simulated failure after enqueue"))
+        } yield ()).recoverWith { case _ =>
+          SingleObservable(session.abortTransaction()).toFuture().map(_ => ())
+        }
 
-      result.futureValue
+        result.futureValue
+      } finally session.close()
 
       val stored = repository.collection
         .find(Filters.equal("item.formBundleId", rollbackFormBundleId))
