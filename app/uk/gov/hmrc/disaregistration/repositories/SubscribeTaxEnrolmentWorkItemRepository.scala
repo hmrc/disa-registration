@@ -27,13 +27,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SubscribeTaxEnrollmentWorkItemRepository @Inject() (
+class SubscribeTaxEnrolmentWorkItemRepository @Inject() (
   clock: Clock,
   config: AppConfig,
   mongoComponent: MongoComponent
 )(implicit ec: ExecutionContext)
     extends WorkItemRepository[TaxEnrolmentWorkItem](
-      collectionName = "submissionEtmpEnrollmentWorkItems",
+      collectionName = "submissionEtmpEnrolmentWorkItems",
       mongoComponent = mongoComponent,
       itemFormat = TaxEnrolmentWorkItem.format,
       workItemFields = WorkItemFields.default
@@ -42,7 +42,7 @@ class SubscribeTaxEnrollmentWorkItemRepository @Inject() (
     clock.instant()
 
   override val inProgressRetryAfter: Duration =
-    config.subscriptionTaxEnrollmentJobInProgressRetryAfter
+    config.subscriptionTaxEnrolmentJobInProgressRetryAfter
 
   def enqueue(
     formBundleId: String,

@@ -21,7 +21,7 @@ import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.EtmpSubmission
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
-import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrollmentWorkItemRepository
+import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrolmentWorkItemRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmissionService @Inject() (
   etmpConnector: EtmpConnector,
   journeyAnswersService: JourneyAnswersService,
-  workItemRepo: SubscribeTaxEnrollmentWorkItemRepository
+  workItemRepo: SubscribeTaxEnrolmentWorkItemRepository
 )(implicit ec: ExecutionContext)
     extends Logging {
 

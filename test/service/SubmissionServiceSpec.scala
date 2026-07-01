@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmissionServiceSpec extends BaseUnitSpec {
 
   private val service =
-    new SubmissionService(mockEtmpConnector, mockJourneyAnswersService, mockSubscribeTaxEnrollmentWorkItemRepository)
+    new SubmissionService(mockEtmpConnector, mockJourneyAnswersService, mockSubscribeTaxEnrolmentWorkItemRepository)
 
   "SubmissionService.declareAndSubmit" should {
 
@@ -48,13 +48,13 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       )
         .thenReturn(Future.successful(testFormBundleId))
 
-      when(mockSubscribeTaxEnrollmentWorkItemRepository.enqueue(any(), any()))
+      when(mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(any(), any()))
         .thenReturn(Future.successful(dummyWorkItem(testWorkItemPayload)))
 
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
       result mustEqual testFormBundleId
-      verify(mockSubscribeTaxEnrollmentWorkItemRepository).enqueue(eqTo(testFormBundleId), eqTo(testString))
+      verify(mockSubscribeTaxEnrolmentWorkItemRepository).enqueue(eqTo(testFormBundleId), eqTo(testString))
     }
 
     "fails when ETMP returns Left(UpstreamErrorResponse)" in {
@@ -108,7 +108,7 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       )
         .thenReturn(Future.successful(testFormBundleId))
 
-      when(mockSubscribeTaxEnrollmentWorkItemRepository.enqueue(eqTo(testFormBundleId), eqTo(testString)))
+      when(mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(eqTo(testFormBundleId), eqTo(testString)))
         .thenReturn(Future.failed(ex))
 
       val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue

@@ -37,16 +37,16 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
 
   lazy val taxEnrolmentsCallbackUrl: String = s"$selfBaseUrl/disa-registration/callback/subscriptions"
 
-  val subscriptionTaxEnrollmentJobPollInterval: FiniteDuration = config
+  val subscriptionTaxEnrolmentJobPollInterval: FiniteDuration = config
     .getOptional[Duration]("registration-work-item-job.pollInterval")
     .getOrElse(Duration.ofSeconds(10))
     .toScala
 
-  val subscriptionTaxEnrollmentJobInProgressRetryAfter: Duration = config
+  val subscriptionTaxEnrolmentJobInProgressRetryAfter: Duration = config
     .getOptional[Duration]("registration-work-item-job.inProgressRetryAfter")
     .getOrElse(Duration.ofMinutes(5))
 
-  val subscriptionTaxEnrollmentJobFailedRetryAfter: Duration = config
+  val subscriptionTaxEnrolmentJobFailedRetryAfter: Duration = config
     .getOptional[Duration]("registration-work-item-job.failedRetryAfter")
     .getOrElse(Duration.ofMinutes(5))
 

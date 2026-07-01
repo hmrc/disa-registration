@@ -35,7 +35,7 @@ import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.connectors.{EtmpConnector, TaxEnrolmentsConnector}
 import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
-import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, SubscribeTaxEnrollmentWorkItemRepository}
+import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, SubscribeTaxEnrolmentWorkItemRepository}
 import uk.gov.hmrc.disaregistration.service.{JourneyAnswersService, SubmissionService, TaxEnrolmentService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
@@ -62,21 +62,21 @@ abstract class BaseUnitSpec
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   implicit val hc: HeaderCarrier    = HeaderCarrier()
 
-  val mockHttpClient: HttpClientV2                                                           = mock[HttpClientV2]
-  val mockAppConfig: AppConfig                                                               = mock[AppConfig]
-  val mockRequestBuilder: RequestBuilder                                                     = mock[RequestBuilder]
-  val mockAuthConnector: AuthConnector                                                       = mock[AuthConnector]
-  val mockRepository: JourneyAnswersRepository                                               = mock[JourneyAnswersRepository]
-  val mockJourneyAnswersService: JourneyAnswersService                                       = mock[JourneyAnswersService]
-  val mockSubmissionService: SubmissionService                                               = mock[SubmissionService]
-  val mockEtmpConnector: EtmpConnector                                                       = mock[EtmpConnector]
-  val mockTaxEnrolmentsConnector: TaxEnrolmentsConnector                                     = mock[TaxEnrolmentsConnector]
-  val mockTaxEnrolmentService: TaxEnrolmentService                                           = mock[TaxEnrolmentService]
-  val mockSubscribeTaxEnrollmentWorkItemRepository: SubscribeTaxEnrollmentWorkItemRepository =
-    mock[SubscribeTaxEnrollmentWorkItemRepository]
-  val mockBaseMongoComponent: MongoComponent                                                 = mock[MongoComponent]
-  val mockClock: Clock                                                                       = mock[Clock]
-  val mockSubscriptionEnrolmentWorkItemJob: SubscriptionEnrolmentWorkItemJob                 =
+  val mockHttpClient: HttpClientV2                                                         = mock[HttpClientV2]
+  val mockAppConfig: AppConfig                                                             = mock[AppConfig]
+  val mockRequestBuilder: RequestBuilder                                                   = mock[RequestBuilder]
+  val mockAuthConnector: AuthConnector                                                     = mock[AuthConnector]
+  val mockRepository: JourneyAnswersRepository                                             = mock[JourneyAnswersRepository]
+  val mockJourneyAnswersService: JourneyAnswersService                                     = mock[JourneyAnswersService]
+  val mockSubmissionService: SubmissionService                                             = mock[SubmissionService]
+  val mockEtmpConnector: EtmpConnector                                                     = mock[EtmpConnector]
+  val mockTaxEnrolmentsConnector: TaxEnrolmentsConnector                                   = mock[TaxEnrolmentsConnector]
+  val mockTaxEnrolmentService: TaxEnrolmentService                                         = mock[TaxEnrolmentService]
+  val mockSubscribeTaxEnrolmentWorkItemRepository: SubscribeTaxEnrolmentWorkItemRepository =
+    mock[SubscribeTaxEnrolmentWorkItemRepository]
+  val mockBaseMongoComponent: MongoComponent                                               = mock[MongoComponent]
+  val mockClock: Clock                                                                     = mock[Clock]
+  val mockSubscriptionEnrolmentWorkItemJob: SubscriptionEnrolmentWorkItemJob               =
     mock[SubscriptionEnrolmentWorkItemJob]
 
   override def beforeEach(): Unit = {
@@ -91,7 +91,7 @@ abstract class BaseUnitSpec
       mockEtmpConnector,
       mockTaxEnrolmentsConnector,
       mockTaxEnrolmentService,
-      mockSubscribeTaxEnrollmentWorkItemRepository,
+      mockSubscribeTaxEnrolmentWorkItemRepository,
       mockBaseMongoComponent,
       mockClock,
       mockSubscriptionEnrolmentWorkItemJob
@@ -109,7 +109,7 @@ abstract class BaseUnitSpec
       bind[TaxEnrolmentService].toInstance(mockTaxEnrolmentService),
       bind[MongoComponent].toInstance(mockBaseMongoComponent),
       bind[Clock].toInstance(mockClock),
-      bind[SubscribeTaxEnrollmentWorkItemRepository].toInstance(mockSubscribeTaxEnrollmentWorkItemRepository),
+      bind[SubscribeTaxEnrolmentWorkItemRepository].toInstance(mockSubscribeTaxEnrolmentWorkItemRepository),
       bind[SubscriptionEnrolmentWorkItemJob].toInstance(mockSubscriptionEnrolmentWorkItemJob)
     )
     .build()

@@ -20,7 +20,7 @@ import org.apache.pekko.actor.ActorSystem
 import play.api.inject.ApplicationLifecycle
 import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
-import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrollmentWorkItemRepository
+import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrolmentWorkItemRepository
 import uk.gov.hmrc.disaregistration.service.TaxEnrolmentService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem}
@@ -36,7 +36,7 @@ class SubscriptionEnrolmentWorkItemJob @Inject() (
   clock: Clock,
   lifecycle: ApplicationLifecycle,
   appConfig: AppConfig,
-  workItemRepository: SubscribeTaxEnrollmentWorkItemRepository,
+  workItemRepository: SubscribeTaxEnrolmentWorkItemRepository,
   taxEnrolmentService: TaxEnrolmentService
 ) extends BaseWorkItemJob[TaxEnrolmentWorkItem](
       actorSystem = actorSystem,
@@ -44,8 +44,8 @@ class SubscriptionEnrolmentWorkItemJob @Inject() (
       lifecycle = lifecycle,
       workItemRepository = workItemRepository,
       dispatcherName = "contexts.registration-work-item",
-      pollInterval = appConfig.subscriptionTaxEnrollmentJobPollInterval,
-      failedRetryAfter = appConfig.subscriptionTaxEnrollmentJobFailedRetryAfter
+      pollInterval = appConfig.subscriptionTaxEnrolmentJobPollInterval,
+      failedRetryAfter = appConfig.subscriptionTaxEnrolmentJobFailedRetryAfter
     ) {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()

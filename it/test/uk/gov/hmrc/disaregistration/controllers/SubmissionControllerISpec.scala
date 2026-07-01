@@ -26,7 +26,7 @@ import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
-import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, SubscribeTaxEnrollmentWorkItemRepository}
+import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, SubscribeTaxEnrolmentWorkItemRepository}
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.disaregistration.utils.WiremockHelper.stubPost
 import uk.gov.hmrc.mongo.MongoComponent
@@ -42,8 +42,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
     inject.bind[SubscriptionEnrolmentWorkItemJob].toInstance(mock[SubscriptionEnrolmentWorkItemJob])
   )
   val repo: JourneyAnswersRepository                                 = app.injector.instanceOf[JourneyAnswersRepository]
-  val workItemRepo: SubscribeTaxEnrollmentWorkItemRepository         =
-    app.injector.instanceOf[SubscribeTaxEnrollmentWorkItemRepository]
+  val workItemRepo: SubscribeTaxEnrolmentWorkItemRepository         =
+    app.injector.instanceOf[SubscribeTaxEnrolmentWorkItemRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
