@@ -28,7 +28,7 @@ class AppInitialiser @Inject() (
 ) extends Logging {
 
   Try(subscriptionWorkItemJob.start()).failed.foreach { exception =>
-    logger.error("[AppInitialiser] Monthly return work item job failed to start", exception)
+    logger.error("[AppInitialiser] Monthly registration work item job failed to start", exception)
   }
 
 }

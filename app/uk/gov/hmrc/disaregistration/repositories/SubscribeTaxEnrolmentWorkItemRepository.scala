@@ -49,10 +49,4 @@ class SubscribeTaxEnrolmentWorkItemRepository @Inject() (
     bpSafeId: String
   ): Future[WorkItem[TaxEnrolmentWorkItem]] =
     pushNew(TaxEnrolmentWorkItem(formBundleId, bpSafeId))
-
-  def deleteAll(): Future[Long] =
-    collection
-      .deleteMany(Filters.empty())
-      .toFuture()
-      .map(_.getDeletedCount)
 }
