@@ -154,7 +154,7 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).failed.futureValue
 
       result mustBe a[IllegalStateException]
-      result.getMessage must include("Missing bpSafeId for formBundleId")
+      result.getMessage must include("Missing businessPartnerId from businessVerification")
       verifyNoInteractions(mockTaxEnrolmentService)
     }
   }

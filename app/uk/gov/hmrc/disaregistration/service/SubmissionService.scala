@@ -47,29 +47,31 @@ class SubmissionService @Inject() (
         Future.failed(new IllegalArgumentException(error))
 
       case Right(submission) =>
-        etmpConnector.declareAndSubmit(submission).flatMap {
-          case Left(upstreamError) =>
-            Future.failed(upstreamError)
+        enrolment.businessVerification.flatMap(_.businessPartnerId) match {
+          case Some(bpSafeId) =>
+            etmpConnector.declareAndSubmit(submission).flatMap {
+              case Left(upstreamError) =>
+                Future.failed(upstreamError)
 
-          case Right(EnrolmentSubmissionResponse(formBundleId)) =>
-            withSessionAndTransaction[String] { implicit session =>
-              for {
-                storedFormBundleId <- journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
-                                        groupId = enrolment.groupId,
-                                        formBundleId = formBundleId
-                                      )
-                _                  <- enrolment.businessVerification.flatMap(_.businessPartnerId) match {
-                                        case Some(bpSafeId) =>
-                                          workItemRepo.enqueue(storedFormBundleId, bpSafeId)
-                                        case None           =>
-                                          val ex = new IllegalStateException(
-                                            s"Missing bpSafeId for formBundleId [$storedFormBundleId]"
+              case Right(EnrolmentSubmissionResponse(formBundleId)) =>
+                withSessionAndTransaction[String] { implicit session =>
+                  for {
+                    storedFormBundleId <- journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
+                                            groupId = enrolment.groupId,
+                                            formBundleId = formBundleId
                                           )
-                                          logger.error(ex.getMessage)
-                                          Future.failed(ex)
-                                      }
-              } yield storedFormBundleId
+
+                    _ <- workItemRepo.enqueue(storedFormBundleId, bpSafeId)
+                  } yield storedFormBundleId
+                }
             }
+
+          case None =>
+            val ex = new IllegalStateException(
+              "Missing businessPartnerId from businessVerification"
+            )
+            logger.error(ex.getMessage)
+            Future.failed(ex)
         }
     }
 }
