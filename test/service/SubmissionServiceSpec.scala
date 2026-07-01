@@ -134,7 +134,7 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       thrown mustBe ex
     }
 
-    "returns formBundleId and does not subscribe when bpSafeId is missing" in {
+    "returns exception and does not subscribe when bpSafeId is missing" in {
       val journeyDataWithoutBpSafeId: JourneyData = testJourneyData.copy(
         businessVerification = testJourneyData.businessVerification.map(_.copy(businessPartnerId = None))
       )
