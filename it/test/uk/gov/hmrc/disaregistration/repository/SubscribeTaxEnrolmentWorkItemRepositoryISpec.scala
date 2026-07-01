@@ -19,7 +19,7 @@ package uk.gov.hmrc.disaregistration.repository
 import java.time.Clock
 import org.mongodb.scala.ClientSession
 import org.mongodb.scala.model.Filters
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -38,7 +38,7 @@ class SubscribeTaxEnrolmentWorkItemRepositoryISpec
     extends AnyWordSpec
     with Matchers
     with ScalaFutures
-    with PlayMongoRepositorySupport[WorkItem[TaxEnrolmentWorkItem]]
+    with PlayMongoRepositorySupport[WorkItem[TaxEnrolmentWorkItem]] with IntegrationPatience
     with Transactions {
 
   val mockAppConfig: AppConfig = mock[AppConfig]
