@@ -95,7 +95,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec {
               s"""
                  |{
                  |  "serviceName": "HMRC-DISA-ORG",
-                 |  "callback": "http://localhost:11111/disa-registration/callback/subscriptions",
+                 |  "callback": "http://localhost:11111/disa-registration/callback/subscriptions/$testFormBundleId",
                  |  "etmpId": "$testString"
                  |}
                  |""".stripMargin

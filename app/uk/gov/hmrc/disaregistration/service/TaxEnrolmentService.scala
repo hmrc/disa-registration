@@ -38,7 +38,7 @@ class TaxEnrolmentService @Inject() (
   def subscribe(formBundleId: String, etmpId: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     val request = TaxEnrolmentSubscriberRequest(
       serviceName = appConfig.taxEnrolmentsServiceName,
-      callback = appConfig.taxEnrolmentsCallbackUrl,
+      callback = appConfig.taxEnrolmentsCallbackUrl(formBundleId),
       etmpId = etmpId
     )
 

@@ -31,7 +31,8 @@ class AppConfig @Inject() (config: ServicesConfig) {
 
   lazy val taxEnrolmentsServiceName: String = config.getString("tax-enrolments.service-name")
 
-  lazy val taxEnrolmentsCallbackUrl: String = s"$selfBaseUrl/disa-registration/callback/subscriptions"
+  def taxEnrolmentsCallbackUrl(formBundleId: String): String =
+    s"$selfBaseUrl/disa-registration/callback/subscriptions/$formBundleId"
 
   lazy val timeToLive: Int = config.getInt("mongodb.timeToLive")
 }
