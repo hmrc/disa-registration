@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.disaregistration.config
+package uk.gov.hmrc.disaregistration
 
-import com.google.inject.AbstractModule
-import java.time.{Clock, ZoneOffset}
+import play.api.Logging
+import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 
-class Module extends AbstractModule {
+import javax.inject.{Inject, Singleton}
+import scala.util.Try
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+@Singleton
+class AppInitialiser @Inject() (
+  subscriptionWorkItemJob: SubscriptionEnrolmentWorkItemJob
+) extends Logging {
+
+  Try(subscriptionWorkItemJob.start()).failed.foreach { exception =>
+    logger.error("[AppInitialiser] Monthly registration work item job failed to start", exception)
   }
+
 }

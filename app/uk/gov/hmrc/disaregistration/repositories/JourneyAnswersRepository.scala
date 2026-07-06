@@ -18,6 +18,7 @@ package uk.gov.hmrc.disaregistration.repositories
 
 import com.mongodb.client.model
 import com.mongodb.client.model.Indexes.ascending
+import org.mongodb.scala.ClientSession
 import org.mongodb.scala.model._
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.disaregistration.config.AppConfig
@@ -103,9 +104,12 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       .toFuture()
       .map(res => res.getMatchedCount > 0)
 
-  def storeSubscriptionIdAndMarkSubmitted(groupId: String, formBundleId: String): Future[Unit] =
+  def storeSubscriptionIdAndMarkSubmitted(groupId: String, formBundleId: String)(implicit
+    session: ClientSession
+  ): Future[Unit] =
     collection
       .updateOne(
+        session,
         Filters.and(Filters.eq("groupId", groupId), Filters.eq("status", Active)),
         Updates.combine(
           Updates.set("formBundleId", formBundleId),

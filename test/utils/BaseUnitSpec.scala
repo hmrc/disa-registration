@@ -16,6 +16,7 @@
 
 package utils
 
+import org.bson.types.ObjectId
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
@@ -32,14 +33,19 @@ import play.api.test.DefaultAwaitTimeout
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.disaregistration.config.AppConfig
 import uk.gov.hmrc.disaregistration.connectors.{EtmpConnector, TaxEnrolmentsConnector}
+import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
-import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
+import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, SubscribeTaxEnrolmentWorkItemRepository}
 import uk.gov.hmrc.disaregistration.service.{JourneyAnswersService, SubmissionService, TaxEnrolmentService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem}
 import utils.TestData
 
+import java.time.{Clock, Instant}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 
 abstract class BaseUnitSpec
     extends AnyWordSpec
@@ -56,16 +62,26 @@ abstract class BaseUnitSpec
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   implicit val hc: HeaderCarrier    = HeaderCarrier()
 
-  val mockHttpClient: HttpClientV2                       = mock[HttpClientV2]
-  val mockAppConfig: AppConfig                           = mock[AppConfig]
-  val mockRequestBuilder: RequestBuilder                 = mock[RequestBuilder]
-  val mockAuthConnector: AuthConnector                   = mock[AuthConnector]
-  val mockRepository: JourneyAnswersRepository           = mock[JourneyAnswersRepository]
-  val mockJourneyAnswersService: JourneyAnswersService   = mock[JourneyAnswersService]
-  val mockSubmissionService: SubmissionService           = mock[SubmissionService]
-  val mockEtmpConnector: EtmpConnector                   = mock[EtmpConnector]
-  val mockTaxEnrolmentsConnector: TaxEnrolmentsConnector = mock[TaxEnrolmentsConnector]
-  val mockTaxEnrolmentService: TaxEnrolmentService       = mock[TaxEnrolmentService]
+  val mockHttpClient: HttpClientV2                                                         = mock[HttpClientV2]
+  val mockAppConfig: AppConfig                                                             = mock[AppConfig]
+  val mockRequestBuilder: RequestBuilder                                                   = mock[RequestBuilder]
+  val mockAuthConnector: AuthConnector                                                     = mock[AuthConnector]
+  val mockRepository: JourneyAnswersRepository                                             = mock[JourneyAnswersRepository]
+  val mockJourneyAnswersService: JourneyAnswersService                                     = mock[JourneyAnswersService]
+  val mockSubmissionService: SubmissionService                                             = mock[SubmissionService]
+  val mockEtmpConnector: EtmpConnector                                                     = mock[EtmpConnector]
+  val mockTaxEnrolmentsConnector: TaxEnrolmentsConnector                                   = mock[TaxEnrolmentsConnector]
+  val mockTaxEnrolmentService: TaxEnrolmentService                                         = mock[TaxEnrolmentService]
+  val mockSubscribeTaxEnrolmentWorkItemRepository: SubscribeTaxEnrolmentWorkItemRepository =
+    mock[SubscribeTaxEnrolmentWorkItemRepository]
+  val mockBaseMongoComponent: MongoComponent                                               = mock[MongoComponent]
+  val mockClock: Clock                                                                     = mock[Clock]
+  val mockSubscriptionEnrolmentWorkItemJob: SubscriptionEnrolmentWorkItemJob               =
+    mock[SubscriptionEnrolmentWorkItemJob]
+
+  protected val databaseName: String          = "disa-journeyData-test"
+  protected val mongoUri: String              = s"mongodb://127.0.0.1:27017/$databaseName"
+  lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
 
   override def beforeEach(): Unit = {
     val mocksToReset: Seq[AnyRef] = Seq(
@@ -78,7 +94,11 @@ abstract class BaseUnitSpec
       mockSubmissionService,
       mockEtmpConnector,
       mockTaxEnrolmentsConnector,
-      mockTaxEnrolmentService
+      mockTaxEnrolmentService,
+      mockSubscribeTaxEnrolmentWorkItemRepository,
+      mockBaseMongoComponent,
+      mockClock,
+      mockSubscriptionEnrolmentWorkItemJob
     )
     Mockito.reset(mocksToReset: _*)
     when(mockTaxEnrolmentService.handle(any[TaxEnrolmentCallback])).thenReturn(Future.unit)
@@ -90,7 +110,18 @@ abstract class BaseUnitSpec
       bind[AppConfig].toInstance(mockAppConfig),
       bind[JourneyAnswersRepository].toInstance(mockRepository),
       bind[JourneyAnswersService].toInstance(mockJourneyAnswersService),
-      bind[TaxEnrolmentService].toInstance(mockTaxEnrolmentService)
+      bind[TaxEnrolmentService].toInstance(mockTaxEnrolmentService),
+      bind[MongoComponent].toInstance(mockBaseMongoComponent),
+      bind[Clock].toInstance(mockClock),
+      bind[SubscribeTaxEnrolmentWorkItemRepository].toInstance(mockSubscribeTaxEnrolmentWorkItemRepository),
+      bind[SubscriptionEnrolmentWorkItemJob].toInstance(mockSubscriptionEnrolmentWorkItemJob)
     )
     .build()
+
+  def dummyWorkItem[A](item: A): WorkItem[A] =
+    WorkItem(new ObjectId(), Instant.now(), Instant.now(), Instant.now(), ProcessingStatus.Succeeded, 0, item)
+
+  protected def inject[T: ClassTag]: T =
+    app.injector.instanceOf[T]
+
 }

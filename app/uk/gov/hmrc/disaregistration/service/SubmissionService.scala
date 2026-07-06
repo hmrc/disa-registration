@@ -21,18 +21,23 @@ import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.EtmpSubmission
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
+import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrolmentWorkItemRepository
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 class SubmissionService @Inject() (
   etmpConnector: EtmpConnector,
   journeyAnswersService: JourneyAnswersService,
-  taxEnrolmentService: TaxEnrolmentService
+  workItemRepo: SubscribeTaxEnrolmentWorkItemRepository,
+  val mongoComponent: MongoComponent
 )(implicit ec: ExecutionContext)
-    extends Logging {
+    extends Logging
+    with Transactions {
+  private implicit val tc: TransactionConfiguration = TransactionConfiguration.strict
 
   def declareAndSubmit(enrolment: JourneyData)(implicit hc: HeaderCarrier): Future[String] =
     EtmpSubmission(enrolment) match {
@@ -42,38 +47,31 @@ class SubmissionService @Inject() (
         Future.failed(new IllegalArgumentException(error))
 
       case Right(submission) =>
-        etmpConnector.declareAndSubmit(submission).flatMap {
-          case Left(upstreamError) =>
-            Future.failed(upstreamError)
+        enrolment.businessVerification.flatMap(_.businessPartnerId) match {
+          case Some(bpSafeId) =>
+            etmpConnector.declareAndSubmit(submission).flatMap {
+              case Left(upstreamError) =>
+                Future.failed(upstreamError)
 
-          case Right(EnrolmentSubmissionResponse(formBundleId)) =>
-            journeyAnswersService
-              .storeSubscriptionIdAndMarkSubmitted(
-                groupId = enrolment.groupId,
-                formBundleId = formBundleId
-              )
-              .flatMap(storedSubscriptionId => subscribeToTaxEnrolments(enrolment, storedSubscriptionId))
-        }
-    }
+              case Right(EnrolmentSubmissionResponse(formBundleId)) =>
+                withSessionAndTransaction[String] { implicit session =>
+                  for {
+                    storedFormBundleId <- journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
+                                            groupId = enrolment.groupId,
+                                            formBundleId = formBundleId
+                                          )
 
-  private def subscribeToTaxEnrolments(enrolment: JourneyData, formBundleId: String)(implicit
-    hc: HeaderCarrier
-  ): Future[String] =
-    enrolment.businessVerification.flatMap(_.businessPartnerId) match {
-      case Some(bpSafeId) =>
-        taxEnrolmentService
-          .subscribe(formBundleId, bpSafeId)
-          .recover { case NonFatal(e) =>
-            logger.error(
-              s"Tax Enrolments subscription failed for formBundleId [$formBundleId] and bpSafeId [$bpSafeId]",
-              e
+                    _ <- workItemRepo.enqueue(storedFormBundleId, bpSafeId)
+                  } yield storedFormBundleId
+                }
+            }
+
+          case None =>
+            val ex = new IllegalStateException(
+              "Missing businessPartnerId from businessVerification"
             )
-          }
-          .map(_ => formBundleId)
-      case None           =>
-        logger.error(
-          s"Tax Enrolments subscription failed for formBundleId [$formBundleId]: missing bpSafeId/businessPartnerId"
-        )
-        Future.successful(formBundleId)
+            logger.error(ex.getMessage)
+            Future.failed(ex)
+        }
     }
 }
