@@ -18,9 +18,12 @@ package service
 
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{verify, verifyNoInteractions, when}
+import org.mongodb.scala.ClientSession
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
 import uk.gov.hmrc.disaregistration.service.SubmissionService
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseUnitSpec
@@ -29,29 +32,41 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends BaseUnitSpec {
 
-  private val service = new SubmissionService(mockEtmpConnector, mockJourneyAnswersService, mockTaxEnrolmentService)
+  private val service =
+    new SubmissionService(
+      mockEtmpConnector,
+      mockJourneyAnswersService,
+      mockSubscribeTaxEnrolmentWorkItemRepository,
+      mockMongoComponent
+    )
+
+  implicit val session: ClientSession = await(mockMongoComponent.client.startSession().toFuture())
 
   "SubmissionService.declareAndSubmit" should {
 
     "returns formBundleId, stores formBundleId and subscribes to Tax Enrolments when ETMP submission succeeds" in {
+      val testWorkItemPayload = TaxEnrolmentWorkItem(testFormBundleId, "bpSafeId")
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
 
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
         .thenReturn(Future.successful(testFormBundleId))
 
-      when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
-        .thenReturn(Future.unit)
+      when(mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(any(), any())(any[ClientSession]))
+        .thenReturn(Future.successful(dummyWorkItem(testWorkItemPayload)))
 
       val result = service.declareAndSubmit(testJourneyData).futureValue
 
       result mustEqual testFormBundleId
-      verify(mockTaxEnrolmentService).subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier])
+      verify(mockSubscribeTaxEnrolmentWorkItemRepository).enqueue(eqTo(testFormBundleId), eqTo(testString))(
+        any[ClientSession]
+      )
     }
 
     "fails when ETMP returns Left(UpstreamErrorResponse)" in {
@@ -80,7 +95,8 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
         .thenReturn(Future.failed(ex))
@@ -91,8 +107,8 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       verifyNoInteractions(mockTaxEnrolmentService)
     }
 
-    "returns formBundleId when Tax Enrolments subscription fails after successful ETMP submission" in {
-      val ex = new RuntimeException("tax enrolments down")
+    "fails when enqueuing the Tax Enrolments work item fails after successful ETMP submission" in {
+      val ex = new RuntimeException("mongo down")
 
       when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
@@ -100,20 +116,25 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
         .thenReturn(Future.successful(testFormBundleId))
 
-      when(mockTaxEnrolmentService.subscribe(eqTo(testFormBundleId), eqTo(testString))(any[HeaderCarrier]))
+      when(
+        mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(eqTo(testFormBundleId), eqTo(testString))(
+          any[ClientSession]
+        )
+      )
         .thenReturn(Future.failed(ex))
 
-      val result = service.declareAndSubmit(testJourneyData).futureValue
+      val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
 
-      result mustEqual testFormBundleId
+      thrown mustBe ex
     }
 
-    "returns formBundleId and does not subscribe when bpSafeId is missing" in {
+    "returns exception and does not subscribe when bpSafeId is missing" in {
       val journeyDataWithoutBpSafeId: JourneyData = testJourneyData.copy(
         businessVerification = testJourneyData.businessVerification.map(_.copy(businessPartnerId = None))
       )
@@ -124,14 +145,16 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       when(
         mockJourneyAnswersService
           .storeSubscriptionIdAndMarkSubmitted(eqTo(journeyDataWithoutBpSafeId.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[ClientSession]
           )
       )
-        .thenReturn(Future.successful(testFormBundleId))
+        .thenReturn(Future.failed(testEx))
 
-      val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).futureValue
+      val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).failed.futureValue
 
-      result mustEqual testFormBundleId
+      result mustBe a[IllegalStateException]
+      result.getMessage must include("Missing businessPartnerId from businessVerification")
       verifyNoInteractions(mockTaxEnrolmentService)
     }
   }

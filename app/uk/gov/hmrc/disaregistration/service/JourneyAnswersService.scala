@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.disaregistration.service
 
+import org.mongodb.scala.ClientSession
 import play.api.Logging
 import play.api.libs.json.Writes
 import uk.gov.hmrc.disaregistration.models.GetOrCreateJourneyData
@@ -42,7 +43,8 @@ class JourneyAnswersService @Inject() (repository: JourneyAnswersRepository) ext
     repository.updateJourneyData(groupId, objectPath, model)
 
   def storeSubscriptionIdAndMarkSubmitted(groupId: String, formBundleId: String)(implicit
-    executionContext: ExecutionContext
+    executionContext: ExecutionContext,
+    session: ClientSession
   ): Future[String] = {
     logger.info(s"Storing formBundleId [$formBundleId] for groupId [$groupId] and marking as submitted")
     repository.storeSubscriptionIdAndMarkSubmitted(groupId, formBundleId).map(_ => formBundleId)

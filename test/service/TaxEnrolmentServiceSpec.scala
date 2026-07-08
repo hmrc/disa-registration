@@ -35,7 +35,7 @@ class TaxEnrolmentServiceSpec extends BaseUnitSpec {
 
   "TaxEnrolmentService.subscribe" should {
 
-    "send the configured subscriber request and complete when Tax Enrolments succeeds" in {
+    "send the configured subscriber request and return Right when Tax Enrolments succeeds" in {
       val request = TaxEnrolmentSubscriberRequest(serviceName, callbackUrl, testString)
 
       when(mockAppConfig.taxEnrolmentsServiceName).thenReturn(serviceName)
@@ -45,10 +45,10 @@ class TaxEnrolmentServiceSpec extends BaseUnitSpec {
 
       val result = service.subscribe(testFormBundleId, testString).futureValue
 
-      result mustBe (())
+      result mustBe Right(())
     }
 
-    "complete when Tax Enrolments returns an upstream error" in {
+    "return Left when Tax Enrolments returns an upstream error" in {
       val request               = TaxEnrolmentSubscriberRequest(serviceName, callbackUrl, testString)
       val upstreamErrorResponse = UpstreamErrorResponse(
         message = "Bad request",
@@ -64,20 +64,21 @@ class TaxEnrolmentServiceSpec extends BaseUnitSpec {
 
       val result = service.subscribe(testFormBundleId, testString).futureValue
 
-      result mustBe (())
+      result mustBe Left(upstreamErrorResponse)
     }
 
-    "complete when the Tax Enrolments connector fails unexpectedly" in {
-      val request = TaxEnrolmentSubscriberRequest(serviceName, callbackUrl, testString)
+    "fail when the Tax Enrolments connector fails unexpectedly" in {
+      val exception = new RuntimeException("connection failed")
+      val request   = TaxEnrolmentSubscriberRequest(serviceName, callbackUrl, testString)
 
       when(mockAppConfig.taxEnrolmentsServiceName).thenReturn(serviceName)
       when(mockAppConfig.taxEnrolmentsCallbackUrl(eqTo(testFormBundleId))).thenReturn(callbackUrl)
       when(mockTaxEnrolmentsConnector.subscribe(eqTo(testFormBundleId), eqTo(request))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new RuntimeException("connection failed")))
+        .thenReturn(Future.failed(exception))
 
-      val result = service.subscribe(testFormBundleId, testString).futureValue
+      val result = service.subscribe(testFormBundleId, testString).failed.futureValue
 
-      result mustBe (())
+      result mustBe exception
     }
   }
 }

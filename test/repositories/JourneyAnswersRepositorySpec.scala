@@ -16,6 +16,7 @@
 
 package repositories
 
+import org.mongodb.scala.ClientSession
 import org.mongodb.scala.model.Filters
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer
@@ -34,9 +35,9 @@ import java.time.{Clock, Instant, ZoneOffset}
 
 class JourneyAnswersRepositorySpec extends BaseUnitSpec {
 
-  protected val databaseName: String          = "disa-journeyData-test"
-  protected val mongoUri: String              = s"mongodb://127.0.0.1:27017/$databaseName"
-  lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
+  override protected val databaseName: String          = "disa-journeyData-test"
+  override protected val mongoUri: String              = s"mongodb://127.0.0.1:27017/$databaseName"
+  override lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
 
   val fixedClock: Clock                    = Clock.fixed(Instant.parse("2025-10-21T10:00:00Z"), ZoneOffset.UTC)
   val repository: JourneyAnswersRepository = new JourneyAnswersRepository(mockMongoComponent, mockAppConfig, fixedClock)
@@ -199,6 +200,7 @@ class JourneyAnswersRepositorySpec extends BaseUnitSpec {
   }
 
   "storeSubscriptionIdAndMarkSubmitted" should {
+    implicit val session: ClientSession = await(mockMongoComponent.client.startSession().toFuture())
 
     "stores formBundleId, sets status to Submitted and updates lastUpdated when an Active document exists" in {
       await(repository.collection.insertOne(activeJourneyData).toFuture())
