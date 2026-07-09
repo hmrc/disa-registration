@@ -38,7 +38,8 @@ class SubscribeTaxEnrolmentWorkItemRepositoryISpec
     extends AnyWordSpec
     with Matchers
     with ScalaFutures
-    with PlayMongoRepositorySupport[WorkItem[TaxEnrolmentWorkItem]] with IntegrationPatience
+    with PlayMongoRepositorySupport[WorkItem[TaxEnrolmentWorkItem]]
+    with IntegrationPatience
     with Transactions {
 
   val mockAppConfig: AppConfig = mock[AppConfig]

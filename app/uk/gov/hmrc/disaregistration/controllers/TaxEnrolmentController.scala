@@ -33,7 +33,7 @@ class TaxEnrolmentController @Inject() (
     extends BackendController(cc)
     with Logging {
 
-  def callback(): Action[AnyContent] = Action.async { implicit request =>
+  def callback(formBundleId: String): Action[AnyContent] = Action.async { implicit request =>
     request.body.asJson.fold(
       Future.successful {
         val msg = "Received tax enrolment callback with empty or non-JSON body"

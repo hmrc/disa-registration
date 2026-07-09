@@ -33,7 +33,7 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
     "return NO_CONTENT when valid SUCCEEDED payload is submitted" in {
 
       val request =
-        FakeRequest(POST, TaxEnrolmentController.callback().url)
+        FakeRequest(POST, TaxEnrolmentController.callback(testFormBundleId).url)
           .withJsonBody(
             Json.obj(
               "url"   -> "http://localhost:1203/disa-registration/callback/subscriptions/123456789012",
@@ -61,7 +61,7 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
     "return NO_CONTENT when valid ERROR payload is submitted" in {
 
       val request =
-        FakeRequest(POST, TaxEnrolmentController.callback().url)
+        FakeRequest(POST, TaxEnrolmentController.callback(testFormBundleId).url)
           .withJsonBody(
             Json.obj(
               "url"           -> "http://localhost:1203/disa-registration/callback/subscriptions/123456789012",
@@ -91,7 +91,7 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
 
       running(fakeApplication()) {
         val request =
-          FakeRequest(POST, TaxEnrolmentController.callback().url)
+          FakeRequest(POST, TaxEnrolmentController.callback(testFormBundleId).url)
             .withTextBody("not-json")
 
         val result = route(fakeApplication(), request).get
@@ -105,7 +105,7 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
 
       running(fakeApplication()) {
         val request =
-          FakeRequest(POST, TaxEnrolmentController.callback().url)
+          FakeRequest(POST, TaxEnrolmentController.callback(testFormBundleId).url)
             .withJsonBody(
               Json.obj(
                 "url"   -> "http://localhost:1203/disa-registration/callback/subscriptions/123456789012",
@@ -126,7 +126,7 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
 
       running(fakeApplication()) {
         val request =
-          FakeRequest(POST, TaxEnrolmentController.callback().url)
+          FakeRequest(POST, TaxEnrolmentController.callback(testFormBundleId).url)
             .withJsonBody(
               Json.obj(
                 "url"   -> "http://localhost:1203/disa-registration/callback/subscriptions/123456789012",

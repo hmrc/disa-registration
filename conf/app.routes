@@ -8,4 +8,4 @@ PUT  /journey/:groupId                   uk.gov.hmrc.disaregistration.controller
 POST /:groupId/declare-and-submit            uk.gov.hmrc.disaregistration.controllers.SubmissionController.declareAndSubmit(groupId:String)
 
 ## Callbacks
-POST   /callback/subscriptions               uk.gov.hmrc.disaregistration.controllers.TaxEnrolmentController.callback()
+POST   /callback/subscriptions/:formBundleId  uk.gov.hmrc.disaregistration.controllers.TaxEnrolmentController.callback(formBundleId: String)

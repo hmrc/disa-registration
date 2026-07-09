@@ -37,12 +37,12 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
   private lazy val mongoUri: String                   = s"mongodb://127.0.0.1:27017/$databaseName"
   private lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
 
-  override lazy val app: Application = app(
+  override lazy val app: Application                        = app(
     inject.bind[MongoComponent].toInstance(mockMongoComponent),
     inject.bind[SubscriptionEnrolmentWorkItemJob].toInstance(mock[SubscriptionEnrolmentWorkItemJob])
   )
-  val repo: JourneyAnswersRepository                                 = app.injector.instanceOf[JourneyAnswersRepository]
-  val workItemRepo: SubscribeTaxEnrolmentWorkItemRepository         =
+  val repo: JourneyAnswersRepository                        = app.injector.instanceOf[JourneyAnswersRepository]
+  val workItemRepo: SubscribeTaxEnrolmentWorkItemRepository =
     app.injector.instanceOf[SubscribeTaxEnrolmentWorkItemRepository]
 
   override def beforeEach(): Unit = {

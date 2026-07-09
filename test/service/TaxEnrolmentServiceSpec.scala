@@ -30,7 +30,7 @@ import scala.concurrent.Future
 class TaxEnrolmentServiceSpec extends BaseUnitSpec {
 
   private val serviceName = "HMRC-DISA-ORG"
-  private val callbackUrl = "http://localhost:1203/disa-registration/callback/subscriptions"
+  private val callbackUrl = s"http://localhost:1203/disa-registration/callback/subscriptions/$testFormBundleId"
   private val service     = new TaxEnrolmentService(mockTaxEnrolmentsConnector, mockAppConfig)
 
   "TaxEnrolmentService.subscribe" should {
@@ -39,7 +39,7 @@ class TaxEnrolmentServiceSpec extends BaseUnitSpec {
       val request = TaxEnrolmentSubscriberRequest(serviceName, callbackUrl, testString)
 
       when(mockAppConfig.taxEnrolmentsServiceName).thenReturn(serviceName)
-      when(mockAppConfig.taxEnrolmentsCallbackUrl).thenReturn(callbackUrl)
+      when(mockAppConfig.taxEnrolmentsCallbackUrl(eqTo(testFormBundleId))).thenReturn(callbackUrl)
       when(mockTaxEnrolmentsConnector.subscribe(eqTo(testFormBundleId), eqTo(request))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(HttpResponse(NO_CONTENT, ""))))
 
@@ -58,7 +58,7 @@ class TaxEnrolmentServiceSpec extends BaseUnitSpec {
       )
 
       when(mockAppConfig.taxEnrolmentsServiceName).thenReturn(serviceName)
-      when(mockAppConfig.taxEnrolmentsCallbackUrl).thenReturn(callbackUrl)
+      when(mockAppConfig.taxEnrolmentsCallbackUrl(eqTo(testFormBundleId))).thenReturn(callbackUrl)
       when(mockTaxEnrolmentsConnector.subscribe(eqTo(testFormBundleId), eqTo(request))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(upstreamErrorResponse)))
 
@@ -72,7 +72,7 @@ class TaxEnrolmentServiceSpec extends BaseUnitSpec {
       val request   = TaxEnrolmentSubscriberRequest(serviceName, callbackUrl, testString)
 
       when(mockAppConfig.taxEnrolmentsServiceName).thenReturn(serviceName)
-      when(mockAppConfig.taxEnrolmentsCallbackUrl).thenReturn(callbackUrl)
+      when(mockAppConfig.taxEnrolmentsCallbackUrl(eqTo(testFormBundleId))).thenReturn(callbackUrl)
       when(mockTaxEnrolmentsConnector.subscribe(eqTo(testFormBundleId), eqTo(request))(any[HeaderCarrier]))
         .thenReturn(Future.failed(exception))
 

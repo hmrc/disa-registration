@@ -35,7 +35,8 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
 
   lazy val taxEnrolmentsServiceName: String = servicesConfig.getString("tax-enrolments.service-name")
 
-  lazy val taxEnrolmentsCallbackUrl: String = s"$selfBaseUrl/disa-registration/callback/subscriptions"
+  def taxEnrolmentsCallbackUrl(formBundleId: String): String =
+    s"$selfBaseUrl/disa-registration/callback/subscriptions/$formBundleId"
 
   val subscriptionTaxEnrolmentJobPollInterval: FiniteDuration = config
     .getOptional[Duration]("registration-work-item-job.pollInterval")

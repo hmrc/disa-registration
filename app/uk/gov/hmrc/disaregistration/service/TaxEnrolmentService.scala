@@ -39,7 +39,7 @@ class TaxEnrolmentService @Inject() (
   ): Future[Either[UpstreamErrorResponse, Unit]] = {
     val request = TaxEnrolmentSubscriberRequest(
       serviceName = appConfig.taxEnrolmentsServiceName,
-      callback = appConfig.taxEnrolmentsCallbackUrl,
+      callback = appConfig.taxEnrolmentsCallbackUrl(formBundleId),
       etmpId = etmpId
     )
 
