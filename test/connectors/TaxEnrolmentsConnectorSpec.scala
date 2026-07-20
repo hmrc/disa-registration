@@ -18,7 +18,7 @@ package uk.gov.hmrc.disaregistration.connectors
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.mustBe
 import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentSubscriberRequest
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
@@ -52,7 +52,8 @@ class TaxEnrolmentsConnectorSpec extends BaseUnitSpec {
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(response)))
 
-      val result = connector.subscribe(testFormBundleId, request).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connector.subscribe(testFormBundleId, request).futureValue
 
       result mustBe Right(response)
     }
@@ -68,7 +69,8 @@ class TaxEnrolmentsConnectorSpec extends BaseUnitSpec {
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Left(upstreamErrorResponse)))
 
-      val result = connector.subscribe(testFormBundleId, request).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connector.subscribe(testFormBundleId, request).futureValue
 
       result mustBe Left(upstreamErrorResponse)
     }
@@ -79,7 +81,7 @@ class TaxEnrolmentsConnectorSpec extends BaseUnitSpec {
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.failed(ex))
 
-      val thrown = connector.subscribe(testFormBundleId, request).failed.futureValue
+      val thrown: Throwable = connector.subscribe(testFormBundleId, request).failed.futureValue
 
       thrown mustBe ex
     }

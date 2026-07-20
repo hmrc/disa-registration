@@ -16,10 +16,10 @@
 
 package service
 
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, verifyNoInteractions, when}
-import org.mongodb.scala.ClientSession
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.mongodb.scala.{ClientSession, SingleObservableFuture}
+import org.scalatest.matchers.must.Matchers.{mustBe, mustEqual}
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
@@ -154,7 +154,7 @@ class SubmissionServiceSpec extends BaseUnitSpec {
       val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).failed.futureValue
 
       result mustBe a[IllegalStateException]
-      result.getMessage must include("Missing businessPartnerId from businessVerification")
+      result.getMessage should include("Missing businessPartnerId from businessVerification")
       verifyNoInteractions(mockTaxEnrolmentService)
     }
   }

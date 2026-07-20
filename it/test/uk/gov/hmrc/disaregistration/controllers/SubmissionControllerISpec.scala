@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.disaregistration.controllers
 
+import org.mongodb.scala.ObservableFuture
 import org.mongodb.scala.model.Filters
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.test.Helpers.await
 import play.api.{Application, inject}
 import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
@@ -146,7 +148,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
       )
 
       response.status shouldBe NOT_FOUND
-      response.body   shouldBe "Failed to find journey data to submit for this request"
+      response.body.toString   shouldBe "Failed to find journey data to submit for this request"
     }
 
     "return 500 when journey exists but no Active journey is available to submit" in {
@@ -173,7 +175,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
       )
 
       response.status shouldBe INTERNAL_SERVER_ERROR
-      response.body   shouldBe "There has been an issue processing your request"
+      response.body.toString   shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
       stored.size              shouldBe 1
@@ -205,7 +207,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
       )
 
       response.status shouldBe INTERNAL_SERVER_ERROR
-      response.body   shouldBe "There has been an issue processing your request"
+      response.body.toString   shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
       stored.size              shouldBe 1

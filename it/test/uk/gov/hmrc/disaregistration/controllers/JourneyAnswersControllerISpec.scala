@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.disaregistration.controllers
 
-import play.api.http.Status._
+import org.mongodb.scala.SingleObservableFuture
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
+import play.api.libs.ws.DefaultBodyReadables.readableAsByteArray
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
 import play.api.{Application, inject}
@@ -27,6 +29,7 @@ import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.mongo.MongoComponent
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 
 class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
@@ -146,7 +149,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       )
 
       result.status shouldBe BAD_REQUEST
-      result.body     should include("Invalid taskListJourney parameter")
+      result.body.toString should include("Invalid taskListJourney parameter")
     }
 
     "return 400 BadRequest when JSON is invalid for a valid taskListJourney" in {
@@ -160,7 +163,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       )
 
       result.status shouldBe BAD_REQUEST
-      result.body     should include("Invalid JSON for taskListJourney")
+      result.body.toString     should include("Invalid JSON for taskListJourney")
     }
 
     "return 404 Not Found when journeyData does not exist" in {

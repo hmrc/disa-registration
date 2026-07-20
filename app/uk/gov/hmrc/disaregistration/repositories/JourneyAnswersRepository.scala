@@ -44,7 +44,7 @@ class JourneyAnswersRepository @Inject() (mongoComponent: MongoComponent, appCon
       indexes = Seq(
         IndexModel(
           Indexes.ascending("lastUpdated"),
-          IndexOptions().name("journeyAnswersTtl").expireAfter(appConfig.timeToLive, TimeUnit.DAYS)
+          IndexOptions().name("journeyAnswersTtl").expireAfter(appConfig.timeToLive.toLong, TimeUnit.DAYS)
         ),
         IndexModel(
           Indexes.ascending("groupId"),

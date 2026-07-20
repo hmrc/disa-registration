@@ -18,7 +18,7 @@ package service
 
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.mustBe
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT}
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentSubscriberRequest
 import uk.gov.hmrc.disaregistration.service.TaxEnrolmentService
