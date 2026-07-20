@@ -52,7 +52,8 @@ class TaxEnrolmentsConnectorSpec extends BaseUnitSpec {
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(response)))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] = connector.subscribe(testFormBundleId, request).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connector.subscribe(testFormBundleId, request).futureValue
 
       result mustBe Right(response)
     }
@@ -68,7 +69,8 @@ class TaxEnrolmentsConnectorSpec extends BaseUnitSpec {
       when(mockRequestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Left(upstreamErrorResponse)))
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] = connector.subscribe(testFormBundleId, request).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connector.subscribe(testFormBundleId, request).futureValue
 
       result mustBe Left(upstreamErrorResponse)
     }
