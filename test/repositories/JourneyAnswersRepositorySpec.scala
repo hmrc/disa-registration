@@ -16,7 +16,7 @@
 
 package repositories
 
-import org.mongodb.scala.ClientSession
+import org.mongodb.scala.{ClientSession, ObservableFuture, SingleObservableFuture}
 import org.mongodb.scala.model.Filters
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer

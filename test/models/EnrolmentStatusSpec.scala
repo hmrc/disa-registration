@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.disaregistration.models
 
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
-import play.api.libs.json._
+import org.scalatest.matchers.must.Matchers.mustBe
+import play.api.libs.json.*
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus
 import utils.BaseUnitSpec
 

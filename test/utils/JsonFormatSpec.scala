@@ -16,7 +16,7 @@
 
 package utils
 
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.mustBe
 import play.api.libs.json.{Format, JsValue, Json}
 
 trait JsonFormatSpec[A] extends BaseUnitSpec {

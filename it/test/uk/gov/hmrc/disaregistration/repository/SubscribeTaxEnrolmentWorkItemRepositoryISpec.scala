@@ -17,7 +17,7 @@
 package uk.gov.hmrc.disaregistration.repository
 
 import java.time.Clock
-import org.mongodb.scala.ClientSession
+import org.mongodb.scala.{ClientSession, SingleObservable, SingleObservableFuture}
 import org.mongodb.scala.model.Filters
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
@@ -29,7 +29,6 @@ import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrolmentWorkItemRe
 import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem}
-import org.mongodb.scala.SingleObservable
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
