@@ -53,7 +53,7 @@ trait TestData {
   val businessVerification: BusinessVerification = BusinessVerification(
     businessRegistrationPassed = Some(true),
     businessVerificationPassed = Some(false),
-    ctUtr = Some("12345678"),
+    utr = Some("12345678"),
     registeredAddress = Some(
       RegisteredAddress(
         addressLine1 = Some("test line 1"),

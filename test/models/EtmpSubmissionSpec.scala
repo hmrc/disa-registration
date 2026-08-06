@@ -33,7 +33,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
           BusinessVerification(
             businessRegistrationPassed = Some(true),
             businessVerificationPassed = Some(true),
-            ctUtr = Some("1234567890"),
+            utr = Some("1234567890"),
             registeredAddress = Some(
               RegisteredAddress(
                 addressLine1 = Some("Line 1"),
@@ -74,7 +74,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
           BusinessVerification(
             businessRegistrationPassed = None,
             businessVerificationPassed = None,
-            ctUtr = None,
+            utr = None,
             registeredAddress = None,
             companyName = None,
             companyNumber = None,

@@ -147,8 +147,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
           .post("")
       )
 
-      response.status shouldBe NOT_FOUND
-      response.body.toString   shouldBe "Failed to find journey data to submit for this request"
+      response.status        shouldBe NOT_FOUND
+      response.body.toString shouldBe "Failed to find journey data to submit for this request"
     }
 
     "return 500 when journey exists but no Active journey is available to submit" in {
@@ -174,8 +174,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
           .post("")
       )
 
-      response.status shouldBe INTERNAL_SERVER_ERROR
-      response.body.toString   shouldBe "There has been an issue processing your request"
+      response.status        shouldBe INTERNAL_SERVER_ERROR
+      response.body.toString shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
       stored.size              shouldBe 1
@@ -206,8 +206,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
           .post("")
       )
 
-      response.status shouldBe INTERNAL_SERVER_ERROR
-      response.body.toString   shouldBe "There has been an issue processing your request"
+      response.status        shouldBe INTERNAL_SERVER_ERROR
+      response.body.toString shouldBe "There has been an issue processing your request"
 
       val stored = await(repo.collection.find(Filters.eq("groupId", testGroupId)).toFuture())
       stored.size              shouldBe 1

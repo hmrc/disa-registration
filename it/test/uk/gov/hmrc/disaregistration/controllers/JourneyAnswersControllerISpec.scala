@@ -148,7 +148,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         body = body
       )
 
-      result.status shouldBe BAD_REQUEST
+      result.status      shouldBe BAD_REQUEST
       result.body.toString should include("Invalid taskListJourney parameter")
     }
 
@@ -162,8 +162,8 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         body = invalidJson
       )
 
-      result.status shouldBe BAD_REQUEST
-      result.body.toString     should include("Invalid JSON for taskListJourney")
+      result.status      shouldBe BAD_REQUEST
+      result.body.toString should include("Invalid JSON for taskListJourney")
     }
 
     "return 404 Not Found when journeyData does not exist" in {
