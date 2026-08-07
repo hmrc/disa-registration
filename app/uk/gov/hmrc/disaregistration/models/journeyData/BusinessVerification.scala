@@ -21,7 +21,6 @@ import play.api.libs.json.{Json, OFormat}
 case class BusinessVerification(
   businessRegistrationPassed: Option[Boolean],
   businessVerificationPassed: Option[Boolean],
-  // CT UTR for incorporated entities, SA UTR for partnerships.
   utr: Option[String],
   registeredAddress: Option[RegisteredAddress],
   companyName: Option[String],
