@@ -75,7 +75,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
           ),
           Some(testString),
           Some(testString),
-          Some(testString)
+          Some(testString),
+          Some(GrsCompanyType.LimitedCompany)
         )
       ),
       organisationDetails = Some(
@@ -168,7 +169,8 @@ class JourneyDataSpec extends JsonFormatSpec[JourneyData] {
        |    },
        |  "companyName": "$testString",
        |  "companyNumber": "$testString",
-       |  "businessPartnerId": "$testString"
+       |  "businessPartnerId": "$testString",
+       |  "companyType": "limitedCompany"
        |  },
        |  "organisationDetails": {
        |    "registeredToManageIsa": "yes",

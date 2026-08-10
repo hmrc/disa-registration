@@ -44,7 +44,8 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
             ),
             companyName = Some("Test Ltd"),
             companyNumber = Some(testString),
-            businessPartnerId = Some("TestBusinessPartnerId")
+            businessPartnerId = Some("TestBusinessPartnerId"),
+            companyType = Some(GrsCompanyType.LimitedCompany)
           )
         ),
         thirdPartyOrganisations = None
@@ -78,7 +79,8 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
             registeredAddress = None,
             companyName = None,
             companyNumber = None,
-            businessPartnerId = None
+            businessPartnerId = None,
+            companyType = None
           )
         ),
         thirdPartyOrganisations = None
