@@ -26,6 +26,7 @@ import play.api.{Application, inject}
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer.No
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
+import uk.gov.hmrc.disaregistration.models.journeyData.GrsCompanyType
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.mongo.MongoComponent
@@ -124,7 +125,8 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
       val businessVerificationJson = Json.obj(
         "businessRegistrationPassed" -> true,
-        "businessVerificationPassed" -> true
+        "businessVerificationPassed" -> true,
+        "companyType"                -> "limitedCompany"
       )
 
       val verificationResult =
@@ -140,6 +142,10 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
       (secondRetrieve.json \ "organisationDetails" \ "fcaNumber").as[String]                    shouldBe "6743765"
       (secondRetrieve.json \ "businessVerification" \ "businessRegistrationPassed").as[Boolean] shouldBe true
       (secondRetrieve.json \ "businessVerification" \ "businessVerificationPassed").as[Boolean] shouldBe true
+      (secondRetrieve.json \ "businessVerification" \ "companyType").as[String]                 shouldBe "limitedCompany"
+
+      val stored = await(repo.findById(testGroupId)).get
+      stored.businessVerification.flatMap(_.companyType) shouldBe Some(GrsCompanyType.LimitedCompany)
     }
 
     "return 400 BadRequest when taskListJourney is invalid" in {
@@ -148,7 +154,7 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         body = body
       )
 
-      result.status shouldBe BAD_REQUEST
+      result.status      shouldBe BAD_REQUEST
       result.body.toString should include("Invalid taskListJourney parameter")
     }
 
@@ -162,8 +168,8 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
         body = invalidJson
       )
 
-      result.status shouldBe BAD_REQUEST
-      result.body.toString     should include("Invalid JSON for taskListJourney")
+      result.status      shouldBe BAD_REQUEST
+      result.body.toString should include("Invalid JSON for taskListJourney")
     }
 
     "return 404 Not Found when journeyData does not exist" in {

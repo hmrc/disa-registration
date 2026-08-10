@@ -21,11 +21,12 @@ import play.api.libs.json.{Json, OFormat}
 case class BusinessVerification(
   businessRegistrationPassed: Option[Boolean],
   businessVerificationPassed: Option[Boolean],
-  ctUtr: Option[String],
+  utr: Option[String],
   registeredAddress: Option[RegisteredAddress],
   companyName: Option[String],
   companyNumber: Option[String],
-  businessPartnerId: Option[String]
+  businessPartnerId: Option[String],
+  companyType: Option[GrsCompanyType]
 )
 
 object BusinessVerification {

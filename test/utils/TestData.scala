@@ -19,7 +19,7 @@ package utils
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer.Yes
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
 import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.OrganisationDetails
-import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, JourneyData, RegisteredAddress}
+import uk.gov.hmrc.disaregistration.models.journeyData.{BusinessVerification, CorrespondenceAddress, GrsCompanyType, JourneyData, RegisteredAddress}
 
 import java.util.UUID
 import scala.util.Random
@@ -53,7 +53,7 @@ trait TestData {
   val businessVerification: BusinessVerification = BusinessVerification(
     businessRegistrationPassed = Some(true),
     businessVerificationPassed = Some(false),
-    ctUtr = Some("12345678"),
+    utr = Some("12345678"),
     registeredAddress = Some(
       RegisteredAddress(
         addressLine1 = Some("test line 1"),
@@ -65,7 +65,8 @@ trait TestData {
     ),
     companyName = Some(testString),
     companyNumber = Some(testString),
-    businessPartnerId = Some(testString)
+    businessPartnerId = Some(testString),
+    companyType = Some(GrsCompanyType.LimitedCompany)
   )
   val testJourneyData: JourneyData               = JourneyData(
     groupId = testGroupId,
