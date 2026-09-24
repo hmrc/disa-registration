@@ -19,143 +19,87 @@ package service
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, verifyNoInteractions, when}
 import org.mongodb.scala.{ClientSession, SingleObservableFuture}
-import org.scalatest.matchers.must.Matchers.{mustBe, mustEqual}
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
-import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
-import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentWorkItem
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentSubscriberRequest
 import uk.gov.hmrc.disaregistration.service.SubmissionService
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.BaseUnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends BaseUnitSpec {
 
-  private val service =
-    new SubmissionService(
-      mockEtmpConnector,
-      mockJourneyAnswersService,
-      mockSubscribeTaxEnrolmentWorkItemRepository,
-      mockMongoComponent
-    )
+  private val service = new SubmissionService(
+    mockEtmpConnector,
+    mockJourneyAnswersService,
+    mockTaxEnrolmentsConnector,
+    mockAppConfig,
+    mockMongoComponent
+  )
 
   implicit val session: ClientSession = await(mockMongoComponent.client.startSession().toFuture())
 
+  private def successfulEtmpAndStore(): Unit = {
+    when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
+      .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
+    when(
+      mockJourneyAnswersService.storeSubscriptionIdAndMarkSubmitted(
+        eqTo(testJourneyData.groupId),
+        eqTo(testFormBundleId)
+      )(any[ExecutionContext], any[ClientSession])
+    ).thenReturn(Future.successful(testFormBundleId))
+    when(mockAppConfig.taxEnrolmentsServiceName).thenReturn("HMRC-DISA-ORG")
+    when(mockAppConfig.taxEnrolmentsCallbackUrl(testFormBundleId)).thenReturn("callback-url")
+    when(
+      mockTaxEnrolmentsConnector.subscribe(eqTo(testFormBundleId), any[TaxEnrolmentSubscriberRequest])(
+        any[HeaderCarrier]
+      )
+    ).thenReturn(Future.successful(Right(HttpResponse(204))))
+  }
+
   "SubmissionService.declareAndSubmit" should {
+    "store the form bundle and subscribe inline" in {
+      successfulEtmpAndStore()
 
-    "returns formBundleId, stores formBundleId and subscribes to Tax Enrolments when ETMP submission succeeds" in {
-      val testWorkItemPayload = TaxEnrolmentWorkItem(testFormBundleId, "bpSafeId")
-      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
+      service.declareAndSubmit(testJourneyData).futureValue shouldBe testFormBundleId
 
-      when(
-        mockJourneyAnswersService
-          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext],
-            any[ClientSession]
-          )
-      )
-        .thenReturn(Future.successful(testFormBundleId))
-
-      when(mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(any(), any())(any[ClientSession]))
-        .thenReturn(Future.successful(dummyWorkItem(testWorkItemPayload)))
-
-      val result = service.declareAndSubmit(testJourneyData).futureValue
-
-      result mustEqual testFormBundleId
-      verify(mockSubscribeTaxEnrolmentWorkItemRepository).enqueue(eqTo(testFormBundleId), eqTo(testString))(
-        any[ClientSession]
-      )
+      verify(mockTaxEnrolmentsConnector).subscribe(
+        eqTo(testFormBundleId),
+        eqTo(TaxEnrolmentSubscriberRequest("HMRC-DISA-ORG", "callback-url", testString))
+      )(any[HeaderCarrier])
     }
 
-    "fails when ETMP returns Left(UpstreamErrorResponse)" in {
-      val upstreamErrorResponse: UpstreamErrorResponse = UpstreamErrorResponse(
-        message = "Internal Server Error",
-        statusCode = 500,
-        reportAs = 500,
-        headers = Map.empty
-      )
-
-      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(upstreamErrorResponse)))
-
-      val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
-
-      thrown mustBe upstreamErrorResponse
-      verifyNoInteractions(mockTaxEnrolmentService)
-    }
-
-    "fails when storing formBundleId fails after successful ETMP submission" in {
-      val ex = new RuntimeException("mongo down")
-
-      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
-
+    "return the form bundle when the tax enrolment subscription fails" in {
+      successfulEtmpAndStore()
+      val error = UpstreamErrorResponse("bad", 500, 500, Map.empty)
       when(
-        mockJourneyAnswersService
-          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext],
-            any[ClientSession]
-          )
-      )
-        .thenReturn(Future.failed(ex))
-
-      val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
-
-      thrown mustBe ex
-      verifyNoInteractions(mockTaxEnrolmentService)
-    }
-
-    "fails when enqueuing the Tax Enrolments work item fails after successful ETMP submission" in {
-      val ex = new RuntimeException("mongo down")
-
-      when(mockEtmpConnector.declareAndSubmit(eqTo(testEtmpSubmission))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
-
-      when(
-        mockJourneyAnswersService
-          .storeSubscriptionIdAndMarkSubmitted(eqTo(testJourneyData.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext],
-            any[ClientSession]
-          )
-      )
-        .thenReturn(Future.successful(testFormBundleId))
-
-      when(
-        mockSubscribeTaxEnrolmentWorkItemRepository.enqueue(eqTo(testFormBundleId), eqTo(testString))(
-          any[ClientSession]
+        mockTaxEnrolmentsConnector.subscribe(any[String], any[TaxEnrolmentSubscriberRequest])(
+          any[HeaderCarrier]
         )
-      )
-        .thenReturn(Future.failed(ex))
+      ).thenReturn(Future.successful(Left(error)))
 
-      val thrown = service.declareAndSubmit(testJourneyData).failed.futureValue
-
-      thrown mustBe ex
+      service.declareAndSubmit(testJourneyData).futureValue shouldBe testFormBundleId
     }
 
-    "returns exception and does not subscribe when bpSafeId is missing" in {
-      val journeyDataWithoutBpSafeId: JourneyData = testJourneyData.copy(
-        businessVerification = testJourneyData.businessVerification.map(_.copy(businessPartnerId = None))
-      )
-
-      when(mockEtmpConnector.declareAndSubmit(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentSubmissionResponse(testFormBundleId))))
-
+    "return the form bundle when the tax enrolment connector fails" in {
+      successfulEtmpAndStore()
       when(
-        mockJourneyAnswersService
-          .storeSubscriptionIdAndMarkSubmitted(eqTo(journeyDataWithoutBpSafeId.groupId), eqTo(testFormBundleId))(
-            any[ExecutionContext],
-            any[ClientSession]
-          )
-      )
-        .thenReturn(Future.failed(testEx))
+        mockTaxEnrolmentsConnector.subscribe(any[String], any[TaxEnrolmentSubscriberRequest])(
+          any[HeaderCarrier]
+        )
+      ).thenReturn(Future.failed(new RuntimeException("connection failed")))
 
-      val result = service.declareAndSubmit(journeyDataWithoutBpSafeId).failed.futureValue
+      service.declareAndSubmit(testJourneyData).futureValue shouldBe testFormBundleId
+    }
 
-      result mustBe a[IllegalStateException]
-      result.getMessage should include("Missing businessPartnerId from businessVerification")
-      verifyNoInteractions(mockTaxEnrolmentService)
+    "fail when ETMP submission fails without subscribing" in {
+      val error = UpstreamErrorResponse("bad", 500, 500, Map.empty)
+      when(mockEtmpConnector.declareAndSubmit(any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(error)))
+
+      service.declareAndSubmit(testJourneyData).failed.futureValue shouldBe error
+      verifyNoInteractions(mockTaxEnrolmentsConnector)
     }
   }
 }

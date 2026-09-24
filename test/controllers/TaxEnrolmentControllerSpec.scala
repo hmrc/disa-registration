@@ -16,14 +16,10 @@
 
 package controllers
 
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{doThrow, verify}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.disaregistration.controllers.routes.TaxEnrolmentController
-import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
-import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallbackState._
 import utils.BaseUnitSpec
 
 class TaxEnrolmentControllerSpec extends BaseUnitSpec {
@@ -46,15 +42,6 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
 
         status(result) shouldBe NO_CONTENT
 
-        verify(mockTaxEnrolmentService).handle(
-          eqTo(
-            TaxEnrolmentCallback(
-              url = "http://localhost:1203/disa-registration/callback/subscriptions/123456789012",
-              state = Succeeded,
-              errorResponse = None
-            )
-          )
-        )
       }
     }
 
@@ -75,15 +62,6 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
 
         status(result) shouldBe NO_CONTENT
 
-        verify(mockTaxEnrolmentService).handle(
-          eqTo(
-            TaxEnrolmentCallback(
-              url = "http://localhost:1203/disa-registration/callback/subscriptions/123456789012",
-              state = Error,
-              errorResponse = Some("error message")
-            )
-          )
-        )
       }
     }
 
@@ -119,25 +97,5 @@ class TaxEnrolmentControllerSpec extends BaseUnitSpec {
       }
     }
 
-    "propagate exception when service.handle throws" in {
-      doThrow(new RuntimeException("fubar"))
-        .when(mockTaxEnrolmentService)
-        .handle(any[TaxEnrolmentCallback])
-
-      running(fakeApplication()) {
-        val request =
-          FakeRequest(POST, TaxEnrolmentController.callback(testFormBundleId).url)
-            .withJsonBody(
-              Json.obj(
-                "url"   -> "http://localhost:1203/disa-registration/callback/subscriptions/123456789012",
-                "state" -> "SUCCEEDED"
-              )
-            )
-
-        val thrown = route(fakeApplication(), request).get.failed.futureValue
-
-        thrown.getMessage shouldBe "fubar"
-      }
-    }
   }
 }

@@ -19,7 +19,6 @@ package uk.gov.hmrc.disaregistration.controllers
 import org.mongodb.scala.SingleObservableFuture
 import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.DefaultBodyReadables.readableAsByteArray
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.await
 import play.api.{Application, inject}

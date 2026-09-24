@@ -18,7 +18,6 @@ package uk.gov.hmrc.disaregistration
 
 import com.google.inject.AbstractModule
 import uk.gov.hmrc.disaregistration.config.AppConfig
-import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 
 import java.time.{Clock, ZoneOffset}
 
@@ -27,7 +26,5 @@ class Module extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[AppConfig]).asEagerSingleton()
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-    bind(classOf[SubscriptionEnrolmentWorkItemJob])
-    bind(classOf[AppInitialiser]).asEagerSingleton()
   }
 }
