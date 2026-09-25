@@ -14,7 +14,6 @@ object CodeCoverageSettings {
     "testOnly.*",
     "testOnlyDoNotUseInAppConf.*",
     "uk.gov.hmrc.disaregistration.Module",
-    "uk.gov.hmrc.disaregistration.AppInitialiser",
     "uk.gov.hmrc.disaregistration.models.journeyData.FeesCommissionsAndIncentives",
     "uk.gov.hmrc.disaregistration.models.journeyData.OutsourcedAdministration"
   )

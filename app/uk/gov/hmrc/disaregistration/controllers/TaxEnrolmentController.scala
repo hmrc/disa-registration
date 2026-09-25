@@ -20,17 +20,15 @@ import play.api.Logging
 import play.api.libs.json.JsError
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallback
-import uk.gov.hmrc.disaregistration.service.TaxEnrolmentService
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentCallbackState._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class TaxEnrolmentController @Inject() (
-  cc: ControllerComponents,
-  service: TaxEnrolmentService
-)(implicit ec: ExecutionContext)
-    extends BackendController(cc)
+  cc: ControllerComponents
+) extends BackendController(cc)
     with Logging {
 
   def callback(formBundleId: String): Action[AnyContent] = Action.async { implicit request =>
@@ -47,7 +45,35 @@ class TaxEnrolmentController @Inject() (
             logger.warn(s"Received invalid tax enrolment callback payload: ${JsError.toJson(errors)}")
             Future.successful(BadRequest)
           },
-          payload => service.handle(payload).map(_ => NoContent)
+          payload => {
+            payload.state match {
+              case Succeeded      =>
+                logger.info(
+                  s"Received Tax Enrolments subscription callback with state [SUCCEEDED] for url [${payload.url}]"
+                )
+              case Enrolled       =>
+                logger.warn(
+                  s"Received Tax Enrolments subscription callback with state [Enrolled] for url [${payload.url}]" +
+                    s"and errorResponse [${payload.errorResponse.getOrElse("missing errorResponse")}]"
+                )
+              case AuthRefreshed  =>
+                logger.warn(
+                  s"Received Tax Enrolments subscription callback with state [AuthRefreshed] for url [${payload.url}]" +
+                    s"and errorResponse [${payload.errorResponse.getOrElse("missing errorResponse")}]"
+                )
+              case Error          =>
+                logger.error(
+                  s"Received Tax Enrolments subscription callback with state [ERROR] for url [${payload.url}] " +
+                    s"and errorResponse [${payload.errorResponse.getOrElse("missing errorResponse")}]"
+                )
+              case EnrolmentError =>
+                logger.warn(
+                  s"Received Tax Enrolments subscription callback with state [EnrolmentError] for url [${payload.url}] " +
+                    s"and errorResponse [${payload.errorResponse.getOrElse("missing errorResponse")}]"
+                )
+            }
+            Future.successful(NoContent)
+          }
         )
     }
   }

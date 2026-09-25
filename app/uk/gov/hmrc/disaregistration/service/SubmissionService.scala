@@ -17,22 +17,25 @@
 package uk.gov.hmrc.disaregistration.service
 
 import play.api.Logging
-import uk.gov.hmrc.disaregistration.connectors.EtmpConnector
+import uk.gov.hmrc.disaregistration.config.AppConfig
+import uk.gov.hmrc.disaregistration.connectors.{EtmpConnector, TaxEnrolmentsConnector}
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.EtmpSubmission
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
-import uk.gov.hmrc.disaregistration.repositories.SubscribeTaxEnrolmentWorkItemRepository
+import uk.gov.hmrc.disaregistration.models.taxenrolments.TaxEnrolmentSubscriberRequest
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class SubmissionService @Inject() (
   etmpConnector: EtmpConnector,
   journeyAnswersService: JourneyAnswersService,
-  workItemRepo: SubscribeTaxEnrolmentWorkItemRepository,
+  taxEnrolmentsConnector: TaxEnrolmentsConnector,
+  appConfig: AppConfig,
   val mongoComponent: MongoComponent
 )(implicit ec: ExecutionContext)
     extends Logging
@@ -43,7 +46,7 @@ class SubmissionService @Inject() (
     EtmpSubmission(enrolment) match {
 
       case Left(error) =>
-        logger.error(s"[SubmissionService] Submission validation failed: $error")
+        logger.error(s"[SubmissionService][declareAndSubmit] Submission validation failed: $error")
         Future.failed(new IllegalArgumentException(error))
 
       case Right(submission) =>
@@ -55,14 +58,12 @@ class SubmissionService @Inject() (
 
               case Right(EnrolmentSubmissionResponse(formBundleId)) =>
                 withSessionAndTransaction[String] { implicit session =>
-                  for {
-                    storedFormBundleId <- journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
-                                            groupId = enrolment.groupId,
-                                            formBundleId = formBundleId
-                                          )
-
-                    _ <- workItemRepo.enqueue(storedFormBundleId, bpSafeId)
-                  } yield storedFormBundleId
+                  journeyAnswersService.storeSubscriptionIdAndMarkSubmitted(
+                    groupId = enrolment.groupId,
+                    formBundleId = formBundleId
+                  )
+                }.flatMap { storedFormBundleId =>
+                  subscribeToTaxEnrolments(storedFormBundleId, bpSafeId).map(_ => storedFormBundleId)
                 }
             }
 
@@ -70,8 +71,41 @@ class SubmissionService @Inject() (
             val ex = new IllegalStateException(
               "Missing businessPartnerId from businessVerification"
             )
-            logger.error(ex.getMessage)
+            logger.error(s"[SubmissionService][declareAndSubmit] ${ex.getMessage}")
             Future.failed(ex)
         }
     }
+
+  private def subscribeToTaxEnrolments(formBundleId: String, etmpId: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Unit] = {
+    val request = TaxEnrolmentSubscriberRequest(
+      serviceName = appConfig.taxEnrolmentsServiceName,
+      callback = appConfig.taxEnrolmentsCallbackUrl(formBundleId),
+      etmpId = etmpId
+    )
+
+    taxEnrolmentsConnector
+      .subscribe(formBundleId, request)
+      .map {
+        case Right(_)    =>
+          logger.info(
+            s"[SubmissionService][subscribeToTaxEnrolments] Tax Enrolments subscription request successful for formBundleId [$formBundleId] and etmpId [$etmpId]"
+          )
+          ()
+        case Left(error) =>
+          logger.error(
+            s"[SubmissionService][subscribeToTaxEnrolments] Tax Enrolments subscription request failed for formBundleId [$formBundleId] and etmpId [$etmpId] " +
+              s"with status [${error.statusCode}] and message [${error.message}]"
+          )
+          ()
+      }
+      .recover { case NonFatal(error) =>
+        logger.error(
+          s"[SubmissionService][subscribeToTaxEnrolments] Tax Enrolments subscription request failed for formBundleId [$formBundleId] and etmpId [$etmpId]",
+          error
+        )
+        ()
+      }
+  }
 }

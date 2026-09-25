@@ -42,6 +42,9 @@ class TaxEnrolmentsConnectorSpec extends BaseUnitSpec {
 
     when(mockRequestBuilder.withBody(any())(any, any, any))
       .thenReturn(mockRequestBuilder)
+
+    when(mockRequestBuilder.setHeader(any[(String, String)]()))
+      .thenReturn(mockRequestBuilder)
   }
 
   "TaxEnrolmentsConnector.subscribe" should {

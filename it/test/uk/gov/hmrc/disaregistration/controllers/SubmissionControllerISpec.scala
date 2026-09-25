@@ -19,16 +19,16 @@ package uk.gov.hmrc.disaregistration.controllers
 import org.mongodb.scala.ObservableFuture
 import org.mongodb.scala.model.Filters
 import org.scalatestplus.mockito.MockitoSugar
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, put, stubFor, urlEqualTo}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.test.Helpers.await
 import play.api.{Application, inject}
-import uk.gov.hmrc.disaregistration.jobs.SubscriptionEnrolmentWorkItemJob
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.JourneyData
-import uk.gov.hmrc.disaregistration.repositories.{JourneyAnswersRepository, SubscribeTaxEnrolmentWorkItemRepository}
+import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
 import uk.gov.hmrc.disaregistration.utils.WiremockHelper.stubPost
 import uk.gov.hmrc.mongo.MongoComponent
@@ -39,24 +39,17 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
   private lazy val mongoUri: String                   = s"mongodb://127.0.0.1:27017/$databaseName"
   private lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
 
-  override lazy val app: Application                        = app(
-    inject.bind[MongoComponent].toInstance(mockMongoComponent),
-    inject.bind[SubscriptionEnrolmentWorkItemJob].toInstance(mock[SubscriptionEnrolmentWorkItemJob])
-  )
-  val repo: JourneyAnswersRepository                        = app.injector.instanceOf[JourneyAnswersRepository]
-  val workItemRepo: SubscribeTaxEnrolmentWorkItemRepository =
-    app.injector.instanceOf[SubscribeTaxEnrolmentWorkItemRepository]
+  override lazy val app: Application = app(inject.bind[MongoComponent].toInstance(mockMongoComponent))
+  val repo: JourneyAnswersRepository = app.injector.instanceOf[JourneyAnswersRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     await(repo.collection.drop().toFuture())
-    await(workItemRepo.collection.drop().toFuture())
   }
 
   override def afterAll(): Unit = {
     super.afterAll()
     await(repo.collection.drop().toFuture())
-    await(workItemRepo.collection.drop().toFuture())
   }
 
   "SubmissionController.declareAndSubmit" should {
@@ -92,13 +85,9 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
       stored.head.status       shouldBe Submitted
       stored.head.formBundleId shouldBe Some(testFormBundleId)
 
-      val workItems = await(workItemRepo.collection.find().toFuture())
-      workItems.size                   shouldBe 1
-      workItems.head.item.formBundleId shouldBe testFormBundleId
-      workItems.head.item.bpSafeId     shouldBe testString
     }
 
-    "return 200 and enqueue Tax Enrolments work item" in {
+    "subscribe to Tax Enrolments inline with the bearer token" in {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testEnrolmentId,
@@ -114,6 +103,11 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
                              | {"formBundleId": "$testFormBundleId"}
                              | """.stripMargin
       stubPost(url = "/etmp/enrolment/submission", status = OK, responseBody = etmpResponse)
+      stubFor(
+        put(urlEqualTo(s"/tax-enrolments/subscriptions/$testFormBundleId/subscriber"))
+          .withHeader("Authorization", equalTo("Bearer mock-bearer-token"))
+          .willReturn(aResponse().withStatus(play.api.http.Status.NO_CONTENT))
+      )
 
       val response = await(
         ws.url(url)
@@ -129,10 +123,6 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
       stored.head.status       shouldBe Submitted
       stored.head.formBundleId shouldBe Some(testFormBundleId)
 
-      val workItems = await(workItemRepo.collection.find().toFuture())
-      workItems.size                   shouldBe 1
-      workItems.head.item.formBundleId shouldBe testFormBundleId
-      workItems.head.item.bpSafeId     shouldBe testString
     }
 
     "return 404 when journey data does not exist" in {

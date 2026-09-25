@@ -16,16 +16,12 @@
 
 package uk.gov.hmrc.disaregistration.config
 
-import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import java.time.Duration
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.duration.FiniteDuration
-import scala.jdk.DurationConverters.JavaDurationOps
 
 @Singleton
-class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
+class AppConfig @Inject() (servicesConfig: ServicesConfig) {
 
   lazy val etmpBaseUrl: String = servicesConfig.baseUrl(serviceName = "etmp")
 
@@ -37,19 +33,6 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
 
   def taxEnrolmentsCallbackUrl(formBundleId: String): String =
     s"$selfBaseUrl/disa-registration/callback/subscriptions/$formBundleId"
-
-  val subscriptionTaxEnrolmentJobPollInterval: FiniteDuration = config
-    .getOptional[Duration]("registration-work-item-job.pollInterval")
-    .getOrElse(Duration.ofSeconds(10))
-    .toScala
-
-  val subscriptionTaxEnrolmentJobInProgressRetryAfter: Duration = config
-    .getOptional[Duration]("registration-work-item-job.inProgressRetryAfter")
-    .getOrElse(Duration.ofMinutes(5))
-
-  val subscriptionTaxEnrolmentJobFailedRetryAfter: Duration = config
-    .getOptional[Duration]("registration-work-item-job.failedRetryAfter")
-    .getOrElse(Duration.ofMinutes(5))
 
   lazy val timeToLive: Int = servicesConfig.getInt("mongodb.timeToLive")
 }

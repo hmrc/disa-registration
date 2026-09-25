@@ -38,6 +38,7 @@ class TaxEnrolmentsConnector @Inject() (http: HttpClientV2, appConfig: AppConfig
     http
       .put(url"$url")
       .withBody(Json.toJson(request))
+      .setHeader(hc.authorization.map(auth => "Authorization" -> auth.value).toSeq: _*)
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
   }
 }
