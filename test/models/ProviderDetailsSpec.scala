@@ -19,7 +19,6 @@ package models
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.disaregistration.config.Constants
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.ProviderDetails
 import uk.gov.hmrc.disaregistration.models.journeyData.CorrespondenceAddress
 
@@ -39,10 +38,10 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
       val result = ProviderDetails.fromJourneyAddress(address)
 
-      result.uprn mustBe "123456789"
+      result.uprn mustBe Some("123456789")
     }
 
-    "fallback to the default uprn when uprn is missing" in {
+    "leave the uprn empty when it is missing" in {
 
       val address = CorrespondenceAddress(
         addressLine1 = None,
@@ -54,7 +53,7 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
       val result = ProviderDetails.fromJourneyAddress(address)
 
-      result.uprn mustBe Constants.defaultUprn
+      result.uprn mustBe None
     }
   }
 
@@ -62,7 +61,17 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
     "serialize and deserialize correctly" in {
 
-      val model = ProviderDetails("123456789")
+      val model = ProviderDetails(Some("123456789"))
+
+      val json         = Json.toJson(model)
+      val deserialized = json.as[ProviderDetails]
+
+      deserialized mustBe model
+    }
+
+    "serialize and deserialize without a UPRN" in {
+
+      val model = ProviderDetails(None)
 
       val json         = Json.toJson(model)
       val deserialized = json.as[ProviderDetails]

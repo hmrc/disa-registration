@@ -51,7 +51,33 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
       val result = EtmpSubmission(journeyData)
 
       result shouldBe Right(
-        EtmpSubmission(testGroupId, providerDetails = ProviderDetails("123456789"))
+        EtmpSubmission(testGroupId, providerDetails = ProviderDetails(Some("123456789")))
+      )
+    }
+
+    "successfully build an EtmpSubmission when the correspondence address has no UPRN" in {
+
+      val journeyData = JourneyData(
+        groupId = testGroupId,
+        organisationDetails = Some(
+          OrganisationDetails(
+            registeredAddressCorrespondence = None,
+            correspondenceAddress = Some(
+              CorrespondenceAddress(
+                addressLine1 = Some("Line 1"),
+                addressLine2 = None,
+                addressLine3 = None,
+                postCode = Some("AA1 1AA"),
+                uprn = None
+              )
+            )
+          )
+        ),
+        thirdPartyOrganisations = None
+      )
+
+      EtmpSubmission(journeyData) shouldBe Right(
+        EtmpSubmission(testGroupId, providerDetails = ProviderDetails(None))
       )
     }
 
@@ -87,7 +113,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
 
     "serialize and deserialize correctly" in {
 
-      val submission = EtmpSubmission(testGroupId, providerDetails = ProviderDetails("123456789"))
+      val submission = EtmpSubmission(testGroupId, providerDetails = ProviderDetails(Some("123456789")))
 
       val json         = Json.toJson(submission)
       val deserialized = json.as[EtmpSubmission]
