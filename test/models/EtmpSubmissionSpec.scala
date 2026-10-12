@@ -18,6 +18,7 @@ package models
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.{EtmpSubmission, ProviderDetails}
+import uk.gov.hmrc.disaregistration.models.journeyData.orgdetails.OrganisationDetails
 import uk.gov.hmrc.disaregistration.models.journeyData._
 import utils.BaseUnitSpec
 
@@ -25,27 +26,23 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
 
   "EtmpSubmission.apply" should {
 
-    "successfully build an EtmpSubmission when businessVerification and registeredAddress are present" in {
+    "successfully build an EtmpSubmission from the correspondence address" in {
 
       val journeyData = JourneyData(
         groupId = testGroupId,
-        businessVerification = Some(
-          BusinessVerification(
-            businessRegistrationPassed = Some(true),
-            businessVerificationPassed = Some(true),
-            utr = Some("1234567890"),
-            registeredAddress = Some(
-              RegisteredAddress(
+        businessVerification = None,
+        organisationDetails = Some(
+          OrganisationDetails(
+            registeredAddressCorrespondence = None,
+            correspondenceAddress = Some(
+              CorrespondenceAddress(
                 addressLine1 = Some("Line 1"),
                 addressLine2 = Some("Line 2"),
+                addressLine3 = None,
                 postCode = Some("AA1 1AA"),
                 uprn = Some("123456789")
               )
-            ),
-            companyName = Some("Test Ltd"),
-            companyNumber = Some(testString),
-            businessPartnerId = Some("TestBusinessPartnerId"),
-            companyType = Some(GrsCompanyType.LimitedCompany)
+            )
           )
         ),
         thirdPartyOrganisations = None
@@ -58,29 +55,23 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
       )
     }
 
-    "fail when businessVerification is missing" in {
+    "fail when organisationDetails is missing" in {
 
-      val journeyData = JourneyData(groupId = testGroupId, businessVerification = None, thirdPartyOrganisations = None)
+      val journeyData = JourneyData(groupId = testGroupId, organisationDetails = None, thirdPartyOrganisations = None)
 
       val result = EtmpSubmission(journeyData)
 
-      result shouldBe Left("Missing businessVerification")
+      result shouldBe Left("Missing organisationDetails")
     }
 
-    "fail when registeredAddress is missing" in {
+    "fail when correspondenceAddress is missing" in {
 
       val journeyData = JourneyData(
         groupId = testGroupId,
-        businessVerification = Some(
-          BusinessVerification(
-            businessRegistrationPassed = None,
-            businessVerificationPassed = None,
-            utr = None,
-            registeredAddress = None,
-            companyName = None,
-            companyNumber = None,
-            businessPartnerId = None,
-            companyType = None
+        organisationDetails = Some(
+          OrganisationDetails(
+            registeredAddressCorrespondence = None,
+            correspondenceAddress = None
           )
         ),
         thirdPartyOrganisations = None
@@ -88,7 +79,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
 
       val result = EtmpSubmission(journeyData)
 
-      result shouldBe Left("Missing registeredAddress")
+      result shouldBe Left("Missing correspondenceAddress")
     }
   }
 

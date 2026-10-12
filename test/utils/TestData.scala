@@ -45,7 +45,8 @@ trait TestData {
           addressLine1 = Some("test line 1"),
           addressLine2 = Some("test line 2"),
           addressLine3 = Some("test line 3"),
-          postCode = Some("PostCode")
+          postCode = Some("PostCode"),
+          uprn = Some(testString)
         )
       )
     )

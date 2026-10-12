@@ -21,7 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.disaregistration.config.Constants
 import uk.gov.hmrc.disaregistration.models.etmpsubmission.ProviderDetails
-import uk.gov.hmrc.disaregistration.models.journeyData.RegisteredAddress
+import uk.gov.hmrc.disaregistration.models.journeyData.CorrespondenceAddress
 
 class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
@@ -29,7 +29,11 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
     "use the uprn from the journey address when it is present" in {
 
-      val address = RegisteredAddress(
+      val address = CorrespondenceAddress(
+        addressLine1 = None,
+        addressLine2 = None,
+        addressLine3 = None,
+        postCode = None,
         uprn = Some("123456789")
       )
 
@@ -40,7 +44,11 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
     "fallback to the default uprn when uprn is missing" in {
 
-      val address = RegisteredAddress(
+      val address = CorrespondenceAddress(
+        addressLine1 = None,
+        addressLine2 = None,
+        addressLine3 = None,
+        postCode = None,
         uprn = None
       )
 

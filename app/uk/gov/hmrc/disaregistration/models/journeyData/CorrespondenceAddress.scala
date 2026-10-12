@@ -22,7 +22,8 @@ case class CorrespondenceAddress(
   addressLine1: Option[String],
   addressLine2: Option[String],
   addressLine3: Option[String],
-  postCode: Option[String]
+  postCode: Option[String],
+  uprn: Option[String] = None
 )
 
 object CorrespondenceAddress {
