@@ -45,7 +45,8 @@ trait TestData {
           addressLine1 = Some("test line 1"),
           addressLine2 = Some("test line 2"),
           addressLine3 = Some("test line 3"),
-          postCode = Some("PostCode")
+          postCode = Some("PostCode"),
+          uprn = Some(testString)
         )
       )
     )
@@ -59,8 +60,7 @@ trait TestData {
         addressLine1 = Some("test line 1"),
         addressLine2 = Some("test line 2"),
         addressLine3 = Some("test line 3"),
-        postCode = Some("PostCode"),
-        uprn = Some(testString)
+        postCode = Some("PostCode")
       )
     ),
     companyName = Some(testString),
@@ -76,5 +76,5 @@ trait TestData {
   )
 
   val testEtmpSubmission: EtmpSubmission =
-    EtmpSubmission(testGroupId, providerDetails = ProviderDetails(uprn = testString))
+    EtmpSubmission(testGroupId, providerDetails = ProviderDetails(uprn = Some(testString)))
 }

@@ -62,6 +62,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
         formBundleId = None,
         status = Active,
         businessVerification = Some(businessVerification),
+        organisationDetails = Some(organisationDetails),
         thirdPartyOrganisations = None
       )
       await(repo.collection.insertOne(jd).toFuture())
@@ -94,6 +95,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
         formBundleId = None,
         status = Active,
         businessVerification = Some(businessVerification),
+        organisationDetails = Some(organisationDetails),
         thirdPartyOrganisations = None
       )
 
@@ -179,6 +181,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
         enrolmentId = testEnrolmentId,
         formBundleId = None,
         status = Active,
+        organisationDetails = Some(organisationDetails),
         thirdPartyOrganisations = None
       )
 

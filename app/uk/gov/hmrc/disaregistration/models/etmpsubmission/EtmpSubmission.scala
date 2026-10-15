@@ -26,11 +26,11 @@ object EtmpSubmission {
 
   def apply(journeyData: JourneyData): Either[String, EtmpSubmission] =
     for {
-      bv <- journeyData.businessVerification
-              .toRight("Missing businessVerification")
+      organisationDetails <- journeyData.organisationDetails
+                               .toRight("Missing organisationDetails")
 
-      addr <- bv.registeredAddress
-                .toRight("Missing registeredAddress")
+      addr <- organisationDetails.correspondenceAddress
+                .toRight("Missing correspondenceAddress")
 
       providerDetails = ProviderDetails.fromJourneyAddress(addr)
 
