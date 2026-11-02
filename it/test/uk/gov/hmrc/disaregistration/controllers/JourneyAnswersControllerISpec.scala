@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.disaregistration.controllers
 
-import org.mongodb.scala.SingleObservableFuture
+import org.mongodb.scala.{ObservableFuture, SingleObservableFuture}
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
@@ -24,7 +25,7 @@ import play.api.test.Helpers.await
 import play.api.{Application, inject}
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer
 import uk.gov.hmrc.disaregistration.models.YesNoAnswer.No
-import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
+import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.{Active, Submitted}
 import uk.gov.hmrc.disaregistration.models.journeyData.GrsCompanyType
 import uk.gov.hmrc.disaregistration.repositories.JourneyAnswersRepository
 import uk.gov.hmrc.disaregistration.utils.BaseIntegrationSpec
@@ -33,7 +34,7 @@ import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 
 class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
 
-  private val databaseName: String                    = "disa-registration-submission-test"
+  private val databaseName: String                    = "disa-registration-journey-test"
   private lazy val mongoUri: String                   = s"mongodb://127.0.0.1:27017/$databaseName"
   private lazy val mockMongoComponent: MongoComponent = MongoComponent(mongoUri)
 
@@ -100,6 +101,85 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   }
 
   "POST /store/:testGroupId/:taskListJourney" should {
+
+    val sectionPayloads = Seq(
+      "businessVerification"    -> Json.obj("businessRegistrationPassed" -> true, "businessPartnerId" -> "test-safe-id"),
+      "organisationEmail"       -> Json.obj("organisationEmail" -> "test@example.com", "verified" -> true),
+      "isaProducts"             -> Json.obj("p2pPlatform" -> "test", "p2pPlatformNumber" -> "123"),
+      "certificatesOfAuthority" -> Json.obj("certificatesYesNo" -> "yes"),
+      "liaisonOfficers"         -> Json.obj(
+        "liaisonOfficers" -> Json.arr(
+          Json.obj("id" -> "officer", "fullName" -> "Test Officer", "communication" -> Json.arr())
+        )
+      ),
+      "signatories"             -> Json.obj(
+        "signatories" -> Json.arr(Json.obj("id" -> "signatory", "fullName" -> "Test Signatory"))
+      ),
+      "thirdPartyOrganisations" -> Json
+        .obj("managedByThirdParty" -> "no", "thirdParties" -> Json.arr(), "connectedOrganisations" -> Json.arr())
+    )
+
+    sectionPayloads.foreach { case (section, payload) =>
+      s"store and retrieve $section without changing other sections" in {
+        getOrCreateJourneyDataRequest()
+        updateJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NO_CONTENT
+        updateJourneyAnswersRequest(taskListJourney = section, body = payload).status            shouldBe NO_CONTENT
+        val retrieved = retrieveJourneyAnswersRequest()
+        retrieved.status                                                   shouldBe OK
+        (retrieved.json \ section).get                                     shouldBe (Json.toJson(await(repo.findById(testGroupId)).get) \ section).get
+        payload.as[play.api.libs.json.JsObject].fields.foreach { case (key, value) =>
+          (retrieved.json \ section \ key).get shouldBe value
+        }
+        (retrieved.json \ "organisationDetails" \ "zRefNumber").as[String] shouldBe testZRef
+      }
+
+      s"return 400 for an invalid $section payload without changing stored data" in {
+        getOrCreateJourneyDataRequest()
+        val before = await(repo.findById(testGroupId))
+        updateJourneyAnswersRequest(taskListJourney = section, body = Json.arr("invalid")).status shouldBe BAD_REQUEST
+        await(repo.findById(testGroupId))                                                         shouldBe before
+      }
+    }
+
+    "return 401 for an unauthorised update without changing stored data" in {
+      getOrCreateJourneyDataRequest()
+      val before   = await(repo.findById(testGroupId))
+      stubAuthFail()
+      val response = await(
+        ws.url(s"http://localhost:$port/disa-registration/store/$testGroupId/organisationDetails")
+          .withHttpHeaders(testHeaders: _*)
+          .post(body)
+      )
+      response.status                   shouldBe UNAUTHORIZED
+      await(repo.findById(testGroupId)) shouldBe before
+    }
+
+    "return 400 for malformed JSON without changing stored data" in {
+      getOrCreateJourneyDataRequest()
+      val before   = await(repo.findById(testGroupId))
+      val response = await(
+        ws.url(s"http://localhost:$port/disa-registration/store/$testGroupId/organisationDetails")
+          .withHttpHeaders(testHeaders: _*)
+          .withHttpHeaders("Content-Type" -> "application/json")
+          .post("{")
+      )
+      response.status shouldBe BAD_REQUEST
+      await(repo.findById(testGroupId)) shouldBe before
+    }
+
+    "return 404 and preserve a Submitted journey when updating it" in {
+      val submitted = testJourneyData.copy(status = Submitted, formBundleId = Some(testFormBundleId))
+      await(repo.collection.insertOne(submitted).toFuture())
+      updateJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status shouldBe NOT_FOUND
+      await(repo.findById(testGroupId))                                                        shouldBe Some(submitted)
+    }
+
+    "keep journey data isolated between groups" in {
+      getOrCreateJourneyDataRequest()
+      getOrCreateJourneyDataRequest(groupId = "other-group")
+      updateJourneyAnswersRequest(taskListJourney = "organisationDetails", body = body).status       shouldBe NO_CONTENT
+      (retrieveJourneyAnswersRequest(groupId = "other-group").json \ "organisationDetails").toOption shouldBe None
+    }
 
     "return 204 NoContent when journeyData is successfully stored" in {
       getOrCreateJourneyDataRequest()
@@ -181,6 +261,17 @@ class JourneyAnswersControllerISpec extends BaseIntegrationSpec {
   }
 
   "PUT /journey/:groupId" should {
+    "create a new Active journey while preserving an earlier Submitted journey" in {
+      val submitted = testJourneyData.copy(status = Submitted, formBundleId = Some(testFormBundleId))
+      await(repo.collection.insertOne(submitted).toFuture())
+      val response  = getOrCreateJourneyDataRequest()
+      response.status                                          shouldBe CREATED
+      (response.json \ "isNewEnrolmentJourney").as[Boolean]    shouldBe true
+      (response.json \ "journeyData" \ "enrolmentId").as[String] should not be submitted.enrolmentId
+      val journeys = await(repo.collection.find().toFuture())
+      journeys.size                        shouldBe 2
+      journeys.find(_.status == Submitted) shouldBe Some(submitted)
+    }
 
     "return 201 Created when user starts journey for the first time" in {
       val response = getOrCreateJourneyDataRequest(groupId = testGroupId)

@@ -19,7 +19,8 @@ package uk.gov.hmrc.disaregistration.controllers
 import org.mongodb.scala.ObservableFuture
 import org.mongodb.scala.model.Filters
 import org.scalatestplus.mockito.MockitoSugar
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, put, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.http.Fault
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
@@ -44,6 +45,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    stubAuth()
     await(repo.collection.drop().toFuture())
   }
 
@@ -117,6 +119,22 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
           .post("")
       )
 
+      verify(
+        1,
+        putRequestedFor(urlEqualTo(s"/tax-enrolments/subscriptions/$testFormBundleId/subscriber"))
+          .withHeader("Authorization", equalTo("Bearer mock-bearer-token"))
+          .withRequestBody(
+            equalToJson(
+              Json
+                .obj(
+                  "serviceName" -> "HMRC-DISA-ORG",
+                  "callback"    -> s"http://localhost:11111/disa-registration/callback/subscriptions/$testFormBundleId",
+                  "etmpId"      -> businessVerification.businessPartnerId.get
+                )
+                .toString
+            )
+          )
+      )
       response.status shouldBe OK
       response.json   shouldBe Json.toJson(EnrolmentSubmissionResponse(testFormBundleId))
 
@@ -125,6 +143,74 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
       stored.head.status       shouldBe Submitted
       stored.head.formBundleId shouldBe Some(testFormBundleId)
 
+    }
+
+    "return 401 without calling downstream services for an unauthorised request" in {
+      stubAuthFail()
+      val response = await(ws.url(url).withHttpHeaders(testHeaders: _*).post(""))
+      response.status shouldBe 401
+      verify(0, postRequestedFor(urlEqualTo("/etmp/enrolment/submission")))
+      verify(0, putRequestedFor(urlMatching("/tax-enrolments/.*")))
+    }
+
+    Seq(
+      "organisation details"   -> testJourneyData.copy(organisationDetails = None),
+      "correspondence address" -> testJourneyData.copy(organisationDetails =
+        Some(organisationDetails.copy(correspondenceAddress = None))
+      ),
+      "business verification"  -> testJourneyData.copy(businessVerification = None),
+      "business partner ID"    -> testJourneyData.copy(businessVerification =
+        Some(businessVerification.copy(businessPartnerId = None))
+      )
+    ).foreach { case (missing, jd) =>
+      s"return 500 without downstream calls when missing $missing" in {
+        await(repo.collection.insertOne(jd).toFuture())
+        val response = await(ws.url(url).withHttpHeaders(testHeaders: _*).post(""))
+        response.status                              shouldBe INTERNAL_SERVER_ERROR
+        await(repo.findById(testGroupId)).get.status shouldBe Active
+        verify(0, postRequestedFor(urlEqualTo("/etmp/enrolment/submission")))
+        verify(0, putRequestedFor(urlMatching("/tax-enrolments/.*")))
+      }
+    }
+
+    Seq("server error", "invalid response", "connection failure").foreach { failure =>
+      s"return 500 and preserve the Active journey on ETMP $failure" in {
+        await(repo.collection.insertOne(testJourneyData).toFuture())
+        val responseBuilder = failure match {
+          case "server error"     => aResponse().withStatus(500)
+          case "invalid response" => aResponse().withStatus(200).withBody("""{"unexpected":"value"}""")
+          case _                  => aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)
+        }
+        stubFor(post(urlEqualTo("/etmp/enrolment/submission")).willReturn(responseBuilder))
+        val response        = await(ws.url(url).withHttpHeaders(testHeaders: _*).post(""))
+        response.status shouldBe INTERNAL_SERVER_ERROR
+        val stored = await(repo.findById(testGroupId)).get
+        stored.status       shouldBe Active
+        stored.formBundleId shouldBe None
+        verify(0, putRequestedFor(urlMatching("/tax-enrolments/.*")))
+      }
+    }
+
+    Seq("client error", "server error", "connection failure").foreach { failure =>
+      s"return 200 and retain Submitted state on Tax Enrolments $failure" in {
+        await(repo.collection.insertOne(testJourneyData).toFuture())
+        stubPost("/etmp/enrolment/submission", OK, Json.obj("formBundleId" -> testFormBundleId).toString)
+        val responseBuilder = failure match {
+          case "client error" => aResponse().withStatus(400)
+          case "server error" => aResponse().withStatus(500)
+          case _              => aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)
+        }
+        stubFor(
+          put(urlEqualTo(s"/tax-enrolments/subscriptions/$testFormBundleId/subscriber")).willReturn(responseBuilder)
+        )
+        val response        = await(ws.url(url).withHttpHeaders(testHeaders: _*).post(""))
+        response.status shouldBe OK
+        response.json   shouldBe Json.toJson(EnrolmentSubmissionResponse(testFormBundleId))
+        val stored = await(repo.findById(testGroupId)).get
+        stored.status       shouldBe Submitted
+        stored.formBundleId shouldBe Some(testFormBundleId)
+        verify(putRequestedFor(urlEqualTo(s"/tax-enrolments/subscriptions/$testFormBundleId/subscriber")))
+      }
     }
 
     "return 404 when journey data does not exist" in {
@@ -139,6 +225,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
           .post("")
       )
 
+      verify(0, postRequestedFor(urlEqualTo("/etmp/enrolment/submission")))
+      verify(0, putRequestedFor(urlMatching("/tax-enrolments/.*")))
       response.status        shouldBe NOT_FOUND
       response.body.toString shouldBe "Failed to find journey data to submit for this request"
     }
@@ -147,6 +235,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
       val jd = JourneyData(
         groupId = testGroupId,
         enrolmentId = testString,
+        organisationDetails = Some(organisationDetails),
         formBundleId = Some(testFormBundleId),
         status = Submitted,
         businessVerification = Some(businessVerification),
@@ -166,6 +255,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
           .post("")
       )
 
+      verify(postRequestedFor(urlEqualTo("/etmp/enrolment/submission")))
+      verify(0, putRequestedFor(urlMatching("/tax-enrolments/.*")))
       response.status        shouldBe INTERNAL_SERVER_ERROR
       response.body.toString shouldBe "There has been an issue processing your request"
 
@@ -182,6 +273,7 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
         formBundleId = None,
         status = Active,
         organisationDetails = Some(organisationDetails),
+        businessVerification = Some(businessVerification),
         thirdPartyOrganisations = None
       )
 
@@ -199,6 +291,8 @@ class SubmissionControllerISpec extends BaseIntegrationSpec with MockitoSugar {
           .post("")
       )
 
+      verify(postRequestedFor(urlEqualTo("/etmp/enrolment/submission")))
+      verify(0, putRequestedFor(urlMatching("/tax-enrolments/.*")))
       response.status        shouldBe INTERNAL_SERVER_ERROR
       response.body.toString shouldBe "There has been an issue processing your request"
 

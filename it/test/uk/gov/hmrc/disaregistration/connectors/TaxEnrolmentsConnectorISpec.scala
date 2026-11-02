@@ -48,7 +48,7 @@ class TaxEnrolmentsConnectorISpec extends BaseIntegrationSpec {
       }
     }
 
-    "return Left(UpstreamErrorResponse) when backend returns 4xx/5xx" in {
+    "return Left(UpstreamErrorResponse) when backend returns a client error" in {
       stubPut(subscribeUrl, BAD_REQUEST, "Bad request from Tax Enrolments stub")
 
       val response = await(connector.subscribe(testFormBundleId, request))
@@ -60,5 +60,14 @@ class TaxEnrolmentsConnectorISpec extends BaseIntegrationSpec {
           fail("Expected Left(UpstreamErrorResponse) but got Right")
       }
     }
+    "return Left(UpstreamErrorResponse) when backend returns 500" in {
+      stubPut(subscribeUrl, 500, "Server error")
+      val response = await(connector.subscribe(testFormBundleId, request))
+      response match {
+        case Left(error) => error.statusCode shouldBe 500
+        case Right(_)    => fail("Expected an upstream error")
+      }
+    }
+
   }
 }

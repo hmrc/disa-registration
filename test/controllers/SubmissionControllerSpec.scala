@@ -26,6 +26,7 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.disaregistration.controllers.routes
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
 import uk.gov.hmrc.disaregistration.models.journeyData.EnrolmentStatus.Active
@@ -37,6 +38,12 @@ import utils.BaseUnitSpec
 import scala.concurrent.Future
 
 class SubmissionControllerSpec extends BaseUnitSpec {
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    when(mockAuthConnector.authorise(any, any[Retrieval[Unit]])(any, any))
+      .thenReturn(Future.successful(()))
+  }
 
   private def application: Application =
     new GuiceApplicationBuilder()

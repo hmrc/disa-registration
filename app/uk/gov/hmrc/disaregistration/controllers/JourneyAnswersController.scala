@@ -71,7 +71,7 @@ class JourneyAnswersController @Inject() (
   def update(groupId: String, taskListJourney: String): Action[JsValue] =
     Action.async(parse.json) { implicit request =>
       authorised() {
-        taskListJourneyHandlers.get(taskListJourney) match {
+        (taskListJourneyHandlers.get(taskListJourney) match {
           case None                                 =>
             logger.error(s"Invalid taskListJourney provided: $taskListJourney")
             Future.successful(BadRequest(s"Invalid taskListJourney parameter: '$taskListJourney'"))
@@ -90,10 +90,10 @@ class JourneyAnswersController @Inject() (
                 logger.error(s"Invalid JSON for taskListJourney '$taskListJourney': ${JsError.toJson(errors)}")
                 Future.successful(BadRequest(s"Invalid JSON for taskListJourney '$taskListJourney'"))
             }
+        }).recover { case NonFatal(e) =>
+          logger.error(s"Unexpected error updating $taskListJourney for $groupId", e)
+          InternalServerError("There has been an issue processing your request")
         }
-      }.recover { case NonFatal(e) =>
-        logger.error(s"Unexpected error updating $taskListJourney for $groupId", e)
-        InternalServerError("There has been an issue processing your request")
       }
     }
 }

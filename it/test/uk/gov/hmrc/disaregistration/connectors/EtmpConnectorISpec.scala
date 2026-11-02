@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.disaregistration.connectors
 
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import play.api.libs.json.Json
 import play.api.http.Status.{OK, UNAUTHORIZED}
 import play.api.test.Helpers.await
 import uk.gov.hmrc.disaregistration.models.EnrolmentSubmissionResponse
@@ -42,10 +44,15 @@ class EtmpConnectorISpec extends BaseIntegrationSpec {
 
       val response = await(connector.declareAndSubmit(submission))
 
+      verify(
+        1,
+        postRequestedFor(urlEqualTo(declareAndSubmitUrl))
+          .withRequestBody(equalToJson(Json.toJson(submission).toString))
+      )
       response shouldBe Right(EnrolmentSubmissionResponse(testFormBundleId))
     }
 
-    "return Left(UpstreamErrorResponse) when backend returns 4xx/5xx and the http client materialises it as Left" in {
+    "return Left(UpstreamErrorResponse) when backend returns a client error and the http client materialises it as Left" in {
       val responseBody =
         """{"statusCode":401,"message":"Not authorised"}"""
       stubPost(declareAndSubmitUrl, UNAUTHORIZED, responseBody)
@@ -67,5 +74,14 @@ class EtmpConnectorISpec extends BaseIntegrationSpec {
 
       err shouldBe an[JsValidationException]
     }
+    "return Left(UpstreamErrorResponse) when backend returns 500" in {
+      stubPost(declareAndSubmitUrl, 500, "Server error")
+      val response = await(connector.declareAndSubmit(submission))
+      response match {
+        case Left(error) => error.statusCode shouldBe 500
+        case Right(_)    => fail("Expected an upstream error")
+      }
+    }
+
   }
 }

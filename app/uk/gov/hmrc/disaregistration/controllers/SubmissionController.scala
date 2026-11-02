@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.disaregistration.controllers
 
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -30,28 +31,32 @@ import scala.util.control.NonFatal
 class SubmissionController @Inject() (
   cc: ControllerComponents,
   journeyAnswersService: JourneyAnswersService,
-  submissionService: SubmissionService
+  submissionService: SubmissionService,
+  val authConnector: AuthConnector
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
-    with Logging {
+    with Logging
+    with AuthorisedFunctions {
 
   def declareAndSubmit(groupId: String): Action[AnyContent] = Action.async { implicit request =>
-    val journeyDataRetrieval = journeyAnswersService.retrieve(groupId)
+    authorised() {
+      val journeyDataRetrieval = journeyAnswersService.retrieve(groupId)
 
-    journeyDataRetrieval
-      .flatMap {
-        case Some(jd) =>
-          submissionService.declareAndSubmit(jd).map { formBundleId =>
-            logger.info(s"Enrolment submission successful for IM: [$groupId] with formBundleId: [$formBundleId]")
-            Ok(Json.toJson(EnrolmentSubmissionResponse(formBundleId)))
-          }
-        case None     =>
-          logger.error(s"Failed to find journey data to submit for groupId [$groupId]")
-          Future.successful(NotFound("Failed to find journey data to submit for this request"))
-      }
-      .recover { case NonFatal(e) =>
-        logger.error(s"Enrolment submission failed unexpectedly for [$groupId] with error: [$e]")
-        InternalServerError("There has been an issue processing your request")
-      }
+      journeyDataRetrieval
+        .flatMap {
+          case Some(jd) =>
+            submissionService.declareAndSubmit(jd).map { formBundleId =>
+              logger.info(s"Enrolment submission successful for IM: [$groupId] with formBundleId: [$formBundleId]")
+              Ok(Json.toJson(EnrolmentSubmissionResponse(formBundleId)))
+            }
+          case None     =>
+            logger.error(s"Failed to find journey data to submit for groupId [$groupId]")
+            Future.successful(NotFound("Failed to find journey data to submit for this request"))
+        }
+        .recover { case NonFatal(e) =>
+          logger.error(s"Enrolment submission failed unexpectedly for [$groupId] with error: [$e]")
+          InternalServerError("There has been an issue processing your request")
+        }
+    }
   }
 }
