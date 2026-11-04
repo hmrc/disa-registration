@@ -32,7 +32,9 @@ object EtmpSubmission {
       addr <- organisationDetails.correspondenceAddress
                 .toRight("Missing correspondenceAddress")
 
-      providerDetails = ProviderDetails.fromJourneyAddress(addr)
+      fcaNumber <- organisationDetails.fcaNumber.toRight("Missing fcaNumber")
+
+      providerDetails = ProviderDetails.fromJourneyAddress(addr, fcaNumber)
 
     } yield EtmpSubmission(journeyData.groupId, providerDetails)
 }

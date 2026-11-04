@@ -36,7 +36,7 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
         uprn = Some("123456789")
       )
 
-      val result = ProviderDetails.fromJourneyAddress(address)
+      val result = ProviderDetails.fromJourneyAddress(address, "1234567")
 
       result.uprn mustBe Some("123456789")
     }
@@ -51,7 +51,7 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
         uprn = None
       )
 
-      val result = ProviderDetails.fromJourneyAddress(address)
+      val result = ProviderDetails.fromJourneyAddress(address, "1234567")
 
       result.uprn mustBe None
     }
@@ -61,7 +61,7 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
     "serialize and deserialize correctly" in {
 
-      val model = ProviderDetails(Some("123456789"))
+      val model = ProviderDetails(Some("123456789"), "1234567")
 
       val json         = Json.toJson(model)
       val deserialized = json.as[ProviderDetails]
@@ -71,7 +71,7 @@ class ProviderDetailsSpec extends AnyWordSpec with Matchers {
 
     "serialize and deserialize without a UPRN" in {
 
-      val model = ProviderDetails(None)
+      val model = ProviderDetails(None, "1234567")
 
       val json         = Json.toJson(model)
       val deserialized = json.as[ProviderDetails]
