@@ -19,11 +19,11 @@ package uk.gov.hmrc.disaregistration.models.etmpsubmission
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.disaregistration.models.journeyData.CorrespondenceAddress
 
-case class ProviderDetails(uprn: Option[String])
+case class ProviderDetails(uprn: Option[String], fcaNumber: String)
 
 object ProviderDetails {
   implicit val format: OFormat[ProviderDetails] = Json.format[ProviderDetails]
 
-  def fromJourneyAddress(addr: CorrespondenceAddress): ProviderDetails =
-    ProviderDetails(uprn = addr.uprn)
+  def fromJourneyAddress(addr: CorrespondenceAddress, fcaNumber: String): ProviderDetails =
+    ProviderDetails(uprn = addr.uprn, fcaNumber = fcaNumber)
 }

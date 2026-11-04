@@ -34,6 +34,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
         organisationDetails = Some(
           OrganisationDetails(
             registeredAddressCorrespondence = None,
+            fcaNumber = Some("0000000"),
             correspondenceAddress = Some(
               CorrespondenceAddress(
                 addressLine1 = Some("Line 1"),
@@ -51,7 +52,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
       val result = EtmpSubmission(journeyData)
 
       result shouldBe Right(
-        EtmpSubmission(testGroupId, providerDetails = ProviderDetails(Some("123456789")))
+        EtmpSubmission(testGroupId, providerDetails = ProviderDetails(Some("123456789"), "0000000"))
       )
     }
 
@@ -62,6 +63,7 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
         organisationDetails = Some(
           OrganisationDetails(
             registeredAddressCorrespondence = None,
+            fcaNumber = Some("1234567"),
             correspondenceAddress = Some(
               CorrespondenceAddress(
                 addressLine1 = Some("Line 1"),
@@ -77,8 +79,20 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
       )
 
       EtmpSubmission(journeyData) shouldBe Right(
-        EtmpSubmission(testGroupId, providerDetails = ProviderDetails(None))
+        EtmpSubmission(testGroupId, providerDetails = ProviderDetails(None, "1234567"))
       )
+    }
+
+    "fail when the FCA number is missing" in {
+      val address     = CorrespondenceAddress(None, None, None, None, None)
+      val journeyData = JourneyData(
+        groupId = testGroupId,
+        organisationDetails =
+          Some(OrganisationDetails(registeredAddressCorrespondence = None, correspondenceAddress = Some(address))),
+        thirdPartyOrganisations = None
+      )
+
+      EtmpSubmission(journeyData) shouldBe Left("Missing fcaNumber")
     }
 
     "fail when organisationDetails is missing" in {
@@ -113,12 +127,20 @@ class EtmpSubmissionSpec extends BaseUnitSpec {
 
     "serialize and deserialize correctly" in {
 
-      val submission = EtmpSubmission(testGroupId, providerDetails = ProviderDetails(Some("123456789")))
+      val submission =
+        EtmpSubmission(testGroupId, providerDetails = ProviderDetails(Some("123456789"), "0000000"))
 
       val json         = Json.toJson(submission)
       val deserialized = json.as[EtmpSubmission]
 
-      deserialized shouldBe submission
+      (json \ "providerDetails" \ "fcaNumber").as[String] shouldBe "0000000"
+      deserialized                                        shouldBe submission
+
+      (json \ "providerDetails")
+        .as[play.api.libs.json.JsObject]
+        .-("fcaNumber")
+        .validate[ProviderDetails]
+        .isError shouldBe true
     }
   }
 }

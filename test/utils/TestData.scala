@@ -39,6 +39,7 @@ trait TestData {
     OrganisationDetails(
       registeredToManageIsa = Some(Yes),
       zRefNumber = Some("Z1234"),
+      fcaNumber = Some("1234567"),
       registeredAddressCorrespondence = Some(Yes),
       correspondenceAddress = Some(
         CorrespondenceAddress(
@@ -76,5 +77,5 @@ trait TestData {
   )
 
   val testEtmpSubmission: EtmpSubmission =
-    EtmpSubmission(testGroupId, providerDetails = ProviderDetails(uprn = Some(testString)))
+    EtmpSubmission(testGroupId, providerDetails = ProviderDetails(uprn = Some(testString), fcaNumber = "1234567"))
 }
