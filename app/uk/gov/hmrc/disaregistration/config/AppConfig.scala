@@ -23,9 +23,9 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class AppConfig @Inject() (servicesConfig: ServicesConfig) {
 
-  lazy val etmpBaseUrl: String = servicesConfig.baseUrl(serviceName = "etmp")
+  private lazy val selfBaseUrl: String = servicesConfig.baseUrl("self")
 
-  lazy val selfBaseUrl: String = servicesConfig.baseUrl("self")
+  lazy val etmpBaseUrl: String = servicesConfig.baseUrl(serviceName = "etmp")
 
   lazy val taxEnrolmentsBaseUrl: String = servicesConfig.baseUrl(serviceName = "tax-enrolments")
 

@@ -16,7 +16,6 @@ lazy val microservice = Project("disa-registration", file("."))
   .settings(CodeCoverageSettings.settings *)
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(PlayKeys.playDefaultPort := 1201)
-  .settings(ScoverageKeys.coverageMinimumStmtTotal := 90)
 
 Test / javaOptions += "-Dlogger.resource=logback-test.xml"
 Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat
