@@ -28,14 +28,6 @@ object WiremockHelper extends Eventually with IntegrationPatience {
   val wiremockPort: Int    = 11111
   val wiremockHost: String = "localhost"
 
-  def stubGet(url: String, status: Integer, body: String): Unit =
-    stubFor(
-      get(urlEqualTo(url))
-        .willReturn(
-          aResponse().withStatus(status).withBody(body)
-        )
-    )
-
   def stubPost(url: String, status: Integer, responseBody: String): Unit =
     stubFor(
       post(urlEqualTo(url))
